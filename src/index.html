@@ -1417,12 +1417,12 @@
     ];
 
     var DOMAIN_INFO_ROOM = [
-      { name: '끈기력 아늑한 벽지 & 창문 커튼', badge: '끈기력 💎', icon: '🖼️', desc: '화사하고 아늑한 파스텔 룸 벽지와 햇살 창문 완성!' },
-      { name: '마음다스림 포근한 프린세스 침대', badge: '마음다스림 💎', icon: '🛏️', desc: '마음을 편안하게 감싸주는 폭신폭신 침구와 쿠션 세팅!' },
-      { name: '긍정마음 은은한 로즈 무드등', badge: '긍정마음 💎', icon: '💡', desc: '방 안을 따뜻하고 화사하게 밝혀주는 크리스탈 무드 램프 점등!' },
-      { name: '친화력 티타임 디저트 테이블', badge: '친화력 💎', icon: '🪑', desc: '친구들을 초대해 이야기를 나누는 예쁜 티테이블 & 의자 배치!' },
-      { name: '친구우정 다정한 테디베어 & 화분', badge: '친구우정 💎', icon: '🧸', desc: '언제나 곁을 지켜주는 포근한 곰인형과 초록 식물 장식!' },
-      { name: '당당자신감 반짝이는 페어리 라이트', badge: '당당자신감 💎', icon: '✨', desc: '꿈과 자신감이 퐁퐁 샘솟는 별빛 페어리 라이트 & 샹들리에!' }
+      { name: '끈기력 포근한 프린세스 침대', badge: '끈기력 💎', icon: '🛏️', desc: '폭신폭신한 매트리스와 러블리 퀼트 침구 완성!' },
+      { name: '마음다스림 크리스탈 무드등 & 협탁', badge: '마음다스림 💎', icon: '💡', desc: '방 안을 따뜻하게 비추는 크리스탈 로즈 무드 램프 점등!' },
+      { name: '긍정마음 티타임 테이블 & 의자 세트', badge: '긍정마음 💎', icon: '🪑', desc: '친구들과 도란도란 이야기를 나누는 디저트 티테이블 세트 배치!' },
+      { name: '친화력 다정한 테디베어 인형', badge: '친화력 💎', icon: '🧸', desc: '언제나 곁을 든든히 지켜주는 포근한 곰인형 친구 초대!' },
+      { name: '친구우정 감성 액자 & 싱그런 화분', badge: '친구우정 💎', icon: '🪴', desc: '방의 분위기를 살려주는 골드 갤러리 액자와 초록 식물 화분!' },
+      { name: '당당자신감 별빛 페어리 라이트 & 샹들리에', badge: '당당자신감 💎', icon: '✨', desc: '마법처럼 방 안을 수놓는 별빛 페어리 라이트와 샹들리에 점등!' }
     ];
 
     var DOMAIN_INFO = DOMAIN_INFO_CAR;
@@ -1987,20 +1987,20 @@
 
       // 1. 머티리얼 정의
       roomWallMat = new THREE.MeshStandardMaterial({
-        color: 0xFFF1F2,
+        color: 0xFFEBEF, // 은은하고 사랑스러운 베이비 핑크 벽지
         roughness: 0.65,
         metalness: 0.05
       });
 
       var woodFloorMat = new THREE.MeshStandardMaterial({
-        color: 0xF7EEDB,
-        roughness: 0.5,
-        metalness: 0.1
+        color: 0xDEB887, // 따뜻한 내추럴 원목 마루 톤
+        roughness: 0.45,
+        metalness: 0.08
       });
 
       var whiteMoldingMat = new THREE.MeshStandardMaterial({
         color: 0xFFFFFF,
-        roughness: 0.3
+        roughness: 0.25
       });
 
       bedLinenMat = new THREE.MeshStandardMaterial({
@@ -2010,7 +2010,7 @@
       });
 
       rugMat = new THREE.MeshStandardMaterial({
-        color: 0xFFE4E6,
+        color: 0xFCE7F3, // 부드러운 파스텔 벨벳 러그
         roughness: 0.85
       });
 
@@ -2020,7 +2020,7 @@
         roughness: 0.2
       });
 
-      // 디오라마 베이스 원기둥
+      // 디오라마 베이스 원기둥 (우드 플로어)
       var roomBase = new THREE.Mesh(
         new THREE.CylinderGeometry(6.5, 6.7, 0.12, 64),
         woodFloorMat
@@ -2029,8 +2029,8 @@
       roomBase.receiveShadow = true;
       roomGroup.add(roomBase);
 
-      // 드림하우스 전용 따스한 조명
-      var roomWarmLight = new THREE.DirectionalLight(0xFFE4E6, 1.2);
+      // 드림하우스 전용 화사하고 따스한 조명
+      var roomWarmLight = new THREE.DirectionalLight(0xFFE4E6, 1.4);
       roomWarmLight.position.set(5, 8, 5);
       roomWarmLight.castShadow = true;
       roomGroup.add(roomWarmLight);
@@ -2053,20 +2053,16 @@
       rugMesh.receiveShadow = true;
       roomGroup.add(rugMesh);
 
-      roomParts = [];
-
       // ========================================================
-      // Part 0: [1단계] 아늑한 벽지 & 창문 커튼
+      // 🌟 [기본 방 뼈대: 상시 표시] 아늑한 벽체 & 햇살 아치 창문 & 커튼
       // ========================================================
-      var p0 = new THREE.Group();
-      
       var backWall = new THREE.Mesh(
         createRoundedBox(4.6, 2.9, 0.12, 0.05, 0.01),
         roomWallMat
       );
       backWall.position.set(0.1, 1.45, -2.25);
       backWall.receiveShadow = true;
-      p0.add(backWall);
+      roomGroup.add(backWall);
 
       var leftWall = new THREE.Mesh(
         createRoundedBox(0.12, 2.9, 4.6, 0.05, 0.01),
@@ -2074,59 +2070,75 @@
       );
       leftWall.position.set(-2.2, 1.45, 0.05);
       leftWall.receiveShadow = true;
-      p0.add(leftWall);
+      roomGroup.add(leftWall);
 
+      // 하단 화이트 베이스 몰딩
       var moldBack = new THREE.Mesh(
         createRoundedBox(4.65, 0.45, 0.14, 0.02, 0.005),
         whiteMoldingMat
       );
       moldBack.position.set(0.1, 0.22, -2.24);
-      p0.add(moldBack);
+      roomGroup.add(moldBack);
 
       var moldLeft = new THREE.Mesh(
         createRoundedBox(0.14, 0.45, 4.65, 0.02, 0.005),
         whiteMoldingMat
       );
       moldLeft.position.set(-2.19, 0.22, 0.05);
-      p0.add(moldLeft);
+      roomGroup.add(moldLeft);
 
+      // 햇살 아치 창문 프레임 & 하늘
       var winFrame = new THREE.Mesh(
         createRoundedBox(1.5, 1.6, 0.08, 0.12, 0.01),
         whiteMoldingMat
       );
       winFrame.position.set(0.7, 1.7, -2.18);
-      p0.add(winFrame);
+      roomGroup.add(winFrame);
+
+      // 창살 격자 프레임
+      var winCrossH = new THREE.Mesh(
+        createRoundedBox(1.3, 0.04, 0.04, 0.01),
+        whiteMoldingMat
+      );
+      winCrossH.position.set(0.7, 1.7, -2.16);
+      roomGroup.add(winCrossH);
+
+      var winCrossV = new THREE.Mesh(
+        createRoundedBox(0.04, 1.4, 0.04, 0.01),
+        whiteMoldingMat
+      );
+      winCrossV.position.set(0.7, 1.7, -2.16);
+      roomGroup.add(winCrossV);
 
       var winSky = new THREE.Mesh(
         new THREE.PlaneGeometry(1.3, 1.4),
-        new THREE.MeshBasicMaterial({ color: 0xBAE6FD })
+        new THREE.MeshBasicMaterial({ color: 0x7DD3FC })
       );
-      winSky.position.set(0.7, 1.7, -2.16);
-      p0.add(winSky);
+      winSky.position.set(0.7, 1.7, -2.17);
+      roomGroup.add(winSky);
 
+      // 쉬폰 커튼
       var curtainMat = new THREE.MeshStandardMaterial({
         color: 0xFFFFFF,
         transparent: true,
-        opacity: 0.88,
+        opacity: 0.9,
         roughness: 0.6
       });
       var curL = new THREE.Mesh(createRoundedBox(0.35, 1.7, 0.05, 0.05), curtainMat);
       curL.position.set(0.1, 1.65, -2.12);
-      p0.add(curL);
+      roomGroup.add(curL);
 
       var curR = new THREE.Mesh(createRoundedBox(0.35, 1.7, 0.05, 0.05), curtainMat);
       curR.position.set(1.3, 1.65, -2.12);
-      p0.add(curR);
+      roomGroup.add(curR);
 
-      p0.visible = false;
-      roomGroup.add(p0);
-      roomParts.push(p0);
+      roomParts = [];
 
       // ========================================================
-      // Part 1: [2단계] 포근한 프린세스 침대
+      // Part 0: [1단계 언락] 포근한 프린세스 침대 세트
       // ========================================================
-      var p1 = new THREE.Group();
-      p1.position.set(-1.15, 0, -0.9);
+      var p0 = new THREE.Group();
+      p0.position.set(-1.15, 0, -0.9);
 
       var bedHead = new THREE.Mesh(
         createRoundedBox(1.4, 0.95, 0.1, 0.08, 0.01),
@@ -2134,7 +2146,7 @@
       );
       bedHead.position.set(0, 0.48, -1.1);
       bedHead.castShadow = true;
-      p1.add(bedHead);
+      p0.add(bedHead);
 
       var bedBase = new THREE.Mesh(
         createRoundedBox(1.35, 0.35, 2.2, 0.05, 0.01),
@@ -2142,14 +2154,14 @@
       );
       bedBase.position.set(0, 0.18, 0);
       bedBase.castShadow = true;
-      p1.add(bedBase);
+      p0.add(bedBase);
 
       var mattress = new THREE.Mesh(
         createRoundedBox(1.28, 0.22, 2.1, 0.04, 0.01),
         new THREE.MeshStandardMaterial({ color: 0xFFFFFF, roughness: 0.7 })
       );
       mattress.position.set(0, 0.38, 0);
-      p1.add(mattress);
+      p0.add(mattress);
 
       var quilt = new THREE.Mesh(
         createRoundedBox(1.32, 0.24, 1.5, 0.08, 0.02),
@@ -2157,7 +2169,7 @@
       );
       quilt.position.set(0, 0.42, 0.3);
       quilt.castShadow = true;
-      p1.add(quilt);
+      p0.add(quilt);
 
       var pillow1 = new THREE.Mesh(
         createRoundedBox(0.48, 0.12, 0.32, 0.05),
@@ -2165,7 +2177,7 @@
       );
       pillow1.position.set(-0.3, 0.52, -0.75);
       pillow1.rotation.x = -0.15;
-      p1.add(pillow1);
+      p0.add(pillow1);
 
       var pillow2 = new THREE.Mesh(
         createRoundedBox(0.48, 0.12, 0.32, 0.05),
@@ -2173,7 +2185,7 @@
       );
       pillow2.position.set(0.3, 0.52, -0.75);
       pillow2.rotation.x = -0.15;
-      p1.add(pillow2);
+      p0.add(pillow2);
 
       var heartCushion = new THREE.Mesh(
         createRoundedBox(0.28, 0.1, 0.28, 0.06),
@@ -2181,17 +2193,17 @@
       );
       heartCushion.position.set(0, 0.54, -0.45);
       heartCushion.rotation.z = Math.PI / 4;
-      p1.add(heartCushion);
+      p0.add(heartCushion);
 
-      p1.visible = false;
-      roomGroup.add(p1);
-      roomParts.push(p1);
+      p0.visible = true; // 인트로 프리뷰를 위해 초기 true
+      roomGroup.add(p0);
+      roomParts.push(p0);
 
       // ========================================================
-      // Part 2: [3단계] 은은한 크리스탈 무드 램프 & 협탁
+      // Part 1: [2단계 언락] 은은한 크리스탈 무드 램프 & 협탁
       // ========================================================
-      var p2 = new THREE.Group();
-      p2.position.set(-0.05, 0, -1.85);
+      var p1 = new THREE.Group();
+      p1.position.set(-0.05, 0, -1.85);
 
       var nightStand = new THREE.Mesh(
         createRoundedBox(0.55, 0.65, 0.55, 0.04, 0.01),
@@ -2199,40 +2211,40 @@
       );
       nightStand.position.set(0, 0.325, 0);
       nightStand.castShadow = true;
-      p2.add(nightStand);
+      p1.add(nightStand);
 
       var knob = new THREE.Mesh(new THREE.SphereGeometry(0.025, 12, 12), goldBrassMat);
       knob.position.set(0, 0.42, 0.28);
-      p2.add(knob);
+      p1.add(knob);
 
       var lampBase = new THREE.Mesh(new THREE.CylinderGeometry(0.12, 0.14, 0.03, 16), goldBrassMat);
       lampBase.position.set(0, 0.665, 0);
-      p2.add(lampBase);
+      p1.add(lampBase);
 
       var lampPole = new THREE.Mesh(new THREE.CylinderGeometry(0.02, 0.02, 0.32, 12), goldBrassMat);
       lampPole.position.set(0, 0.82, 0);
-      p2.add(lampPole);
+      p1.add(lampPole);
 
       var lampShade = new THREE.Mesh(
         new THREE.CylinderGeometry(0.14, 0.24, 0.24, 20, 1, true),
         new THREE.MeshStandardMaterial({ color: 0xFFE4E6, roughness: 0.3, transparent: true, opacity: 0.9 })
       );
       lampShade.position.set(0, 0.98, 0);
-      p2.add(lampShade);
+      p1.add(lampShade);
 
-      moodLight = new THREE.PointLight(0xFFAAA6, 0.0, 5.0);
+      moodLight = new THREE.PointLight(0xFFAAA6, 1.6, 5.0);
       moodLight.position.set(0, 0.95, 0);
-      p2.add(moodLight);
+      p1.add(moodLight);
 
-      p2.visible = false;
-      roomGroup.add(p2);
-      roomParts.push(p2);
+      p1.visible = true; // 인트로 프리뷰
+      roomGroup.add(p1);
+      roomParts.push(p1);
 
       // ========================================================
-      // Part 3: [4단계] 티타임 디저트 테이블 & 의자 세트
+      // Part 2: [3단계 언락] 티타임 디저트 테이블 & 의자 세트
       // ========================================================
-      var p3 = new THREE.Group();
-      p3.position.set(1.15, 0, 0.55);
+      var p2 = new THREE.Group();
+      p2.position.set(1.15, 0, 0.55);
 
       var tableTop = new THREE.Mesh(
         new THREE.CylinderGeometry(0.65, 0.65, 0.04, 32),
@@ -2240,15 +2252,15 @@
       );
       tableTop.position.set(0, 0.62, 0);
       tableTop.castShadow = true;
-      p3.add(tableTop);
+      p2.add(tableTop);
 
       var tableLeg = new THREE.Mesh(new THREE.CylinderGeometry(0.04, 0.06, 0.6, 16), goldBrassMat);
       tableLeg.position.set(0, 0.3, 0);
-      p3.add(tableLeg);
+      p2.add(tableLeg);
 
       var tableFoot = new THREE.Mesh(new THREE.CylinderGeometry(0.3, 0.3, 0.03, 24), goldBrassMat);
       tableFoot.position.set(0, 0.015, 0);
-      p3.add(tableFoot);
+      p2.add(tableFoot);
 
       [-0.75, 0.75].forEach(function(xOffset) {
         var chairGroup = new THREE.Group();
@@ -2274,7 +2286,7 @@
         cLeg.position.set(0, 0.19, 0);
         chairGroup.add(cLeg);
 
-        p3.add(chairGroup);
+        p2.add(chairGroup);
       });
 
       var teapot = new THREE.Mesh(
@@ -2282,23 +2294,23 @@
         new THREE.MeshStandardMaterial({ color: 0xFFFFFF, roughness: 0.2 })
       );
       teapot.position.set(0, 0.72, 0);
-      p3.add(teapot);
+      p2.add(teapot);
 
       var teacup1 = new THREE.Mesh(
         new THREE.CylinderGeometry(0.04, 0.03, 0.05, 12),
         new THREE.MeshStandardMaterial({ color: 0xFDE047, roughness: 0.2 })
       );
       teacup1.position.set(-0.25, 0.67, 0);
-      p3.add(teacup1);
+      p2.add(teacup1);
 
-      p3.visible = false;
-      roomGroup.add(p3);
-      roomParts.push(p3);
+      p2.visible = true; // 인트로 프리뷰
+      roomGroup.add(p2);
+      roomParts.push(p2);
 
       // ========================================================
-      // Part 4: [5단계] 다정한 테디베어 & 화분/액자
+      // Part 3: [4단계 언락] 다정한 테디베어(곰인형) 인형
       // ========================================================
-      var p4 = new THREE.Group();
+      var p3 = new THREE.Group();
 
       var teddyGroup = new THREE.Group();
       teddyGroup.position.set(-0.35, 0.18, 0.55);
@@ -2330,7 +2342,15 @@
       ribbon.position.set(0, 0.35, 0.15);
       teddyGroup.add(ribbon);
 
-      p4.add(teddyGroup);
+      p3.add(teddyGroup);
+      p3.visible = true; // 인트로 프리뷰
+      roomGroup.add(p3);
+      roomParts.push(p3);
+
+      // ========================================================
+      // Part 4: [5단계 언락] 감성 갤러리 액자 & 싱그런 화분
+      // ========================================================
+      var p4 = new THREE.Group();
 
       var frameMat = new THREE.MeshStandardMaterial({ color: 0xF59E0B, metalness: 0.8, roughness: 0.2 });
       var artFrame1 = new THREE.Mesh(createRoundedBox(0.65, 0.8, 0.04, 0.02), frameMat);
@@ -2364,12 +2384,12 @@
       }
       p4.add(potGroup);
 
-      p4.visible = false;
+      p4.visible = true; // 인트로 프리뷰
       roomGroup.add(p4);
       roomParts.push(p4);
 
       // ========================================================
-      // Part 5: [6단계] 별빛 페어리 라이트 & 샹들리에
+      // Part 5: [6단계 언락] 별빛 페어리 라이트 & 샹들리에
       // ========================================================
       var p5 = new THREE.Group();
 
@@ -2408,7 +2428,7 @@
       }
       p5.add(fairyGroup);
 
-      p5.visible = false;
+      p5.visible = true; // 인트로 프리뷰
       roomGroup.add(p5);
       roomParts.push(p5);
 
@@ -2460,9 +2480,20 @@
         tabRoom.classList.add('active');
         tabCar.classList.remove('active');
 
+        // 배경색을 화사하고 따뜻한 파스텔 핑크 스튜디오로 즉시 전환
+        if (scene) scene.background = new THREE.Color(0xFFEFF2);
+
         // 3D 씬 전환
         if (carGroup) carGroup.visible = false;
         if (roomGroup) roomGroup.visible = true;
+
+        // 인트로 상태에서는 완성된 드림하우스 프리뷰 표시
+        if (AppState.currentStep === 'intro' && roomParts) {
+          for (var rp = 0; rp < roomParts.length; rp++) {
+            if (roomParts[rp]) roomParts[rp].visible = true;
+          }
+          if (moodLight) moodLight.intensity = 1.6;
+        }
 
         hudBadge.textContent = 'MY DREAM ROOM';
         hudTitle.textContent = '🎀 러블리 드림하우스';
@@ -2496,12 +2527,15 @@
         updateHudPartsIcons(DOMAIN_INFO_ROOM);
 
         orbitAngleY = 0.78;
-        orbitAngleX = 0.32;
-        targetCameraLookAt.set(-0.2, 1.15, -0.2);
+        orbitAngleX = 0.30;
+        targetCameraLookAt.set(0.1, 1.15, -0.2);
       } else {
         document.body.classList.remove('theme-room-mode');
         tabCar.classList.add('active');
         tabRoom.classList.remove('active');
+
+        // 배경색을 사이버 다크 쇼룸 스튜디오로 복원
+        if (scene) scene.background = new THREE.Color(0x0A0D14);
 
         // 3D 씬 전환
         if (carGroup) carGroup.visible = true;
@@ -2700,6 +2734,16 @@
       AppState.currentQIndex = 0;
       AppState.userAnswers = [];
 
+      // 룸꾸미기 모드일 경우 모험 시작과 함께 1단계부터 언락되도록 가구 리셋
+      if (AppState.currentTheme === 'room') {
+        if (roomParts) {
+          for (var rp = 0; rp < roomParts.length; rp++) {
+            if (roomParts[rp]) roomParts[rp].visible = false;
+          }
+        }
+        if (moodLight) moodLight.intensity = 0.0;
+      }
+
       renderCurrentQuestion();
     });
 
@@ -2753,8 +2797,8 @@
         if (roomParts && roomParts[domainIndex]) {
           roomParts[domainIndex].visible = true;
         }
-        if (domainIndex === 2 && moodLight) {
-          moodLight.intensity = 1.8; // 3단계 크리스탈 무드등 밝게 점등!
+        if (domainIndex === 1 && moodLight) {
+          moodLight.intensity = 1.8; // 2단계 크리스탈 무드등 밝게 점등!
         }
       } else {
         // 슈퍼카 파츠 튜닝
@@ -2909,6 +2953,7 @@
       document.getElementById('introOverlay').classList.remove('hidden');
       document.getElementById('hudProgressCluster').style.display = 'none';
 
+      AppState.currentStep = 'intro';
       AppState.unlockedParts = [false, false, false, false, false, false];
       for (var p = 0; p < 6; p++) {
         var dot = document.getElementById('partDot' + p);
@@ -2919,13 +2964,13 @@
       if (underglowMesh) underglowMesh.material.opacity = 0.0;
       if (wheelRimMaterial) wheelRimMaterial.color.set(0xE2E8F0);
 
-      // 드림하우스 파츠 리셋
+      // 드림하우스 파츠 프리뷰 복원
       if (roomParts) {
         for (var rp = 0; rp < roomParts.length; rp++) {
-          roomParts[rp].visible = false;
+          roomParts[rp].visible = true;
         }
       }
-      if (moodLight) moodLight.intensity = 0.0;
+      if (moodLight) moodLight.intensity = 1.6;
     });
 
     // 윈도우 로드 시 Three.js 엔진 구동 및 동적 이벤트 초기화
