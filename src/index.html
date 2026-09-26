@@ -2306,7 +2306,7 @@
     var ambLight, keyLight, fillLight;
     var showroomGroup, carGroup, wheels = [];
     var carPaintMaterial, glassMaterial, wheelRimMaterial, brakeCaliperMaterial, carbonMat;
-    var spoilerWingGroup, underglowMesh, headlightLights = [];
+    var spoilerWingGroup, underglowMesh, underglowPointLight, headlightLights = [];
     var realisticModelLoaded = false;
 
     // 슈퍼카 커스텀 서브메쉬 참조
@@ -2317,6 +2317,32 @@
     var carHeadlightMeshes = [];
     var steeringWheelMesh = null;
     var frontWheels = [];
+
+    // 🌟 실사 페라리 고광채 네온 라이트 & 언더글로우 시스템 참조
+    var realisticHeadlightMat, realisticLedsMat, realisticTaillightMat;
+    var carHeadlightLights = [];
+    var carHeadlightFlares = [];
+    var showroomNeonRing;
+    var _radialGlowTexture = null;
+
+    // 🌟 하이퍼 네온 언더글로우 & 헤드라이트 코로나용 방사형 캔버스 텍스처 (전역 헬퍼)
+    function getRadialGlowTexture() {
+      if (_radialGlowTexture) return _radialGlowTexture;
+      if (typeof document === 'undefined') return null;
+      var cvs = document.createElement('canvas');
+      cvs.width = 256;
+      cvs.height = 256;
+      var c2d = cvs.getContext('2d');
+      var grad = c2d.createRadialGradient(128, 128, 10, 128, 128, 124);
+      grad.addColorStop(0, 'rgba(255, 255, 255, 1.0)');
+      grad.addColorStop(0.28, 'rgba(255, 255, 255, 0.85)');
+      grad.addColorStop(0.62, 'rgba(255, 255, 255, 0.35)');
+      grad.addColorStop(1.0, 'rgba(255, 255, 255, 0.0)');
+      c2d.fillStyle = grad;
+      c2d.fillRect(0, 0, 256, 256);
+      _radialGlowTexture = new THREE.CanvasTexture(cvs);
+      return _radialGlowTexture;
+    }
 
     // 휠 스타일 전용 특수 머티리얼
     var rimChromeMat, rimCyberMat, rimTurbineMat, cyberNeonRingMat, cyberSpokeMat, turbineBladeMat;
@@ -2476,10 +2502,10 @@
       // 네온 림 서클 (바닥을 감싸는 푸른 원형 네온)
       var ringGeom = new THREE.TorusGeometry(6.45, 0.035, 12, 64);
       var ringMat = new THREE.MeshBasicMaterial({ color: 0x06B6D4 });
-      var neonRing = new THREE.Mesh(ringGeom, ringMat);
-      neonRing.rotation.x = Math.PI / 2;
-      neonRing.position.y = 0.005;
-      showroomGroup.add(neonRing);
+      showroomNeonRing = new THREE.Mesh(ringGeom, ringMat);
+      showroomNeonRing.rotation.x = Math.PI / 2;
+      showroomNeonRing.position.y = 0.005;
+      showroomGroup.add(showroomNeonRing);
 
       // 천장 거대 소프트박스 조명 메쉬 (시각적 현실감 제공)
       var softboxGeom = createRoundedBox(3.8, 1.6, 0.08, 0.1, 0.02);
@@ -2881,16 +2907,21 @@
       spoilerWingGroup.visible = false; // 초기에는 미장착 상태
       carGroup.add(spoilerWingGroup);
 
-      // [J. 하이퍼 네온 언더글로우 (도메인 6 클리어 시 풀가동!)]
-      var underglowGeom = new THREE.PlaneGeometry(2.4, 4.2);
+      // [J. 하이퍼 네온 언더글로우]
+      var underglowGeom = new THREE.PlaneGeometry(3.6, 5.6);
       var underglowMat = new THREE.MeshBasicMaterial({
-        color: 0x06B6D4,
+        map: getRadialGlowTexture(),
+        color: 0x00F0FF,
         transparent: true,
-        opacity: 0.0
+        opacity: 0.95,
+        blending: THREE.AdditiveBlending,
+        depthWrite: false
       });
       underglowMesh = new THREE.Mesh(underglowGeom, underglowMat);
       underglowMesh.rotation.x = -Math.PI / 2;
-      underglowMesh.position.y = 0.02;
+      underglowMesh.position.y = 0.015;
+      underglowMesh.renderOrder = 3;
+      underglowMesh.visible = CustomStudioState.car.neonUnderglow;
       carGroup.add(underglowMesh);
 
       showroomGroup.add(carGroup);
@@ -2933,6 +2964,66 @@
 
           var glassMesh = ferrari.getObjectByName('glass');
           if (glassMesh) glassMesh.material = glassMaterial;
+
+          // 3-B. 🌟 실사 페라리 전면 헤드라이트, LED DRL, 후면 테일램프 고광채 머티리얼 바인딩
+          var curHlColor = new THREE.Color(CustomStudioState.car.headlightColor || '#00F0FF');
+
+          realisticHeadlightMat = new THREE.MeshStandardMaterial({
+            color: curHlColor,
+            emissive: curHlColor,
+            emissiveIntensity: 3.2,
+            roughness: 0.1,
+            metalness: 0.2
+          });
+          var lightsMesh = ferrari.getObjectByName('lights');
+          if (lightsMesh) lightsMesh.material = realisticHeadlightMat;
+
+          realisticLedsMat = new THREE.MeshStandardMaterial({
+            color: curHlColor,
+            emissive: curHlColor,
+            emissiveIntensity: 3.8,
+            roughness: 0.08,
+            metalness: 0.1
+          });
+          var ledsMesh = ferrari.getObjectByName('leds');
+          if (ledsMesh) ledsMesh.material = realisticLedsMat;
+
+          realisticTaillightMat = new THREE.MeshStandardMaterial({
+            color: 0xFF1830,
+            emissive: 0xFF0022,
+            emissiveIntensity: 2.4,
+            roughness: 0.15,
+            metalness: 0.2
+          });
+          var tailMesh = ferrari.getObjectByName('lights_red');
+          if (tailMesh) tailMesh.material = realisticTaillightMat;
+
+          // 3-C. 🌟 전방 헤드라이트 실제 광원(PointLight) & 눈부신 네온 코로나 플레어 바인딩
+          carHeadlightLights = [];
+          carHeadlightFlares = [];
+          [-0.72, 0.72].forEach(function(xOff) {
+            // 전방을 환하게 밝히는 헤드라이트 포인트 광원
+            var hlLight = new THREE.PointLight(curHlColor, 2.6, 6.5);
+            hlLight.position.set(xOff, 0.62, -1.82);
+            ferrari.add(hlLight);
+            carHeadlightLights.push(hlLight);
+
+            // 정면 렌즈 앞 눈부신 방사형 네온 광채 (Lens Flare Corona)
+            var flareGeom = new THREE.PlaneGeometry(0.38, 0.38);
+            var flareMat = new THREE.MeshBasicMaterial({
+              map: getRadialGlowTexture(),
+              color: curHlColor,
+              transparent: true,
+              opacity: 0.95,
+              blending: THREE.AdditiveBlending,
+              depthWrite: false
+            });
+            var flareMesh = new THREE.Mesh(flareGeom, flareMat);
+            flareMesh.position.set(xOff, 0.62, -1.88);
+            flareMesh.rotation.y = Math.PI;
+            ferrari.add(flareMesh);
+            carHeadlightFlares.push(flareMesh);
+          });
 
           // 4. 바퀴 회전 객체 리스트 갱신
           wheels = [];
@@ -2980,10 +3071,29 @@
             spoilerWingGroup.rotation.y = 0;
             ferrari.add(spoilerWingGroup);
           }
-          if (underglowMesh) {
-            underglowMesh.position.set(0, 0.02, 0);
-            ferrari.add(underglowMesh);
-          }
+
+          // 🌟 8. 실사 페라리 하이퍼 네온 언더글로우 메쉬 & 차체 하부 네온 광원 결합
+          var underglowGeom = new THREE.PlaneGeometry(3.6, 5.6);
+          var underglowMat = new THREE.MeshBasicMaterial({
+            map: getRadialGlowTexture(),
+            color: curHlColor,
+            transparent: true,
+            opacity: 0.95,
+            blending: THREE.AdditiveBlending,
+            depthWrite: false
+          });
+          underglowMesh = new THREE.Mesh(underglowGeom, underglowMat);
+          underglowMesh.rotation.x = -Math.PI / 2;
+          underglowMesh.position.y = 0.015;
+          underglowMesh.renderOrder = 3;
+          underglowMesh.visible = CustomStudioState.car.neonUnderglow;
+          ferrari.add(underglowMesh);
+
+          // 차체 하부 지면을 생생하게 물들이는 실제 네온 포인트 광원
+          underglowPointLight = new THREE.PointLight(curHlColor, 3.2, 5.5);
+          underglowPointLight.position.set(0, 0.18, 0);
+          underglowPointLight.visible = CustomStudioState.car.neonUnderglow;
+          ferrari.add(underglowPointLight);
 
           // 기존 임시 차체 교체
           carGroup.clear();
@@ -3842,15 +3952,60 @@
           carWingSubgroups[wk].visible = (wk === CustomStudioState.car.wingStyle);
         }
       }
-      if (carHeadlightMeshes && carHeadlightMeshes.length > 0) {
-        carHeadlightMeshes.forEach(function(m) {
-          if (m && m.material) m.material.color.set(CustomStudioState.car.headlightColor);
+      // 🌟 실사 페라리 & 프로시저럴 모델 라이트/네온 완벽 동기화
+      var chosenColor = new THREE.Color(CustomStudioState.car.headlightColor || '#00F0FF');
+      var isNeonOn = CustomStudioState.car.neonUnderglow;
+
+      // 1) 전면 프로젝터 렌즈
+      if (realisticHeadlightMat) {
+        realisticHeadlightMat.color.copy(chosenColor);
+        realisticHeadlightMat.emissive.copy(chosenColor);
+        realisticHeadlightMat.emissiveIntensity = 3.2;
+      }
+      // 2) 전면 DRL LED 아이라인
+      if (realisticLedsMat) {
+        realisticLedsMat.color.copy(chosenColor);
+        realisticLedsMat.emissive.copy(chosenColor);
+        realisticLedsMat.emissiveIntensity = 3.8;
+      }
+      // 3) 헤드라이트 실제 광원 포인트라이트
+      if (carHeadlightLights && carHeadlightLights.length > 0) {
+        carHeadlightLights.forEach(function(pl) {
+          if (pl) {
+            pl.color.copy(chosenColor);
+            pl.intensity = 2.6;
+          }
         });
       }
+      // 4) 헤드라이트 렌즈 앞 코로나 플레어 메쉬
+      if (carHeadlightFlares && carHeadlightFlares.length > 0) {
+        carHeadlightFlares.forEach(function(fl) {
+          if (fl && fl.material) {
+            fl.material.color.copy(chosenColor);
+          }
+        });
+      }
+      // 5) 프로시저럴 모델 폴백용 헤드라이트 메쉬
+      if (carHeadlightMeshes && carHeadlightMeshes.length > 0) {
+        carHeadlightMeshes.forEach(function(m) {
+          if (m && m.material) m.material.color.copy(chosenColor);
+        });
+      }
+      // 6) 언더글로우 네온 메쉬
       if (underglowMesh) {
-        underglowMesh.material.color.set(CustomStudioState.car.neonColor);
-        underglowMesh.visible = CustomStudioState.car.neonUnderglow;
-        underglowMesh.material.opacity = CustomStudioState.car.neonUnderglow ? 0.85 : 0.0;
+        underglowMesh.visible = isNeonOn;
+        underglowMesh.material.color.copy(chosenColor);
+        underglowMesh.material.opacity = isNeonOn ? 0.95 : 0.0;
+      }
+      // 7) 언더글로우 차체 하부 포인트라이트
+      if (underglowPointLight) {
+        underglowPointLight.visible = isNeonOn;
+        underglowPointLight.color.copy(chosenColor);
+        underglowPointLight.intensity = isNeonOn ? 3.5 : 0.0;
+      }
+      // 8) 쇼룸 바닥 원형 네온 링 동기화
+      if (showroomNeonRing && showroomNeonRing.material) {
+        showroomNeonRing.material.color.copy(chosenColor);
       }
       updateCertCustomSummary();
     }
@@ -4207,24 +4362,39 @@
           '<div class="studio-content-section ' + (currentTab === 'car-lights' ? 'active' : '') + '" id="sec-car-lights">',
           '  <div class="studio-options-grid">',
           '    <div class="studio-opt-btn ' + (CustomStudioState.car.headlightColor === '#00F0FF' ? 'active' : '') + '" onclick="setCarOption(\'headlightColor\', \'#00F0FF\')">',
-          '      <span class="studio-opt-icon">💎</span>',
+          '      <div style="width:24px; height:24px; border-radius:50%; background:#00F0FF; box-shadow:0 0 12px #00F0FF; border:2px solid #FFF;"></div>',
           '      <span class="studio-opt-title font-jua">사이언 레이저</span>',
-          '      <span class="studio-opt-sub">청량한 사이버 라이트</span>',
+          '      <span class="studio-opt-sub">청량한 미래 사이버 라이트</span>',
           '    </div>',
-          '    <div class="studio-opt-btn ' + (CustomStudioState.car.headlightColor === '#C084FC' ? 'active' : '') + '" onclick="setCarOption(\'headlightColor\', \'#C084FC\')">',
-          '      <span class="studio-opt-icon">🟣</span>',
+          '    <div class="studio-opt-btn ' + (CustomStudioState.car.headlightColor === '#A855F7' ? 'active' : '') + '" onclick="setCarOption(\'headlightColor\', \'#A855F7\')">',
+          '      <div style="width:24px; height:24px; border-radius:50%; background:#A855F7; box-shadow:0 0 12px #A855F7; border:2px solid #FFF;"></div>',
           '      <span class="studio-opt-title font-jua">울트라 바이올렛</span>',
-          '      <span class="studio-opt-sub">신비로운 보라 렌즈</span>',
+          '      <span class="studio-opt-sub">신비로운 사이버 보라 빔</span>',
+          '    </div>',
+          '    <div class="studio-opt-btn ' + (CustomStudioState.car.headlightColor === '#10B981' ? 'active' : '') + '" onclick="setCarOption(\'headlightColor\', \'#10B981\')">',
+          '      <div style="width:24px; height:24px; border-radius:50%; background:#10B981; box-shadow:0 0 12px #10B981; border:2px solid #FFF;"></div>',
+          '      <span class="studio-opt-title font-jua">레이저 에메랄드</span>',
+          '      <span class="studio-opt-sub">에일리언 네온 그린 빔</span>',
+          '    </div>',
+          '    <div class="studio-opt-btn ' + (CustomStudioState.car.headlightColor === '#EF4444' ? 'active' : '') + '" onclick="setCarOption(\'headlightColor\', \'#EF4444\')">',
+          '      <div style="width:24px; height:24px; border-radius:50%; background:#EF4444; box-shadow:0 0 12px #EF4444; border:2px solid #FFF;"></div>',
+          '      <span class="studio-opt-title font-jua">블레이징 레드</span>',
+          '      <span class="studio-opt-sub">붉은 야수 레이싱 빔</span>',
+          '    </div>',
+          '    <div class="studio-opt-btn ' + (CustomStudioState.car.headlightColor === '#F59E0B' ? 'active' : '') + '" onclick="setCarOption(\'headlightColor\', \'#F59E0B\')">',
+          '      <div style="width:24px; height:24px; border-radius:50%; background:#F59E0B; box-shadow:0 0 12px #F59E0B; border:2px solid #FFF;"></div>',
+          '      <span class="studio-opt-title font-jua">포뮬러 골드</span>',
+          '      <span class="studio-opt-sub">앰버 골드 제논 빔</span>',
           '    </div>',
           '    <div class="studio-opt-btn ' + (CustomStudioState.car.headlightColor === '#FFFFFF' ? 'active' : '') + '" onclick="setCarOption(\'headlightColor\', \'#FFFFFF\')">',
-          '      <span class="studio-opt-icon">⚪</span>',
+          '      <div style="width:24px; height:24px; border-radius:50%; background:#FFFFFF; box-shadow:0 0 12px #FFFFFF; border:2px solid #64748B;"></div>',
           '      <span class="studio-opt-title font-jua">제논 퓨어 화이트</span>',
           '      <span class="studio-opt-sub">선명한 다이아몬드 빛</span>',
           '    </div>',
           '    <div class="studio-opt-btn ' + (CustomStudioState.car.neonUnderglow ? 'active' : '') + '" onclick="toggleCarOption(\'neonUnderglow\')">',
           '      <span class="studio-opt-icon">🌈</span>',
-          '      <span class="studio-opt-title font-jua">네온 언더글로우</span>',
-          '      <span class="studio-opt-sub">' + (CustomStudioState.car.neonUnderglow ? '가동 중 (ON)' : '꺼짐 (OFF)') + '</span>',
+          '      <span class="studio-opt-title font-jua">하이퍼 언더글로우</span>',
+          '      <span class="studio-opt-sub">' + (CustomStudioState.car.neonUnderglow ? '바닥 네온 가동 (ON)' : '언더글로우 꺼짐 (OFF)') + '</span>',
           '    </div>',
           '  </div>',
           '</div>'
@@ -4289,11 +4459,11 @@
           targetCameraRadius = 4.2;
           targetCameraLookAt.set(0, 0.8, 1.85);
         } else if (partKey === 'lights') {
-          // 전면 헤드라이트 & 언더글로우 로우 뷰
-          targetOrbitAngleY = 3.14;
-          targetOrbitAngleX = 0.04;
-          targetCameraRadius = 4.8;
-          targetCameraLookAt.set(0, 0.35, -1.2);
+          // 전면 헤드라이트 & 바닥 언더글로우 네온 와이드 뷰
+          targetOrbitAngleY = 3.32;
+          targetOrbitAngleX = 0.08;
+          targetCameraRadius = 4.4;
+          targetCameraLookAt.set(0, 0.42, -1.1);
         }
       } else {
         // 드림하우스(룸꾸미기) 스마트 포커스
@@ -4381,7 +4551,16 @@
         showCustomNotification('🪽', '레이싱 윙 장착', wingLabels[val] || val);
         focusOnCustomPart('wing');
       } else if (key === 'headlightColor') {
-        showCustomNotification('💡', 'LED 라이트 색상', '헤드라이트 컬러 변경');
+        var hlNames = {
+          '#00F0FF': '사이언 레이저 빔',
+          '#A855F7': '울트라 바이올렛 빔',
+          '#10B981': '레이저 에메랄드 빔',
+          '#EF4444': '블레이징 레드 빔',
+          '#F59E0B': '포뮬러 골드 빔',
+          '#FFFFFF': '제논 퓨어 화이트 빔'
+        };
+        CustomStudioState.car.neonColor = val;
+        showCustomNotification('⚡', '네온 라이트 빔 전환', (hlNames[val] || val) + ' 풀가동!');
         focusOnCustomPart('lights');
       } else if (key === 'neonColor') {
         showCustomNotification('✨', '네온 언더글로우', '언더글로우 네온 컬러 변경');
@@ -4397,7 +4576,7 @@
         showCustomNotification('🏁', '레이싱 스트라이프', CustomStudioState.car.stripeDecal ? '스트라이프 장착' : '스트라이프 해제');
         focusOnCustomPart('paint');
       } else if (key === 'neonUnderglow') {
-        showCustomNotification('💡', '네온 언더글로우', CustomStudioState.car.neonUnderglow ? '언더글로우 활성화 (ON)' : '언더글로우 꺼짐 (OFF)');
+        showCustomNotification('🌈', '하이퍼 네온 언더글로우', CustomStudioState.car.neonUnderglow ? '바닥 레이저 네온 가동 (ON)' : '언더글로우 꺼짐 (OFF)');
         focusOnCustomPart('lights');
       }
       applyCarCustomization();
@@ -4723,12 +4902,23 @@
           }
         }
 
-        // 네온 언더글로우 펄스 (슈퍼카 - 파워온 시에만 펄스)
+        // 4. 🌟 하이퍼 네온 언더글로우 & 차체 하부 포인트라이트 숨쉬는 펄스
         if (underglowMesh && underglowMesh.material) {
-          if (isRunning && underglowMesh.material.opacity > 0) {
-            underglowMesh.material.opacity = 0.55 + Math.sin(elapsedTime * 6) * 0.15;
-          } else if (!isRunning) {
+          if (CustomStudioState.car.neonUnderglow) {
+            var pulse = 0.82 + Math.sin(elapsedTime * 3.2) * 0.15;
+            underglowMesh.material.opacity = pulse;
+            underglowMesh.visible = true;
+            if (underglowPointLight) {
+              underglowPointLight.intensity = 2.8 + Math.sin(elapsedTime * 3.2) * 0.8;
+              underglowPointLight.visible = true;
+            }
+          } else {
+            underglowMesh.visible = false;
             underglowMesh.material.opacity = 0.0;
+            if (underglowPointLight) {
+              underglowPointLight.visible = false;
+              underglowPointLight.intensity = 0.0;
+            }
           }
         }
 
