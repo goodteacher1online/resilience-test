@@ -724,7 +724,7 @@
         -webkit-print-color-adjust: exact !important;
         print-color-adjust: exact !important;
       }
-      #canvas-container, .top-hud, .car-color-picker-bar, .viewport-orbit-hint, .gameplay-hud-container, .part-toast-popup, #introOverlay, #resultOverlay {
+      #canvas-container, .top-hud, .car-color-picker-bar, .viewport-orbit-hint, .gameplay-hud-container, .part-toast-popup, #introOverlay, #resultOverlay, .custom-studio-trigger-btn, .custom-studio-drawer, .studio-return-bar {
         display: none !important;
         visibility: hidden !important;
       }
@@ -1030,6 +1030,300 @@
       box-shadow: 0 0 2px rgba(220, 38, 38, 0.4);
       pointer-events: none;
     }
+
+    /* ============================================================
+       🌟 3D 자유 커스텀 스튜디오 (Custom Studio Drawer & UI)
+       ============================================================ */
+    .custom-studio-trigger-btn {
+      position: fixed;
+      bottom: 24px;
+      left: 28px;
+      z-index: 40;
+      background: linear-gradient(135deg, #06B6D4 0%, #3B82F6 100%);
+      color: #FFFFFF;
+      border: 2px solid rgba(255, 255, 255, 0.4);
+      padding: 11px 22px;
+      border-radius: 26px;
+      font-family: 'Jua', sans-serif;
+      font-size: 15px;
+      font-weight: 800;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      box-shadow: 0 10px 28px rgba(6, 182, 212, 0.45);
+      transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+    .custom-studio-trigger-btn:hover {
+      transform: translateY(-4px) scale(1.04);
+      box-shadow: 0 14px 34px rgba(6, 182, 212, 0.6);
+      border-color: #FFFFFF;
+    }
+    body.theme-room-mode .custom-studio-trigger-btn {
+      background: linear-gradient(135deg, #FB7185 0%, #E11D48 100%);
+      box-shadow: 0 10px 28px rgba(251, 113, 133, 0.5);
+    }
+
+    .custom-studio-drawer {
+      position: fixed;
+      bottom: 0;
+      left: 50%;
+      transform: translateX(-50%) translateY(115%);
+      width: 95%;
+      max-width: 940px;
+      max-height: 48vh;
+      z-index: 55;
+      background: rgba(15, 23, 42, 0.95);
+      backdrop-filter: blur(26px);
+      border: 1.5px solid rgba(255, 255, 255, 0.16);
+      border-bottom: none;
+      border-radius: 30px 30px 0 0;
+      padding: 20px 28px 24px 28px;
+      box-shadow: 0 -20px 60px rgba(0, 0, 0, 0.7);
+      transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+      overflow-y: auto;
+    }
+    .custom-studio-drawer.open {
+      transform: translateX(-50%) translateY(0);
+    }
+    body.theme-room-mode .custom-studio-drawer {
+      background: rgba(255, 255, 255, 0.96);
+      border-color: rgba(251, 113, 133, 0.35);
+      box-shadow: 0 -20px 50px rgba(251, 113, 133, 0.25);
+    }
+
+    .studio-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+      padding-bottom: 10px;
+    }
+    body.theme-room-mode .studio-header {
+      border-bottom-color: rgba(251, 113, 133, 0.2);
+    }
+    .studio-title-wrap {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .studio-title {
+      font-size: 19px;
+      font-weight: 900;
+      color: #F8FAFC;
+    }
+    body.theme-room-mode .studio-title {
+      color: #9F1239;
+    }
+    .studio-close-btn {
+      background: rgba(255, 255, 255, 0.1);
+      border: none;
+      color: #94A3B8;
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 16px;
+      font-weight: 900;
+      transition: all 0.2s;
+    }
+    .studio-close-btn:hover {
+      background: rgba(255, 255, 255, 0.2);
+      color: #FFFFFF;
+      transform: rotate(90deg);
+    }
+    body.theme-room-mode .studio-close-btn {
+      background: rgba(251, 113, 133, 0.15);
+      color: #E11D48;
+    }
+
+    .studio-tab-bar {
+      display: flex;
+      gap: 8px;
+      overflow-x: auto;
+      padding-bottom: 4px;
+    }
+    .studio-tab-pill {
+      padding: 7px 16px;
+      border-radius: 16px;
+      background: rgba(30, 41, 59, 0.7);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      color: #94A3B8;
+      font-family: 'Jua', sans-serif;
+      font-size: 13.5px;
+      cursor: pointer;
+      white-space: nowrap;
+      transition: all 0.2s;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .studio-tab-pill:hover {
+      color: #FFFFFF;
+      background: rgba(51, 65, 85, 0.9);
+    }
+    .studio-tab-pill.active {
+      background: linear-gradient(135deg, #06B6D4, #3B82F6);
+      color: #FFFFFF;
+      border-color: rgba(255, 255, 255, 0.3);
+      box-shadow: 0 4px 12px rgba(6, 182, 212, 0.4);
+    }
+    body.theme-room-mode .studio-tab-pill {
+      background: rgba(255, 241, 242, 0.85);
+      border-color: rgba(251, 113, 133, 0.2);
+      color: #881337;
+    }
+    body.theme-room-mode .studio-tab-pill.active {
+      background: linear-gradient(135deg, #FB7185, #E11D48);
+      color: #FFFFFF;
+      box-shadow: 0 4px 12px rgba(251, 113, 133, 0.4);
+    }
+
+    .studio-content-section {
+      display: none;
+    }
+    .studio-content-section.active {
+      display: block;
+      animation: fadeIn 0.25s ease;
+    }
+    @keyframes fadeIn {
+      0% { opacity: 0; transform: translateY(6px); }
+      100% { opacity: 1; transform: translateY(0); }
+    }
+
+    .studio-options-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(135px, 1fr));
+      gap: 10px;
+    }
+    .studio-opt-btn {
+      background: rgba(30, 41, 59, 0.6);
+      border: 1.5px solid rgba(255, 255, 255, 0.12);
+      border-radius: 18px;
+      padding: 12px 10px;
+      cursor: pointer;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      gap: 5px;
+      transition: all 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+    .studio-opt-btn:hover {
+      transform: translateY(-3px);
+      border-color: #38BDF8;
+      background: rgba(51, 65, 85, 0.8);
+    }
+    .studio-opt-btn.active {
+      border-color: #38BDF8;
+      background: rgba(6, 182, 212, 0.22);
+      box-shadow: 0 0 16px rgba(56, 189, 248, 0.4);
+      transform: scale(1.03);
+    }
+    body.theme-room-mode .studio-opt-btn {
+      background: #FFF1F2;
+      border-color: rgba(251, 113, 133, 0.25);
+    }
+    body.theme-room-mode .studio-opt-btn:hover {
+      border-color: #E11D48;
+      background: #FFE4E6;
+    }
+    body.theme-room-mode .studio-opt-btn.active {
+      border-color: #E11D48;
+      background: #FFE4E6;
+      box-shadow: 0 0 16px rgba(225, 29, 72, 0.35);
+    }
+    .studio-opt-icon {
+      font-size: 26px;
+      line-height: 1;
+    }
+    .studio-opt-title {
+      font-size: 13px;
+      font-weight: 800;
+      color: #F8FAFC;
+    }
+    body.theme-room-mode .studio-opt-title {
+      color: #881337;
+    }
+    .studio-opt-sub {
+      font-size: 11px;
+      color: #94A3B8;
+      font-weight: 600;
+    }
+    body.theme-room-mode .studio-opt-sub {
+      color: #9F1239;
+      opacity: 0.75;
+    }
+
+    /* 결과 모달에서 스튜디오 진입 시 상단에 뜨는 수료증 복귀 플로팅 바 */
+    .studio-return-bar {
+      position: fixed;
+      top: 24px;
+      right: 28px;
+      z-index: 50;
+      display: none;
+      align-items: center;
+      gap: 10px;
+    }
+    .studio-return-bar.active {
+      display: flex;
+      animation: fadeIn 0.3s ease;
+    }
+    .btn-return-cert {
+      background: linear-gradient(135deg, #10B981, #059669);
+      color: #FFFFFF;
+      border: 2px solid rgba(255, 255, 255, 0.3);
+      padding: 10px 20px;
+      border-radius: 22px;
+      font-family: 'Jua', sans-serif;
+      font-size: 15px;
+      font-weight: 900;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      box-shadow: 0 8px 24px rgba(16, 185, 129, 0.4);
+      transition: all 0.25s;
+    }
+    .btn-return-cert:hover {
+      transform: translateY(-3px) scale(1.03);
+      box-shadow: 0 12px 30px rgba(16, 185, 129, 0.6);
+    }
+
+    /* 수료증 내 커스텀 스타일 요약 배너 */
+    .cert-custom-summary-box {
+      margin: 10px 0 14px 0;
+      padding: 7px 14px;
+      background: #F8FAFC;
+      border: 1px dashed #CBD5E1;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 11.5px;
+      color: #334155;
+    }
+    .cert-summary-icon {
+      font-size: 15px;
+    }
+    .cert-summary-title {
+      font-weight: 800;
+      color: #0F172A;
+      white-space: nowrap;
+    }
+    .cert-summary-desc {
+      font-weight: 600;
+      color: #0284C7;
+    }
+    body.theme-room-mode .cert-summary-desc {
+      color: #E11D48;
+    }
   </style>
 </head>
 <body>
@@ -1062,16 +1356,38 @@
     </div>
   </div>
 
-  <!-- 3. 실시간 컬러 커스터마이저 (하단 좌측) -->
-  <div class="car-color-picker-bar" id="colorPickerBar">
-    <span class="color-picker-title font-jua" id="colorPickerTitle">차체 컬러</span>
-    <div id="swatchListWrapper" style="display:flex; gap:8px;">
-      <div class="color-swatch active" style="background: #E11D48;" data-color="#E11D48" title="크림슨 레드"></div>
-      <div class="color-swatch" style="background: #06B6D4;" data-color="#06B6D4" title="사이버 사이언"></div>
-      <div class="color-swatch" style="background: #EAB308;" data-color="#EAB308" title="레이싱 옐로우"></div>
-      <div class="color-swatch" style="background: #8B5CF6;" data-color="#8B5CF6" title="네온 바이올렛"></div>
-      <div class="color-swatch" style="background: #18181B;" data-color="#18181B" title="팬텀 블랙"></div>
-      <div class="color-swatch" style="background: #F8FAFC;" data-color="#F8FAFC" title="티타늄 화이트"></div>
+  <!-- 상단 수료증 복귀 플로팅 바 (결과 모달에서 스튜디오 진입 시 노출) -->
+  <div class="studio-return-bar" id="studioReturnBar">
+    <button type="button" class="btn-return-cert" id="btnBackToResultCert">
+      <span>📄</span>
+      <span>수료증 확인 / 인쇄하기</span>
+    </button>
+  </div>
+
+  <!-- 3. 3D 커스텀 스튜디오 열기 플로팅 버튼 (하단 좌측) -->
+  <button type="button" class="custom-studio-trigger-btn" id="btnToggleStudio">
+    <span id="studioBtnIcon">🎨</span>
+    <span id="studioBtnText">스타일 스튜디오 꾸미기</span>
+  </button>
+
+  <!-- 🌟 3D 자유 커스텀 스튜디오 드로어 -->
+  <div class="custom-studio-drawer" id="customStudioDrawer">
+    <div class="studio-header">
+      <div class="studio-title-wrap">
+        <span style="font-size: 24px;" id="studioHeaderEmoji">🎨</span>
+        <span class="studio-title font-jua" id="studioHeaderTitle">3D 하이퍼 튜닝 스튜디오</span>
+      </div>
+      <button type="button" class="studio-close-btn" id="btnCloseStudio" title="닫기">✕</button>
+    </div>
+
+    <!-- 탭 네비게이션 -->
+    <div class="studio-tab-bar" id="studioTabBar">
+      <!-- JS에서 테마별 동적 탭 구성 -->
+    </div>
+
+    <!-- 탭 옵션 콘텐츠 영역 -->
+    <div id="studioTabContentArea">
+      <!-- JS에서 테마별 동적 옵션 카드 그리드 렌더링 -->
     </div>
   </div>
 
@@ -1223,9 +1539,12 @@
         </div>
       </div>
 
-      <div class="result-actions-row">
-        <button type="button" class="btn-cyber-primary font-jua" id="btnPrintCert" style="width: auto; padding: 13px 30px;">
+      <div class="result-actions-row" style="flex-wrap: wrap;">
+        <button type="button" class="btn-cyber-primary font-jua" id="btnPrintCert" style="width: auto; padding: 13px 26px;">
           🖨️ 수료증 인쇄 / PDF 저장
+        </button>
+        <button type="button" class="btn-action-outline font-jua" id="btnOpenFreeStudio" style="border-color: #38BDF8; color: #38BDF8; background: rgba(56, 189, 248, 0.1);">
+          🎨 내 작품 더 꾸미기 (자유 스튜디오)
         </button>
         <button type="button" class="btn-action-outline font-jua" id="btnRestart">
           🔄 다시 모험하기
@@ -1279,6 +1598,13 @@
           어떠한 난관이나 실패 앞에서도 오뚝이처럼 툭툭 털고 다시 일어나는 강인하고 건강한 회복탄력성(마음 근육)을
           훌륭하게 증명하였으므로, 미래를 힘차게 질주할 자랑스러운 슈퍼 파일럿으로 인정하며 이 수료증을 수여합니다.
         </p>
+      </div>
+
+      <!-- 나만의 커스텀 스타일 요약 배너 -->
+      <div class="cert-custom-summary-box" id="certCustomSummaryPrint">
+        <span class="cert-summary-icon" id="certSummaryIcon">✨</span>
+        <span class="cert-summary-title">나만의 커스텀 완성:</span>
+        <span class="cert-summary-desc font-jua" id="certCustomSummaryText">🏎️ 크림슨 레드 | 🛞 5-스포크 레이싱 알로이 | 🦅 GT 카본 윙 | ⚡ 사이언 블루 빔</span>
       </div>
 
       <!-- 6대 역량 정밀 진단 대시보드 리포트 -->
@@ -1445,15 +1771,48 @@
       }
     };
 
+    // 🌟 3D 자유 커스텀 스튜디오 상세 상태 관리
+    var CustomStudioState = {
+      room: {
+        theme: 'pink',      // 'pink', 'mint', 'lavender', 'check'
+        windowView: 'day',  // 'day', 'night'
+        bedStyle: 'canopy', // 'canopy', 'cloud', 'wood'
+        petStyle: 'bear',   // 'bear', 'cat', 'rabbit'
+        lampStyle: 'moon',  // 'moon', 'mushroom', 'crystal'
+        neonHeart: true,
+        sparkles: true
+      },
+      car: {
+        color: '#E11D48',
+        wheelStyle: 'spoke', // 'spoke', 'cyber', 'turbine'
+        wingStyle: 'gt',     // 'gt', 'shark', 'ducktail'
+        stripeDecal: true,
+        headlightColor: '#00F0FF',
+        neonUnderglow: true,
+        neonColor: '#06B6D4'
+      }
+    };
+
     var scene, camera, renderer;
     var showroomGroup, carGroup, wheels = [];
     var carPaintMaterial, glassMaterial, wheelRimMaterial, brakeCaliperMaterial, carbonMat;
     var spoilerWingGroup, underglowMesh, headlightLights = [];
     var realisticModelLoaded = false;
 
+    // 슈퍼카 커스텀 서브메쉬 참조
+    var carStripeDecal;
+    var carWheelSubgroups = []; // 각 휠별 { spoke, cyber, turbine }
+    var carWingSubgroups = {};   // { gt, shark, ducktail }
+    var carHeadlightMeshes = [];
+
     // 드림하우스(룸꾸미기) 전역 3D 객체
     var roomGroup, roomParts = [];
-    var roomWallMat, bedLinenMat, rugMat, moodLight, fairyGroup, fairyStars = [];
+    var roomWallMat, woodFloorMat, rugMat, moodLight, fairyGroup, fairyStars = [];
+    var roomBaseMesh, backWallMesh, leftWallMesh, winSkyMesh, curLMesh, curRMesh, winStarsGroup;
+    var bedSubgroups = {};       // { canopy, cloud, wood }
+    var petSubgroups = {};       // { bear, cat, rabbit }
+    var lampSubgroups = {};      // { moon, mushroom, crystal }
+    var roomNeonHeartMesh;
 
     // Car Visualizer 스타일 다이내믹 전면 쿼터뷰 구도
     var targetCameraPos = new THREE.Vector3(3.8, 1.6, -3.8);
@@ -1776,6 +2135,27 @@
       hlRight.position.set(0.75, 0.62, 2.05);
       hlRight.rotation.y = -0.18;
       carGroup.add(hlRight);
+      carHeadlightMeshes = [hlLeft, hlRight];
+
+      // 🌟 [레이싱 더블 스트라이프 데칼 메쉬]
+      carStripeDecal = new THREE.Group();
+      var stripeMat = new THREE.MeshStandardMaterial({
+        color: 0xFFFFFF,
+        roughness: 0.2,
+        metalness: 0.1
+      });
+      [-0.22, 0.22].forEach(function(xOff) {
+        var sHood = new THREE.Mesh(createRoundedBox(0.12, 0.02, 1.75, 0.01), stripeMat);
+        sHood.position.set(xOff, 0.74, 1.25);
+        sHood.rotation.x = 0.08;
+        carStripeDecal.add(sHood);
+
+        var sRoof = new THREE.Mesh(createRoundedBox(0.12, 0.02, 1.95, 0.01), stripeMat);
+        sRoof.position.set(xOff, 1.24, -0.2);
+        carStripeDecal.add(sRoof);
+      });
+      carStripeDecal.visible = CustomStudioState.car.stripeDecal;
+      carGroup.add(carStripeDecal);
 
       // 리어 수평 일자형 LED 테일램프
       var tailLensMat = new THREE.MeshBasicMaterial({ color: 0xEF4444 });
@@ -1786,8 +2166,9 @@
       tailBar.position.set(0, 0.66, -2.18);
       carGroup.add(tailBar);
 
-      // [H. 고성능 알루미늄 스포츠 바퀴 4개]
+      // [H. 고성능 3대 스포츠 휠 스타일 (5-스포크 / 사이버 림 / 에어로 터빈)]
       wheels = [];
+      carWheelSubgroups = [];
       var wheelPositions = [
         [-1.08, 0.38, 1.25],   // 전륜 좌
         [1.08, 0.38, 1.25],    // 전륜 우
@@ -1811,7 +2192,7 @@
         tireMesh.castShadow = true;
         wGroup.add(tireMesh);
 
-        // 크롬 알루미늄 림
+        // 크롬 알루미늄 림 베이스
         var rimMesh = new THREE.Mesh(
           new THREE.CylinderGeometry(0.26, 0.26, 0.285, 24),
           wheelRimMaterial
@@ -1819,7 +2200,8 @@
         rimMesh.rotation.z = Math.PI / 2;
         wGroup.add(rimMesh);
 
-        // 5스포크 레이싱 살
+        // 🌟 1) 5-스포크 레이싱 알로이 (spoke)
+        var spokeGroup = new THREE.Group();
         for (var sp = 0; sp < 5; sp++) {
           var spoke = new THREE.Mesh(
             createRoundedBox(0.045, 0.22, 0.02, 0.01, 0.002),
@@ -1827,8 +2209,47 @@
           );
           spoke.rotation.x = (sp * Math.PI * 2) / 5;
           spoke.position.set(-0.13, 0, 0);
-          wGroup.add(spoke);
+          spokeGroup.add(spoke);
         }
+        wGroup.add(spokeGroup);
+
+        // 🌟 2) 사이버 LED 림 스타일 (cyber)
+        var cyberGroup = new THREE.Group();
+        var cyberRing = new THREE.Mesh(
+          new THREE.TorusGeometry(0.22, 0.02, 12, 32),
+          new THREE.MeshBasicMaterial({ color: 0x06B6D4 })
+        );
+        cyberRing.position.set(-0.13, 0, 0);
+        cyberRing.rotation.y = Math.PI / 2;
+        cyberGroup.add(cyberRing);
+        for (var csp = 0; csp < 3; csp++) {
+          var cSpoke = new THREE.Mesh(
+            createRoundedBox(0.03, 0.21, 0.02, 0.005),
+            new THREE.MeshBasicMaterial({ color: 0xE0F2FE })
+          );
+          cSpoke.rotation.x = (csp * Math.PI * 2) / 3;
+          cSpoke.position.set(-0.13, 0, 0);
+          cyberGroup.add(cSpoke);
+        }
+        cyberGroup.visible = false;
+        wGroup.add(cyberGroup);
+
+        // 🌟 3) 에어로 터빈 블레이드 (turbine)
+        var turbineGroup = new THREE.Group();
+        for (var tb = 0; tb < 8; tb++) {
+          var tBlade = new THREE.Mesh(
+            createRoundedBox(0.035, 0.22, 0.015, 0.005),
+            new THREE.MeshStandardMaterial({ color: 0x64748B, metalness: 0.95, roughness: 0.15 })
+          );
+          tBlade.rotation.x = (tb * Math.PI * 2) / 8;
+          tBlade.rotation.y = 0.28;
+          tBlade.position.set(-0.13, 0, 0);
+          turbineGroup.add(tBlade);
+        }
+        turbineGroup.visible = false;
+        wGroup.add(turbineGroup);
+
+        carWheelSubgroups.push({ spoke: spokeGroup, cyber: cyberGroup, turbine: turbineGroup });
 
         // 브레이크 디스크 & 레드 캘리퍼
         var diskMesh = new THREE.Mesh(
@@ -1850,10 +2271,12 @@
         wheels.push(wGroup);
       }
 
-      // [I. GT 레이싱 리어 윙 스포일러 (도메인 5 클리어 시 장착!)]
+      // [I. 3대 리어 스포일러 윙 스타일 (GT 더블 윙 / 샤크핀 / 덕테일)]
       spoilerWingGroup = new THREE.Group();
       spoilerWingGroup.position.set(0, 0.96, -1.95);
 
+      // 🌟 1) GT 카본 더블 윙 (gt)
+      var wingGtGroup = new THREE.Group();
       var wingBlade = new THREE.Mesh(
         createRoundedBox(2.1, 0.06, 0.42, 0.05, 0.01),
         carbonMat
@@ -1861,20 +2284,44 @@
       wingBlade.position.y = 0.32;
       wingBlade.rotation.x = -0.12;
       wingBlade.castShadow = true;
-      spoilerWingGroup.add(wingBlade);
+      wingGtGroup.add(wingBlade);
 
-      // 스포일러 지지대 2개
       var stayGeom = new THREE.CylinderGeometry(0.025, 0.035, 0.34, 12);
       var stayL = new THREE.Mesh(stayGeom, carbonMat);
       stayL.position.set(-0.6, 0.15, 0);
       stayL.rotation.z = -0.15;
-      spoilerWingGroup.add(stayL);
+      wingGtGroup.add(stayL);
 
       var stayR = new THREE.Mesh(stayGeom, carbonMat);
       stayR.position.set(0.6, 0.15, 0);
       stayR.rotation.z = 0.15;
-      spoilerWingGroup.add(stayR);
+      wingGtGroup.add(stayR);
+      spoilerWingGroup.add(wingGtGroup);
 
+      // 🌟 2) 샤크핀 에어로 핀 (shark)
+      var wingSharkGroup = new THREE.Group();
+      var sharkFin = new THREE.Mesh(
+        createRoundedBox(0.08, 0.52, 1.4, 0.03, 0.01),
+        carbonMat
+      );
+      sharkFin.position.set(0, 0.26, 0.3);
+      wingSharkGroup.add(sharkFin);
+      wingSharkGroup.visible = false;
+      spoilerWingGroup.add(wingSharkGroup);
+
+      // 🌟 3) 스텔스 와이드 덕테일 (ducktail)
+      var wingDucktailGroup = new THREE.Group();
+      var ducktail = new THREE.Mesh(
+        createRoundedBox(1.95, 0.22, 0.32, 0.05, 0.01),
+        carbonMat
+      );
+      ducktail.position.set(0, 0.05, -0.05);
+      ducktail.rotation.x = -0.28;
+      wingDucktailGroup.add(ducktail);
+      wingDucktailGroup.visible = false;
+      spoilerWingGroup.add(wingDucktailGroup);
+
+      carWingSubgroups = { gt: wingGtGroup, shark: wingSharkGroup, ducktail: wingDucktailGroup };
       spoilerWingGroup.visible = false; // 초기에는 미장착 상태
       carGroup.add(spoilerWingGroup);
 
@@ -1985,14 +2432,14 @@
       roomGroup = new THREE.Group();
       roomGroup.position.set(0, 0, 0);
 
-      // 1. 머티리얼 정의
+      // 1. 기본 머티리얼 정의
       roomWallMat = new THREE.MeshStandardMaterial({
         color: 0xFFEBEF, // 은은하고 사랑스러운 베이비 핑크 벽지
         roughness: 0.65,
         metalness: 0.05
       });
 
-      var woodFloorMat = new THREE.MeshStandardMaterial({
+      woodFloorMat = new THREE.MeshStandardMaterial({
         color: 0xDEB887, // 따뜻한 내추럴 원목 마루 톤
         roughness: 0.45,
         metalness: 0.08
@@ -2021,13 +2468,13 @@
       });
 
       // 디오라마 베이스 원기둥 (우드 플로어)
-      var roomBase = new THREE.Mesh(
+      roomBaseMesh = new THREE.Mesh(
         new THREE.CylinderGeometry(6.5, 6.7, 0.12, 64),
         woodFloorMat
       );
-      roomBase.position.y = -0.06;
-      roomBase.receiveShadow = true;
-      roomGroup.add(roomBase);
+      roomBaseMesh.position.y = -0.06;
+      roomBaseMesh.receiveShadow = true;
+      roomGroup.add(roomBaseMesh);
 
       // 드림하우스 전용 화사하고 따스한 조명
       var roomWarmLight = new THREE.DirectionalLight(0xFFE4E6, 1.4);
@@ -2056,21 +2503,21 @@
       // ========================================================
       // 🌟 [기본 방 뼈대: 상시 표시] 아늑한 벽체 & 햇살 아치 창문 & 커튼
       // ========================================================
-      var backWall = new THREE.Mesh(
+      backWallMesh = new THREE.Mesh(
         createRoundedBox(4.6, 2.9, 0.12, 0.05, 0.01),
         roomWallMat
       );
-      backWall.position.set(0.1, 1.45, -2.25);
-      backWall.receiveShadow = true;
-      roomGroup.add(backWall);
+      backWallMesh.position.set(0.1, 1.45, -2.25);
+      backWallMesh.receiveShadow = true;
+      roomGroup.add(backWallMesh);
 
-      var leftWall = new THREE.Mesh(
+      leftWallMesh = new THREE.Mesh(
         createRoundedBox(0.12, 2.9, 4.6, 0.05, 0.01),
         roomWallMat
       );
-      leftWall.position.set(-2.2, 1.45, 0.05);
-      leftWall.receiveShadow = true;
-      roomGroup.add(leftWall);
+      leftWallMesh.position.set(-2.2, 1.45, 0.05);
+      leftWallMesh.receiveShadow = true;
+      roomGroup.add(leftWallMesh);
 
       // 하단 화이트 베이스 몰딩
       var moldBack = new THREE.Mesh(
@@ -2110,12 +2557,31 @@
       winCrossV.position.set(0.7, 1.7, -2.16);
       roomGroup.add(winCrossV);
 
-      var winSky = new THREE.Mesh(
+      winSkyMesh = new THREE.Mesh(
         new THREE.PlaneGeometry(1.3, 1.4),
         new THREE.MeshBasicMaterial({ color: 0x7DD3FC })
       );
-      winSky.position.set(0.7, 1.7, -2.17);
-      roomGroup.add(winSky);
+      winSkyMesh.position.set(0.7, 1.7, -2.17);
+      roomGroup.add(winSkyMesh);
+
+      // 창밖 밤하늘용 작은 초승달 & 별빛들 (night 뷰 전용)
+      winStarsGroup = new THREE.Group();
+      var winCrescent = new THREE.Mesh(
+        new THREE.TorusGeometry(0.1, 0.025, 8, 20, Math.PI * 1.3),
+        new THREE.MeshBasicMaterial({ color: 0xFDE047 })
+      );
+      winCrescent.position.set(0.95, 2.05, -2.16);
+      winStarsGroup.add(winCrescent);
+      for (var ws = 0; ws < 6; ws++) {
+        var miniStar = new THREE.Mesh(
+          new THREE.OctahedronGeometry(0.02, 0),
+          new THREE.MeshBasicMaterial({ color: 0xFFFFFF })
+        );
+        miniStar.position.set(0.3 + (ws % 3) * 0.35, 1.5 + (ws * 0.15) % 0.6, -2.16);
+        winStarsGroup.add(miniStar);
+      }
+      winStarsGroup.visible = false;
+      roomGroup.add(winStarsGroup);
 
       // 쉬폰 커튼
       var curtainMat = new THREE.MeshStandardMaterial({
@@ -2124,52 +2590,78 @@
         opacity: 0.9,
         roughness: 0.6
       });
-      var curL = new THREE.Mesh(createRoundedBox(0.35, 1.7, 0.05, 0.05), curtainMat);
-      curL.position.set(0.1, 1.65, -2.12);
-      roomGroup.add(curL);
+      curLMesh = new THREE.Mesh(createRoundedBox(0.35, 1.7, 0.05, 0.05), curtainMat);
+      curLMesh.position.set(0.1, 1.65, -2.12);
+      roomGroup.add(curLMesh);
 
-      var curR = new THREE.Mesh(createRoundedBox(0.35, 1.7, 0.05, 0.05), curtainMat);
-      curR.position.set(1.3, 1.65, -2.12);
-      roomGroup.add(curR);
+      curRMesh = new THREE.Mesh(createRoundedBox(0.35, 1.7, 0.05, 0.05), curtainMat);
+      curRMesh.position.set(1.3, 1.65, -2.12);
+      roomGroup.add(curRMesh);
+
+      // 💖 [벽면 네온 하트 사인 장식]
+      var neonHeartMat = new THREE.MeshBasicMaterial({ color: 0xFF2D88 });
+      roomNeonHeartMesh = new THREE.Group();
+      var torusL = new THREE.Mesh(new THREE.TorusGeometry(0.08, 0.02, 10, 24), neonHeartMat);
+      torusL.position.set(-0.06, 0.06, 0);
+      torusL.rotation.y = Math.PI / 2;
+      roomNeonHeartMesh.add(torusL);
+
+      var torusR = new THREE.Mesh(new THREE.TorusGeometry(0.08, 0.02, 10, 24), neonHeartMat);
+      torusR.position.set(0.06, 0.06, 0);
+      torusR.rotation.y = Math.PI / 2;
+      roomNeonHeartMesh.add(torusR);
+
+      var heartCone = new THREE.Mesh(new THREE.ConeGeometry(0.14, 0.22, 16), neonHeartMat);
+      heartCone.position.set(0, -0.06, 0);
+      heartCone.rotation.x = Math.PI;
+      heartCone.rotation.y = Math.PI / 2;
+      roomNeonHeartMesh.add(heartCone);
+
+      roomNeonHeartMesh.position.set(-2.14, 2.05, 0.35);
+      roomNeonHeartMesh.visible = CustomStudioState.room.neonHeart;
+      roomGroup.add(roomNeonHeartMesh);
 
       roomParts = [];
 
       // ========================================================
-      // Part 0: [1단계 언락] 포근한 프린세스 침대 세트
+      // Part 0: [1단계 언락] 침대 3종 스타일 (공주 캐노피 / 포근 구름 / 노르딕 원목)
       // ========================================================
       var p0 = new THREE.Group();
       p0.position.set(-1.15, 0, -0.9);
 
-      var bedHead = new THREE.Mesh(
+      // 🌟 1) 공주 캐노피 침대 (canopy)
+      var bedCanopyGroup = new THREE.Group();
+
+      var bedHeadC = new THREE.Mesh(
         createRoundedBox(1.4, 0.95, 0.1, 0.08, 0.01),
         whiteMoldingMat
       );
-      bedHead.position.set(0, 0.48, -1.1);
-      bedHead.castShadow = true;
-      p0.add(bedHead);
+      bedHeadC.position.set(0, 0.48, -1.1);
+      bedHeadC.castShadow = true;
+      bedCanopyGroup.add(bedHeadC);
 
-      var bedBase = new THREE.Mesh(
+      var bedBaseC = new THREE.Mesh(
         createRoundedBox(1.35, 0.35, 2.2, 0.05, 0.01),
         whiteMoldingMat
       );
-      bedBase.position.set(0, 0.18, 0);
-      bedBase.castShadow = true;
-      p0.add(bedBase);
+      bedBaseC.position.set(0, 0.18, 0);
+      bedBaseC.castShadow = true;
+      bedCanopyGroup.add(bedBaseC);
 
-      var mattress = new THREE.Mesh(
+      var mattressC = new THREE.Mesh(
         createRoundedBox(1.28, 0.22, 2.1, 0.04, 0.01),
         new THREE.MeshStandardMaterial({ color: 0xFFFFFF, roughness: 0.7 })
       );
-      mattress.position.set(0, 0.38, 0);
-      p0.add(mattress);
+      mattressC.position.set(0, 0.38, 0);
+      bedCanopyGroup.add(mattressC);
 
-      var quilt = new THREE.Mesh(
+      var quiltC = new THREE.Mesh(
         createRoundedBox(1.32, 0.24, 1.5, 0.08, 0.02),
         bedLinenMat
       );
-      quilt.position.set(0, 0.42, 0.3);
-      quilt.castShadow = true;
-      p0.add(quilt);
+      quiltC.position.set(0, 0.42, 0.3);
+      quiltC.castShadow = true;
+      bedCanopyGroup.add(quiltC);
 
       var pillow1 = new THREE.Mesh(
         createRoundedBox(0.48, 0.12, 0.32, 0.05),
@@ -2177,7 +2669,7 @@
       );
       pillow1.position.set(-0.3, 0.52, -0.75);
       pillow1.rotation.x = -0.15;
-      p0.add(pillow1);
+      bedCanopyGroup.add(pillow1);
 
       var pillow2 = new THREE.Mesh(
         createRoundedBox(0.48, 0.12, 0.32, 0.05),
@@ -2185,7 +2677,7 @@
       );
       pillow2.position.set(0.3, 0.52, -0.75);
       pillow2.rotation.x = -0.15;
-      p0.add(pillow2);
+      bedCanopyGroup.add(pillow2);
 
       var heartCushion = new THREE.Mesh(
         createRoundedBox(0.28, 0.1, 0.28, 0.06),
@@ -2193,14 +2685,99 @@
       );
       heartCushion.position.set(0, 0.54, -0.45);
       heartCushion.rotation.z = Math.PI / 4;
-      p0.add(heartCushion);
+      bedCanopyGroup.add(heartCushion);
 
-      p0.visible = true; // 인트로 프리뷰를 위해 초기 true
+      // 캐노피 골드 기둥 4개 & 상단 레이스 프레임
+      var poleGeom = new THREE.CylinderGeometry(0.018, 0.018, 1.75, 12);
+      [[-0.64, -1.05], [0.64, -1.05], [-0.64, 1.05], [0.64, 1.05]].forEach(function(pos) {
+        var pole = new THREE.Mesh(poleGeom, goldBrassMat);
+        pole.position.set(pos[0], 0.88, pos[1]);
+        bedCanopyGroup.add(pole);
+      });
+      // 상단 쉬폰 레이스 드레이프
+      var canopyCloth = new THREE.Mesh(
+        createRoundedBox(1.36, 0.06, 2.18, 0.04),
+        new THREE.MeshStandardMaterial({ color: 0xFFF1F2, transparent: true, opacity: 0.82, roughness: 0.6 })
+      );
+      canopyCloth.position.set(0, 1.76, 0);
+      bedCanopyGroup.add(canopyCloth);
+
+      p0.add(bedCanopyGroup);
+
+      // 🌟 2) 포근 구름 벙커 침대 (cloud)
+      var bedCloudGroup = new THREE.Group();
+      var cloudHeadMat = new THREE.MeshStandardMaterial({ color: 0xFFFFFF, roughness: 0.4 });
+      [-0.4, 0, 0.4].forEach(function(xOff, idx) {
+        var cBall = new THREE.Mesh(new THREE.SphereGeometry(idx === 1 ? 0.42 : 0.32, 16, 16), cloudHeadMat);
+        cBall.position.set(xOff, idx === 1 ? 0.65 : 0.52, -1.1);
+        bedCloudGroup.add(cBall);
+      });
+      var bedBaseCloud = new THREE.Mesh(
+        createRoundedBox(1.35, 0.35, 2.2, 0.05, 0.01),
+        new THREE.MeshStandardMaterial({ color: 0xE0F2FE, roughness: 0.3 })
+      );
+      bedBaseCloud.position.set(0, 0.18, 0);
+      bedCloudGroup.add(bedBaseCloud);
+
+      var mattressCloud = new THREE.Mesh(
+        createRoundedBox(1.28, 0.22, 2.1, 0.04, 0.01),
+        new THREE.MeshStandardMaterial({ color: 0xFFFFFF, roughness: 0.7 })
+      );
+      mattressCloud.position.set(0, 0.38, 0);
+      bedCloudGroup.add(mattressCloud);
+
+      var quiltCloud = new THREE.Mesh(
+        createRoundedBox(1.32, 0.24, 1.5, 0.08, 0.02),
+        new THREE.MeshStandardMaterial({ color: 0xBAE6FD, roughness: 0.5 })
+      );
+      quiltCloud.position.set(0, 0.42, 0.3);
+      bedCloudGroup.add(quiltCloud);
+
+      var starCushion = new THREE.Mesh(
+        new THREE.OctahedronGeometry(0.2, 0),
+        new THREE.MeshStandardMaterial({ color: 0xFDE047, roughness: 0.3 })
+      );
+      starCushion.position.set(0, 0.55, -0.45);
+      bedCloudGroup.add(starCushion);
+
+      bedCloudGroup.visible = false;
+      p0.add(bedCloudGroup);
+
+      // 🌟 3) 노르딕 미니멀 원목 침대 (wood)
+      var bedWoodGroup = new THREE.Group();
+      var oakMat = new THREE.MeshStandardMaterial({ color: 0xC89D6A, roughness: 0.4 });
+      var bedHeadWood = new THREE.Mesh(createRoundedBox(1.4, 0.85, 0.08, 0.02), oakMat);
+      bedHeadWood.position.set(0, 0.44, -1.1);
+      bedWoodGroup.add(bedHeadWood);
+
+      var bedBaseWood = new THREE.Mesh(createRoundedBox(1.35, 0.32, 2.2, 0.02), oakMat);
+      bedBaseWood.position.set(0, 0.16, 0);
+      bedWoodGroup.add(bedBaseWood);
+
+      var mattressWood = new THREE.Mesh(
+        createRoundedBox(1.28, 0.22, 2.1, 0.04),
+        new THREE.MeshStandardMaterial({ color: 0xF8FAFC, roughness: 0.8 })
+      );
+      mattressWood.position.set(0, 0.36, 0);
+      bedWoodGroup.add(mattressWood);
+
+      var quiltWood = new THREE.Mesh(
+        createRoundedBox(1.32, 0.22, 1.5, 0.04),
+        new THREE.MeshStandardMaterial({ color: 0x475569, roughness: 0.7 })
+      );
+      quiltWood.position.set(0, 0.4, 0.3);
+      bedWoodGroup.add(quiltWood);
+
+      bedWoodGroup.visible = false;
+      p0.add(bedWoodGroup);
+
+      bedSubgroups = { canopy: bedCanopyGroup, cloud: bedCloudGroup, wood: bedWoodGroup };
+      p0.visible = true; // 인트로 프리뷰
       roomGroup.add(p0);
       roomParts.push(p0);
 
       // ========================================================
-      // Part 1: [2단계 언락] 은은한 크리스탈 무드 램프 & 협탁
+      // Part 1: [2단계 언락] 무드등 3종 스타일 (달님&별 / 버섯 요정 / 크리스탈 스탠드)
       // ========================================================
       var p1 = new THREE.Group();
       p1.position.set(-0.05, 0, -1.85);
@@ -2217,20 +2794,80 @@
       knob.position.set(0, 0.42, 0.28);
       p1.add(knob);
 
-      var lampBase = new THREE.Mesh(new THREE.CylinderGeometry(0.12, 0.14, 0.03, 16), goldBrassMat);
-      lampBase.position.set(0, 0.665, 0);
-      p1.add(lampBase);
+      // 🌟 1) 달님 & 별님 무드등 (moon)
+      var lampMoonGroup = new THREE.Group();
+      var mBase = new THREE.Mesh(new THREE.CylinderGeometry(0.12, 0.14, 0.03, 16), goldBrassMat);
+      mBase.position.set(0, 0.665, 0);
+      lampMoonGroup.add(mBase);
 
-      var lampPole = new THREE.Mesh(new THREE.CylinderGeometry(0.02, 0.02, 0.32, 12), goldBrassMat);
-      lampPole.position.set(0, 0.82, 0);
-      p1.add(lampPole);
+      var mPole = new THREE.Mesh(new THREE.CylinderGeometry(0.018, 0.018, 0.38, 12), goldBrassMat);
+      mPole.position.set(0, 0.855, 0);
+      lampMoonGroup.add(mPole);
 
-      var lampShade = new THREE.Mesh(
+      var moonCrescent = new THREE.Mesh(
+        new THREE.TorusGeometry(0.12, 0.035, 10, 24, Math.PI * 1.3),
+        new THREE.MeshBasicMaterial({ color: 0xFDE047 })
+      );
+      moonCrescent.position.set(0, 1.08, 0);
+      moonCrescent.rotation.z = 0.4;
+      lampMoonGroup.add(moonCrescent);
+
+      var miniDangleStar = new THREE.Mesh(
+        new THREE.OctahedronGeometry(0.035, 0),
+        new THREE.MeshBasicMaterial({ color: 0xFFFFFF })
+      );
+      miniDangleStar.position.set(0.05, 0.98, 0);
+      lampMoonGroup.add(miniDangleStar);
+      p1.add(lampMoonGroup);
+
+      // 🌟 2) 버섯 요정 램프 (mushroom)
+      var lampMushroomGroup = new THREE.Group();
+      var stem = new THREE.Mesh(
+        new THREE.CylinderGeometry(0.06, 0.08, 0.28, 16),
+        new THREE.MeshStandardMaterial({ color: 0xFFFAF0, roughness: 0.4 })
+      );
+      stem.position.set(0, 0.79, 0);
+      lampMushroomGroup.add(stem);
+
+      var cap = new THREE.Mesh(
+        new THREE.ConeGeometry(0.2, 0.16, 20),
+        new THREE.MeshBasicMaterial({ color: 0xEF4444 })
+      );
+      cap.position.set(0, 0.98, 0);
+      lampMushroomGroup.add(cap);
+
+      for (var d = 0; d < 5; d++) {
+        var dot = new THREE.Mesh(
+          new THREE.SphereGeometry(0.025, 8, 8),
+          new THREE.MeshBasicMaterial({ color: 0xFFFFFF })
+        );
+        var dAngle = (d * Math.PI * 2) / 5;
+        dot.position.set(Math.cos(dAngle) * 0.12, 0.95, Math.sin(dAngle) * 0.12);
+        lampMushroomGroup.add(dot);
+      }
+      lampMushroomGroup.visible = false;
+      p1.add(lampMushroomGroup);
+
+      // 🌟 3) 크리스탈 클래식 스탠드 (crystal)
+      var lampCrystalGroup = new THREE.Group();
+      var cBase = new THREE.Mesh(new THREE.CylinderGeometry(0.12, 0.14, 0.03, 16), goldBrassMat);
+      cBase.position.set(0, 0.665, 0);
+      lampCrystalGroup.add(cBase);
+
+      var cPole = new THREE.Mesh(new THREE.CylinderGeometry(0.02, 0.02, 0.32, 12), goldBrassMat);
+      cPole.position.set(0, 0.82, 0);
+      lampCrystalGroup.add(cPole);
+
+      var cShade = new THREE.Mesh(
         new THREE.CylinderGeometry(0.14, 0.24, 0.24, 20, 1, true),
         new THREE.MeshStandardMaterial({ color: 0xFFE4E6, roughness: 0.3, transparent: true, opacity: 0.9 })
       );
-      lampShade.position.set(0, 0.98, 0);
-      p1.add(lampShade);
+      cShade.position.set(0, 0.98, 0);
+      lampCrystalGroup.add(cShade);
+      lampCrystalGroup.visible = false;
+      p1.add(lampCrystalGroup);
+
+      lampSubgroups = { moon: lampMoonGroup, mushroom: lampMushroomGroup, crystal: lampCrystalGroup };
 
       moodLight = new THREE.PointLight(0xFFAAA6, 1.6, 5.0);
       moodLight.position.set(0, 0.95, 0);
@@ -2308,41 +2945,115 @@
       roomParts.push(p2);
 
       // ========================================================
-      // Part 3: [4단계 언락] 다정한 테디베어(곰인형) 인형
+      // Part 3: [4단계 언락] 반려 친구 / 인형 3종 (테디베어 / 아기 고양이 / 쫑긋 토끼)
       // ========================================================
       var p3 = new THREE.Group();
 
-      var teddyGroup = new THREE.Group();
-      teddyGroup.position.set(-0.35, 0.18, 0.55);
-      teddyGroup.rotation.y = 0.45;
+      // 🌟 1) 다정한 테디베어 (bear)
+      var petBearGroup = new THREE.Group();
+      petBearGroup.position.set(-0.35, 0.18, 0.55);
+      petBearGroup.rotation.y = 0.45;
 
       var bearMat = new THREE.MeshStandardMaterial({ color: 0xB45309, roughness: 0.85 });
-      
       var bearBody = new THREE.Mesh(new THREE.SphereGeometry(0.22, 16, 16), bearMat);
       bearBody.scale.set(1, 1.15, 0.95);
       bearBody.position.y = 0.16;
-      teddyGroup.add(bearBody);
+      petBearGroup.add(bearBody);
 
       var bearHead = new THREE.Mesh(new THREE.SphereGeometry(0.18, 16, 16), bearMat);
       bearHead.position.set(0, 0.45, 0.04);
-      teddyGroup.add(bearHead);
+      petBearGroup.add(bearHead);
 
       var bearEarL = new THREE.Mesh(new THREE.SphereGeometry(0.06, 12, 12), bearMat);
       bearEarL.position.set(-0.14, 0.58, 0.04);
-      teddyGroup.add(bearEarL);
+      petBearGroup.add(bearEarL);
 
       var bearEarR = new THREE.Mesh(new THREE.SphereGeometry(0.06, 12, 12), bearMat);
       bearEarR.position.set(0.14, 0.58, 0.04);
-      teddyGroup.add(bearEarR);
+      petBearGroup.add(bearEarR);
 
       var ribbon = new THREE.Mesh(
         createRoundedBox(0.14, 0.06, 0.04, 0.02),
         new THREE.MeshStandardMaterial({ color: 0xEF4444 })
       );
       ribbon.position.set(0, 0.35, 0.15);
-      teddyGroup.add(ribbon);
+      petBearGroup.add(ribbon);
+      p3.add(petBearGroup);
 
-      p3.add(teddyGroup);
+      // 🌟 2) 귀여운 하얀 아기 고양이 (cat)
+      var petCatGroup = new THREE.Group();
+      petCatGroup.position.set(-0.35, 0.18, 0.55);
+      petCatGroup.rotation.y = 0.45;
+
+      var catMat = new THREE.MeshStandardMaterial({ color: 0xFFFFFF, roughness: 0.5 });
+      var catBody = new THREE.Mesh(new THREE.SphereGeometry(0.2, 16, 16), catMat);
+      catBody.scale.set(0.95, 1.1, 1.0);
+      catBody.position.y = 0.15;
+      petCatGroup.add(catBody);
+
+      var catHead = new THREE.Mesh(new THREE.SphereGeometry(0.17, 16, 16), catMat);
+      catHead.position.set(0, 0.43, 0.04);
+      petCatGroup.add(catHead);
+
+      // 쫑긋 세모 귀 2개
+      [-0.11, 0.11].forEach(function(xOff) {
+        var ear = new THREE.Mesh(new THREE.ConeGeometry(0.065, 0.1, 4), new THREE.MeshStandardMaterial({ color: 0xFFE4E6 }));
+        ear.position.set(xOff, 0.57, 0.03);
+        ear.rotation.y = Math.PI / 4;
+        petCatGroup.add(ear);
+      });
+      // 꼬리
+      var tail = new THREE.Mesh(new THREE.CylinderGeometry(0.03, 0.025, 0.28, 8), catMat);
+      tail.position.set(0, 0.18, -0.2);
+      tail.rotation.x = -0.6;
+      petCatGroup.add(tail);
+
+      // 목걸이 & 황금 방울
+      var collar = new THREE.Mesh(new THREE.TorusGeometry(0.11, 0.02, 8, 20), new THREE.MeshBasicMaterial({ color: 0xEF4444 }));
+      collar.position.set(0, 0.33, 0.04);
+      collar.rotation.x = Math.PI / 2;
+      petCatGroup.add(collar);
+
+      var bell = new THREE.Mesh(new THREE.SphereGeometry(0.035, 12, 12), goldBrassMat);
+      bell.position.set(0, 0.3, 0.15);
+      petCatGroup.add(bell);
+
+      petCatGroup.visible = false;
+      p3.add(petCatGroup);
+
+      // 🌟 3) 쫑긋 토끼 인형 (rabbit)
+      var petRabbitGroup = new THREE.Group();
+      petRabbitGroup.position.set(-0.35, 0.18, 0.55);
+      petRabbitGroup.rotation.y = 0.45;
+
+      var rabMat = new THREE.MeshStandardMaterial({ color: 0xFFFFFF, roughness: 0.6 });
+      var rabBody = new THREE.Mesh(new THREE.SphereGeometry(0.2, 16, 16), rabMat);
+      rabBody.position.y = 0.15;
+      petRabbitGroup.add(rabBody);
+
+      var rabHead = new THREE.Mesh(new THREE.SphereGeometry(0.16, 16, 16), rabMat);
+      rabHead.position.set(0, 0.42, 0.04);
+      petRabbitGroup.add(rabHead);
+
+      // 긴 토끼 귀 2개
+      [-0.08, 0.08].forEach(function(xOff, idx) {
+        var rEar = new THREE.Mesh(createRoundedBox(0.055, 0.26, 0.035, 0.02), new THREE.MeshStandardMaterial({ color: 0xFFD1DC }));
+        rEar.position.set(xOff, 0.64, 0.02);
+        rEar.rotation.z = idx === 0 ? 0.12 : -0.12;
+        petRabbitGroup.add(rEar);
+      });
+
+      // 주황 당근 쿠션
+      var carrot = new THREE.Mesh(new THREE.ConeGeometry(0.055, 0.18, 8), new THREE.MeshStandardMaterial({ color: 0xF97316 }));
+      carrot.position.set(0, 0.22, 0.14);
+      carrot.rotation.x = 0.4;
+      petRabbitGroup.add(carrot);
+
+      petRabbitGroup.visible = false;
+      p3.add(petRabbitGroup);
+
+      petSubgroups = { bear: petBearGroup, cat: petCatGroup, rabbit: petRabbitGroup };
+
       p3.visible = true; // 인트로 프리뷰
       roomGroup.add(p3);
       roomParts.push(p3);
@@ -2426,6 +3137,7 @@
         fairyGroup.add(star);
         fairyStars.push(star);
       }
+      fairyGroup.visible = CustomStudioState.room.sparkles;
       p5.add(fairyGroup);
 
       p5.visible = true; // 인트로 프리뷰
@@ -2436,26 +3148,459 @@
       showroomGroup.add(roomGroup);
     }
 
-    // 차체 컬러 변경
-    function changeCarColor(hexString) {
-      AppState.currentColor = hexString;
-      if (carPaintMaterial) carPaintMaterial.color.set(hexString);
-      updateSwatchActive(hexString);
+    // ============================================================
+    // 🌟 3D 자유 커스텀 스튜디오 엔진 (Style Customizer Engine)
+    // ============================================================
+
+    // 1. 슈퍼카 커스터마이징 실시간 반영
+    function applyCarCustomization() {
+      if (carPaintMaterial) {
+        carPaintMaterial.color.set(CustomStudioState.car.color);
+      }
+      if (carStripeDecal) {
+        carStripeDecal.visible = CustomStudioState.car.stripeDecal;
+      }
+      if (carWheelSubgroups && carWheelSubgroups.length > 0) {
+        carWheelSubgroups.forEach(function(sub) {
+          if (sub.spoke) sub.spoke.visible = (CustomStudioState.car.wheelStyle === 'spoke');
+          if (sub.cyber) sub.cyber.visible = (CustomStudioState.car.wheelStyle === 'cyber');
+          if (sub.turbine) sub.turbine.visible = (CustomStudioState.car.wheelStyle === 'turbine');
+        });
+      }
+      for (var wk in carWingSubgroups) {
+        if (carWingSubgroups[wk]) {
+          carWingSubgroups[wk].visible = (wk === CustomStudioState.car.wingStyle);
+        }
+      }
+      if (carHeadlightMeshes && carHeadlightMeshes.length > 0) {
+        carHeadlightMeshes.forEach(function(m) {
+          if (m && m.material) m.material.color.set(CustomStudioState.car.headlightColor);
+        });
+      }
+      if (underglowMesh) {
+        underglowMesh.material.color.set(CustomStudioState.car.neonColor);
+        underglowMesh.visible = CustomStudioState.car.neonUnderglow;
+        underglowMesh.material.opacity = CustomStudioState.car.neonUnderglow ? 0.85 : 0.0;
+      }
+      updateCertCustomSummary();
     }
 
-    // 룸 인테리어 침구/러그 컬러 변경
-    function changeRoomColor(hexString) {
-      AppState.currentRoomColor = hexString;
-      if (bedLinenMat) bedLinenMat.color.set(hexString);
-      if (rugMat) rugMat.color.set(hexString);
-      updateSwatchActive(hexString);
+    // 2. 드림하우스(방꾸미기) 커스터마이징 실시간 반영
+    function applyRoomCustomization() {
+      var rTheme = CustomStudioState.room.theme;
+      if (rTheme === 'pink') {
+        if (roomWallMat) roomWallMat.color.set(0xFFEBEF);
+        if (woodFloorMat) woodFloorMat.color.set(0xDEB887);
+        if (rugMat) rugMat.color.set(0xFCE7F3);
+        if (curLMesh && curRMesh) { curLMesh.material.color.set(0xFFFFFF); curRMesh.material.color.set(0xFFFFFF); }
+        if (scene && AppState.currentTheme === 'room') scene.background = new THREE.Color(0xFFEFF2);
+      } else if (rTheme === 'mint') {
+        if (roomWallMat) roomWallMat.color.set(0xE6F7ED);
+        if (woodFloorMat) woodFloorMat.color.set(0xE5D3B3);
+        if (rugMat) rugMat.color.set(0xD1FAE5);
+        if (curLMesh && curRMesh) { curLMesh.material.color.set(0xFFFFFF); curRMesh.material.color.set(0xFFFFFF); }
+        if (scene && AppState.currentTheme === 'room') scene.background = new THREE.Color(0xEFFCF6);
+      } else if (rTheme === 'lavender') {
+        if (roomWallMat) roomWallMat.color.set(0xF3E8FF);
+        if (woodFloorMat) woodFloorMat.color.set(0xD8B4FE);
+        if (rugMat) rugMat.color.set(0xFAF5FF);
+        if (curLMesh && curRMesh) { curLMesh.material.color.set(0xE9D5FF); curRMesh.material.color.set(0xE9D5FF); }
+        if (scene && AppState.currentTheme === 'room') scene.background = new THREE.Color(0xFAF5FF);
+      } else if (rTheme === 'check') {
+        if (roomWallMat) roomWallMat.color.set(0xF1F5F9);
+        if (woodFloorMat) woodFloorMat.color.set(0xF8FAFC);
+        if (rugMat) rugMat.color.set(0xE2E8F0);
+        if (curLMesh && curRMesh) { curLMesh.material.color.set(0xCBD5E1); curRMesh.material.color.set(0xCBD5E1); }
+        if (scene && AppState.currentTheme === 'room') scene.background = new THREE.Color(0xF8FAFC);
+      }
+
+      // 창밖 낮 / 밤 풍경 전환
+      if (winSkyMesh) {
+        winSkyMesh.material.color.set(CustomStudioState.room.windowView === 'day' ? 0x7DD3FC : 0x0F172A);
+      }
+      if (winStarsGroup) {
+        winStarsGroup.visible = (CustomStudioState.room.windowView === 'night');
+      }
+
+      // 침대 3종 스타일
+      for (var bk in bedSubgroups) {
+        if (bedSubgroups[bk]) bedSubgroups[bk].visible = (bk === CustomStudioState.room.bedStyle);
+      }
+
+      // 무드등 3종 스타일
+      for (var lk in lampSubgroups) {
+        if (lampSubgroups[lk]) lampSubgroups[lk].visible = (lk === CustomStudioState.room.lampStyle);
+      }
+
+      // 반려 친구 / 인형 3종 스타일
+      for (var pk in petSubgroups) {
+        if (petSubgroups[pk]) petSubgroups[pk].visible = (pk === CustomStudioState.room.petStyle);
+      }
+
+      // 벽면 네온 하트 사인 토글
+      if (roomNeonHeartMesh) {
+        roomNeonHeartMesh.visible = CustomStudioState.room.neonHeart;
+      }
+
+      // 반짝이 별빛 파티클 토글
+      if (fairyGroup) {
+        fairyGroup.visible = CustomStudioState.room.sparkles;
+      }
+
+      updateCertCustomSummary();
     }
 
-    function updateSwatchActive(hexString) {
-      document.querySelectorAll('.color-swatch').forEach(function(sw) {
-        if (sw.getAttribute('data-color') === hexString) sw.classList.add('active');
-        else sw.classList.remove('active');
+    // 3. 수료증 상의 커스텀 스타일 요약 문구 업데이트
+    function updateCertCustomSummary() {
+      var summaryText = '';
+      var icon = '✨';
+
+      if (AppState.currentTheme === 'room') {
+        icon = '🎀';
+        var tNames = { pink: '🌸 러블리 핑크', mint: '🌿 민트 포레스트', lavender: '💜 라벤더 스타', check: '🏁 모던 대리석' };
+        var bNames = { canopy: '👑 캐노피 침대', cloud: '☁️ 구름 침대', wood: '🪵 원목 침대' };
+        var pNames = { bear: '🧸 테디베어', cat: '🐱 아기 고양이', rabbit: '🐰 쫑긋 토끼' };
+        var lNames = { moon: '🌙 달님 램프', mushroom: '🍄 버섯 램프', crystal: '💎 크리스탈 램프' };
+
+        summaryText = (tNames[CustomStudioState.room.theme] || '핑크룸') + ' · ' +
+                      (bNames[CustomStudioState.room.bedStyle] || '침대') + ' · ' +
+                      (pNames[CustomStudioState.room.petStyle] || '친구') + ' · ' +
+                      (lNames[CustomStudioState.room.lampStyle] || '조명') +
+                      (CustomStudioState.room.neonHeart ? ' · 💖 네온하트' : '');
+      } else {
+        icon = '🏎️';
+        var cNames = { '#E11D48': '크림슨 레드', '#06B6D4': '사이버 사이언', '#EAB308': '레이싱 옐로우', '#8B5CF6': '네온 바이올렛', '#18181B': '팬텀 블랙', '#F8FAFC': '티타늄 화이트' };
+        var wNames = { spoke: '🛞 5-스포크 알로이', cyber: '⚡ 사이버 LED 림', turbine: '🌀 에어로 터빈' };
+        var sNames = { gt: '🦅 GT 카본 윙', shark: '🦈 샤크핀 윙', ducktail: '🏎️ 스텔스 덕테일' };
+
+        summaryText = '🎨 ' + (cNames[CustomStudioState.car.color] || '메탈릭 도색') + ' · ' +
+                      (wNames[CustomStudioState.car.wheelStyle] || '스포츠 휠') + ' · ' +
+                      (sNames[CustomStudioState.car.wingStyle] || '리어 윙') +
+                      (CustomStudioState.car.stripeDecal ? ' · 🏁 레이싱 데칼' : '') +
+                      (CustomStudioState.car.neonUnderglow ? ' · 🌈 네온 언더글로우' : '');
+      }
+
+      var el = document.getElementById('certCustomSummaryText');
+      if (el) el.textContent = summaryText;
+      var elIcon = document.getElementById('certSummaryIcon');
+      if (elIcon) elIcon.textContent = icon;
+    }
+
+    // 4. 스튜디오 탭 및 옵션 UI 동적 렌더링
+    function renderStudioUI() {
+      var tabBar = document.getElementById('studioTabBar');
+      var contentArea = document.getElementById('studioTabContentArea');
+      var headerTitle = document.getElementById('studioHeaderTitle');
+      var headerEmoji = document.getElementById('studioHeaderEmoji');
+      var btnText = document.getElementById('studioBtnText');
+      var btnIcon = document.getElementById('studioBtnIcon');
+
+      if (!tabBar || !contentArea) return;
+
+      if (AppState.currentTheme === 'room') {
+        headerTitle.textContent = '🎀 나만의 드림룸 스타일 스튜디오';
+        headerEmoji.textContent = '🎀';
+        if (btnText) btnText.textContent = '내 방 꾸미기 스튜디오';
+        if (btnIcon) btnIcon.textContent = '🎀';
+
+        // 룸 전용 4개 탭
+        tabBar.innerHTML = [
+          '<button type="button" class="studio-tab-pill active" data-tab="room-space">🎨 공간 & 벽지</button>',
+          '<button type="button" class="studio-tab-pill" data-tab="room-bed">🛏️ 침대 스타일</button>',
+          '<button type="button" class="studio-tab-pill" data-tab="room-pet">🧸 친구 인형</button>',
+          '<button type="button" class="studio-tab-pill" data-tab="room-lighting">💡 조명 & 이펙트</button>'
+        ].join('');
+
+        contentArea.innerHTML = [
+          // 탭 1: 공간 & 벽지
+          '<div class="studio-content-section active" id="sec-room-space">',
+          '  <div class="studio-options-grid">',
+          '    <div class="studio-opt-btn ' + (CustomStudioState.room.theme === 'pink' ? 'active' : '') + '" onclick="setRoomOption(\'theme\', \'pink\')">',
+          '      <span class="studio-opt-icon">🌸</span>',
+          '      <span class="studio-opt-title font-jua">러블리 핑크</span>',
+          '      <span class="studio-opt-sub">핑크 벽지 & 원목 마루</span>',
+          '    </div>',
+          '    <div class="studio-opt-btn ' + (CustomStudioState.room.theme === 'mint' ? 'active' : '') + '" onclick="setRoomOption(\'theme\', \'mint\')">',
+          '      <span class="studio-opt-icon">🌿</span>',
+          '      <span class="studio-opt-title font-jua">민트 포레스트</span>',
+          '      <span class="studio-opt-sub">상쾌한 민트 & 오크</span>',
+          '    </div>',
+          '    <div class="studio-opt-btn ' + (CustomStudioState.room.theme === 'lavender' ? 'active' : '') + '" onclick="setRoomOption(\'theme\', \'lavender\')">',
+          '      <span class="studio-opt-icon">💜</span>',
+          '      <span class="studio-opt-title font-jua">라벤더 스타</span>',
+          '      <span class="studio-opt-sub">로맨틱 보라 & 카펫</span>',
+          '    </div>',
+          '    <div class="studio-opt-btn ' + (CustomStudioState.room.theme === 'check' ? 'active' : '') + '" onclick="setRoomOption(\'theme\', \'check\')">',
+          '      <span class="studio-opt-icon">🏁</span>',
+          '      <span class="studio-opt-title font-jua">모던 대리석</span>',
+          '      <span class="studio-opt-sub">화이트 타일 & 모던</span>',
+          '    </div>',
+          '    <div class="studio-opt-btn ' + (CustomStudioState.room.windowView === 'day' ? 'active' : '') + '" onclick="setRoomOption(\'windowView\', \'day\')">',
+          '      <span class="studio-opt-icon">☀️</span>',
+          '      <span class="studio-opt-title font-jua">맑은 햇살 낮</span>',
+          '      <span class="studio-opt-sub">푸른 하늘 창문</span>',
+          '    </div>',
+          '    <div class="studio-opt-btn ' + (CustomStudioState.room.windowView === 'night' ? 'active' : '') + '" onclick="setRoomOption(\'windowView\', \'night\')">',
+          '      <span class="studio-opt-icon">🌙</span>',
+          '      <span class="studio-opt-title font-jua">은하수 밤하늘</span>',
+          '      <span class="studio-opt-sub">별빛 창문 풍경</span>',
+          '    </div>',
+          '  </div>',
+          '</div>',
+
+          // 탭 2: 침대 스타일
+          '<div class="studio-content-section" id="sec-room-bed">',
+          '  <div class="studio-options-grid">',
+          '    <div class="studio-opt-btn ' + (CustomStudioState.room.bedStyle === 'canopy' ? 'active' : '') + '" onclick="setRoomOption(\'bedStyle\', \'canopy\')">',
+          '      <span class="studio-opt-icon">👑</span>',
+          '      <span class="studio-opt-title font-jua">공주 캐노피 침대</span>',
+          '      <span class="studio-opt-sub">골드 기둥 & 레이스 커튼</span>',
+          '    </div>',
+          '    <div class="studio-opt-btn ' + (CustomStudioState.room.bedStyle === 'cloud' ? 'active' : '') + '" onclick="setRoomOption(\'bedStyle\', \'cloud\')">',
+          '      <span class="studio-opt-icon">☁️</span>',
+          '      <span class="studio-opt-title font-jua">포근 구름 침대</span>',
+          '      <span class="studio-opt-sub">구름 헤드 & 별 쿠션</span>',
+          '    </div>',
+          '    <div class="studio-opt-btn ' + (CustomStudioState.room.bedStyle === 'wood' ? 'active' : '') + '" onclick="setRoomOption(\'bedStyle\', \'wood\')">',
+          '      <span class="studio-opt-icon">🪵</span>',
+          '      <span class="studio-opt-title font-jua">노르딕 원목 침대</span>',
+          '      <span class="studio-opt-sub">내추럴 오크 & 모던</span>',
+          '    </div>',
+          '  </div>',
+          '</div>',
+
+          // 탭 3: 친구 인형
+          '<div class="studio-content-section" id="sec-room-pet">',
+          '  <div class="studio-options-grid">',
+          '    <div class="studio-opt-btn ' + (CustomStudioState.room.petStyle === 'bear' ? 'active' : '') + '" onclick="setRoomOption(\'petStyle\', \'bear\')">',
+          '      <span class="studio-opt-icon">🧸</span>',
+          '      <span class="studio-opt-title font-jua">다정한 테디베어</span>',
+          '      <span class="studio-opt-sub">클래식 브라운 곰인형</span>',
+          '    </div>',
+          '    <div class="studio-opt-btn ' + (CustomStudioState.room.petStyle === 'cat' ? 'active' : '') + '" onclick="setRoomOption(\'petStyle\', \'cat\')">',
+          '      <span class="studio-opt-icon">🐱</span>',
+          '      <span class="studio-opt-title font-jua">하얀 아기 고양이</span>',
+          '      <span class="studio-opt-sub">방울 목걸이 & 쫑긋 귀</span>',
+          '    </div>',
+          '    <div class="studio-opt-btn ' + (CustomStudioState.room.petStyle === 'rabbit' ? 'active' : '') + '" onclick="setRoomOption(\'petStyle\', \'rabbit\')">',
+          '      <span class="studio-opt-icon">🐰</span>',
+          '      <span class="studio-opt-title font-jua">쫑긋 분홍 토끼</span>',
+          '      <span class="studio-opt-sub">긴 귀 & 당근 쿠션</span>',
+          '    </div>',
+          '  </div>',
+          '</div>',
+
+          // 탭 4: 조명 & 이펙트
+          '<div class="studio-content-section" id="sec-room-lighting">',
+          '  <div class="studio-options-grid">',
+          '    <div class="studio-opt-btn ' + (CustomStudioState.room.lampStyle === 'moon' ? 'active' : '') + '" onclick="setRoomOption(\'lampStyle\', \'moon\')">',
+          '      <span class="studio-opt-icon">🌙</span>',
+          '      <span class="studio-opt-title font-jua">달님&별 무드등</span>',
+          '      <span class="studio-opt-sub">초승달과 미니 별빛</span>',
+          '    </div>',
+          '    <div class="studio-opt-btn ' + (CustomStudioState.room.lampStyle === 'mushroom' ? 'active' : '') + '" onclick="setRoomOption(\'lampStyle\', \'mushroom\')">',
+          '      <span class="studio-opt-icon">🍄</span>',
+          '      <span class="studio-opt-title font-jua">버섯 요정 램프</span>',
+          '      <span class="studio-opt-sub">도트 무늬 동화 조명</span>',
+          '    </div>',
+          '    <div class="studio-opt-btn ' + (CustomStudioState.room.lampStyle === 'crystal' ? 'active' : '') + '" onclick="setRoomOption(\'lampStyle\', \'crystal\')">',
+          '      <span class="studio-opt-icon">💎</span>',
+          '      <span class="studio-opt-title font-jua">크리스탈 스탠드</span>',
+          '      <span class="studio-opt-sub">앤틱 골드 & 각면 글래스</span>',
+          '    </div>',
+          '    <div class="studio-opt-btn ' + (CustomStudioState.room.neonHeart ? 'active' : '') + '" onclick="toggleRoomOption(\'neonHeart\')">',
+          '      <span class="studio-opt-icon">💖</span>',
+          '      <span class="studio-opt-title font-jua">벽면 네온 하트</span>',
+          '      <span class="studio-opt-sub">' + (CustomStudioState.room.neonHeart ? '켜짐 (ON)' : '꺼짐 (OFF)') + '</span>',
+          '    </div>',
+          '    <div class="studio-opt-btn ' + (CustomStudioState.room.sparkles ? 'active' : '') + '" onclick="toggleRoomOption(\'sparkles\')">',
+          '      <span class="studio-opt-icon">✨</span>',
+          '      <span class="studio-opt-title font-jua">요정 별빛 파티클</span>',
+          '      <span class="studio-opt-sub">' + (CustomStudioState.room.sparkles ? '켜짐 (ON)' : '꺼짐 (OFF)') + '</span>',
+          '    </div>',
+          '  </div>',
+          '</div>'
+        ].join('');
+
+      } else {
+        // 슈퍼카 전용 스튜디오
+        headerTitle.textContent = '🏎️ 3D 하이퍼 슈퍼카 튜닝 스튜디오';
+        headerEmoji.textContent = '🏎️';
+        if (btnText) btnText.textContent = '슈퍼카 튜닝 스튜디오';
+        if (btnIcon) btnIcon.textContent = '🏎️';
+
+        tabBar.innerHTML = [
+          '<button type="button" class="studio-tab-pill active" data-tab="car-paint">🎨 바디 & 도색</button>',
+          '<button type="button" class="studio-tab-pill" data-tab="car-wheels">🛞 스포츠 휠</button>',
+          '<button type="button" class="studio-tab-pill" data-tab="car-wings">🪽 리어 윙</button>',
+          '<button type="button" class="studio-tab-pill" data-tab="car-lights">⚡ 라이트 & 네온</button>'
+        ].join('');
+
+        contentArea.innerHTML = [
+          // 탭 1: 바디 & 도색
+          '<div class="studio-content-section active" id="sec-car-paint">',
+          '  <div class="studio-options-grid">',
+          '    <div class="studio-opt-btn ' + (CustomStudioState.car.color === '#E11D48' ? 'active' : '') + '" onclick="setCarOption(\'color\', \'#E11D48\')">',
+          '      <div style="width:24px; height:24px; border-radius:50%; background:#E11D48; border:2px solid #FFF;"></div>',
+          '      <span class="studio-opt-title font-jua">크림슨 레드</span>',
+          '      <span class="studio-opt-sub">마그마 메탈릭</span>',
+          '    </div>',
+          '    <div class="studio-opt-btn ' + (CustomStudioState.car.color === '#06B6D4' ? 'active' : '') + '" onclick="setCarOption(\'color\', \'#06B6D4\')">',
+          '      <div style="width:24px; height:24px; border-radius:50%; background:#06B6D4; border:2px solid #FFF;"></div>',
+          '      <span class="studio-opt-title font-jua">사이버 사이언</span>',
+          '      <span class="studio-opt-sub">하이퍼 네온 블루</span>',
+          '    </div>',
+          '    <div class="studio-opt-btn ' + (CustomStudioState.car.color === '#EAB308' ? 'active' : '') + '" onclick="setCarOption(\'color\', \'#EAB308\')">',
+          '      <div style="width:24px; height:24px; border-radius:50%; background:#EAB308; border:2px solid #FFF;"></div>',
+          '      <span class="studio-opt-title font-jua">레이싱 옐로우</span>',
+          '      <span class="studio-opt-sub">포뮬러 골드</span>',
+          '    </div>',
+          '    <div class="studio-opt-btn ' + (CustomStudioState.car.color === '#8B5CF6' ? 'active' : '') + '" onclick="setCarOption(\'color\', \'#8B5CF6\')">',
+          '      <div style="width:24px; height:24px; border-radius:50%; background:#8B5CF6; border:2px solid #FFF;"></div>',
+          '      <span class="studio-opt-title font-jua">네온 바이올렛</span>',
+          '      <span class="studio-opt-sub">울트라 퍼플</span>',
+          '    </div>',
+          '    <div class="studio-opt-btn ' + (CustomStudioState.car.color === '#18181B' ? 'active' : '') + '" onclick="setCarOption(\'color\', \'#18181B\')">',
+          '      <div style="width:24px; height:24px; border-radius:50%; background:#18181B; border:2px solid #FFF;"></div>',
+          '      <span class="studio-opt-title font-jua">팬텀 블랙</span>',
+          '      <span class="studio-opt-sub">매트 섀도우</span>',
+          '    </div>',
+          '    <div class="studio-opt-btn ' + (CustomStudioState.car.color === '#F8FAFC' ? 'active' : '') + '" onclick="setCarOption(\'color\', \'#F8FAFC\')">',
+          '      <div style="width:24px; height:24px; border-radius:50%; background:#F8FAFC; border:2px solid #64748B;"></div>',
+          '      <span class="studio-opt-title font-jua">티타늄 화이트</span>',
+          '      <span class="studio-opt-sub">퓨어 펄 화이트</span>',
+          '    </div>',
+          '    <div class="studio-opt-btn ' + (CustomStudioState.car.stripeDecal ? 'active' : '') + '" onclick="toggleCarOption(\'stripeDecal\')">',
+          '      <span class="studio-opt-icon">🏁</span>',
+          '      <span class="studio-opt-title font-jua">레이싱 스트라이프</span>',
+          '      <span class="studio-opt-sub">' + (CustomStudioState.car.stripeDecal ? '장착됨 (ON)' : '해제됨 (OFF)') + '</span>',
+          '    </div>',
+          '  </div>',
+          '</div>',
+
+          // 탭 2: 스포츠 휠
+          '<div class="studio-content-section" id="sec-car-wheels">',
+          '  <div class="studio-options-grid">',
+          '    <div class="studio-opt-btn ' + (CustomStudioState.car.wheelStyle === 'spoke' ? 'active' : '') + '" onclick="setCarOption(\'wheelStyle\', \'spoke\')">',
+          '      <span class="studio-opt-icon">🛞</span>',
+          '      <span class="studio-opt-title font-jua">5-스포크 알로이</span>',
+          '      <span class="studio-opt-sub">클래식 스포츠 휠</span>',
+          '    </div>',
+          '    <div class="studio-opt-btn ' + (CustomStudioState.car.wheelStyle === 'cyber' ? 'active' : '') + '" onclick="setCarOption(\'wheelStyle\', \'cyber\')">',
+          '      <span class="studio-opt-icon">⚡</span>',
+          '      <span class="studio-opt-title font-jua">사이버 LED 림</span>',
+          '      <span class="studio-opt-sub">네온 발광 서클 휠</span>',
+          '    </div>',
+          '    <div class="studio-opt-btn ' + (CustomStudioState.car.wheelStyle === 'turbine' ? 'active' : '') + '" onclick="setCarOption(\'wheelStyle\', \'turbine\')">',
+          '      <span class="studio-opt-icon">🌀</span>',
+          '      <span class="studio-opt-title font-jua">에어로 터빈</span>',
+          '      <span class="studio-opt-sub">8-블레이드 팬 휠</span>',
+          '    </div>',
+          '  </div>',
+          '</div>',
+
+          // 탭 3: 리어 윙
+          '<div class="studio-content-section" id="sec-car-wings">',
+          '  <div class="studio-options-grid">',
+          '    <div class="studio-opt-btn ' + (CustomStudioState.car.wingStyle === 'gt' ? 'active' : '') + '" onclick="setCarOption(\'wingStyle\', \'gt\')">',
+          '      <span class="studio-opt-icon">🦅</span>',
+          '      <span class="studio-opt-title font-jua">GT 카본 듀얼 윙</span>',
+          '      <span class="studio-opt-sub">대형 레이싱 스포일러</span>',
+          '    </div>',
+          '    <div class="studio-opt-btn ' + (CustomStudioState.car.wingStyle === 'shark' ? 'active' : '') + '" onclick="setCarOption(\'wingStyle\', \'shark\')">',
+          '      <span class="studio-opt-icon">🦈</span>',
+          '      <span class="studio-opt-title font-jua">샤크핀 에어로 핀</span>',
+          '      <span class="studio-opt-sub">공기역학 수직 핀</span>',
+          '    </div>',
+          '    <div class="studio-opt-btn ' + (CustomStudioState.car.wingStyle === 'ducktail' ? 'active' : '') + '" onclick="setCarOption(\'wingStyle\', \'ducktail\')">',
+          '      <span class="studio-opt-icon">🏎️</span>',
+          '      <span class="studio-opt-title font-jua">스텔스 덕테일</span>',
+          '      <span class="studio-opt-sub">와이드 일체형 윙</span>',
+          '    </div>',
+          '  </div>',
+          '</div>',
+
+          // 탭 4: 라이트 & 네온
+          '<div class="studio-content-section" id="sec-car-lights">',
+          '  <div class="studio-options-grid">',
+          '    <div class="studio-opt-btn ' + (CustomStudioState.car.headlightColor === '#00F0FF' ? 'active' : '') + '" onclick="setCarOption(\'headlightColor\', \'#00F0FF\')">',
+          '      <span class="studio-opt-icon">💎</span>',
+          '      <span class="studio-opt-title font-jua">사이언 레이저</span>',
+          '      <span class="studio-opt-sub">청량한 사이버 라이트</span>',
+          '    </div>',
+          '    <div class="studio-opt-btn ' + (CustomStudioState.car.headlightColor === '#C084FC' ? 'active' : '') + '" onclick="setCarOption(\'headlightColor\', \'#C084FC\')">',
+          '      <span class="studio-opt-icon">🟣</span>',
+          '      <span class="studio-opt-title font-jua">울트라 바이올렛</span>',
+          '      <span class="studio-opt-sub">신비로운 보라 렌즈</span>',
+          '    </div>',
+          '    <div class="studio-opt-btn ' + (CustomStudioState.car.headlightColor === '#FFFFFF' ? 'active' : '') + '" onclick="setCarOption(\'headlightColor\', \'#FFFFFF\')">',
+          '      <span class="studio-opt-icon">⚪</span>',
+          '      <span class="studio-opt-title font-jua">제논 퓨어 화이트</span>',
+          '      <span class="studio-opt-sub">선명한 다이아몬드 빛</span>',
+          '    </div>',
+          '    <div class="studio-opt-btn ' + (CustomStudioState.car.neonUnderglow ? 'active' : '') + '" onclick="toggleCarOption(\'neonUnderglow\')">',
+          '      <span class="studio-opt-icon">🌈</span>',
+          '      <span class="studio-opt-title font-jua">네온 언더글로우</span>',
+          '      <span class="studio-opt-sub">' + (CustomStudioState.car.neonUnderglow ? '가동 중 (ON)' : '꺼짐 (OFF)') + '</span>',
+          '    </div>',
+          '  </div>',
+          '</div>'
+        ].join('');
+      }
+
+      // 탭 전환 이벤트 바인딩
+      tabBar.querySelectorAll('.studio-tab-pill').forEach(function(pill) {
+        pill.onclick = function() {
+          tabBar.querySelectorAll('.studio-tab-pill').forEach(function(p) { p.classList.remove('active'); });
+          pill.classList.add('active');
+          var targetTab = pill.getAttribute('data-tab');
+          contentArea.querySelectorAll('.studio-content-section').forEach(function(sec) {
+            sec.classList.remove('active');
+          });
+          var targetSec = document.getElementById('sec-' + targetTab);
+          if (targetSec) targetSec.classList.add('active');
+        };
       });
+    }
+
+    function setRoomOption(key, val) {
+      CustomStudioState.room[key] = val;
+      applyRoomCustomization();
+      renderStudioUI();
+    }
+
+    function toggleRoomOption(key) {
+      CustomStudioState.room[key] = !CustomStudioState.room[key];
+      applyRoomCustomization();
+      renderStudioUI();
+    }
+
+    function setCarOption(key, val) {
+      CustomStudioState.car[key] = val;
+      if (key === 'color') AppState.currentColor = val;
+      applyCarCustomization();
+      renderStudioUI();
+    }
+
+    function toggleCarOption(key) {
+      CustomStudioState.car[key] = !CustomStudioState.car[key];
+      applyCarCustomization();
+      renderStudioUI();
+    }
+
+    function toggleCustomStudio(forceOpen) {
+      var drawer = document.getElementById('customStudioDrawer');
+      if (!drawer) return;
+      var isOpen = drawer.classList.contains('open');
+      if (typeof forceOpen === 'boolean') {
+        isOpen = !forceOpen;
+      }
+      if (isOpen) {
+        drawer.classList.remove('open');
+      } else {
+        renderStudioUI();
+        drawer.classList.add('open');
+      }
     }
 
     // 테마 모드 전환 (슈퍼카 vs 룸꾸미기)
@@ -2470,10 +3615,8 @@
       var introTitle = document.getElementById('introMainTitle');
       var introSub = document.getElementById('introSubtitleText');
       var btnStart = document.getElementById('btnStartAdventure');
-      var colorTitle = document.getElementById('colorPickerTitle');
       var hintText = document.getElementById('viewportHintText');
       var avatarChipsRow = document.getElementById('avatarChipsRow');
-      var swatchWrapper = document.getElementById('swatchListWrapper');
 
       if (theme === 'room') {
         document.body.classList.add('theme-room-mode');
@@ -2495,13 +3638,14 @@
           if (moodLight) moodLight.intensity = 1.6;
         }
 
+        applyRoomCustomization();
+
         hudBadge.textContent = 'MY DREAM ROOM';
         hudTitle.textContent = '🎀 러블리 드림하우스';
         introIcon.textContent = '🎀';
         introTitle.textContent = '러블리 드림하우스 룸꾸미기';
         introSub.innerHTML = '18가지 마음 모험 질문에 답하며 나만의 예쁜 방을 꾸며보세요!<br>긍정과 우정의 마음이 모일수록 사랑스러운 가구와 소품이 놓여집니다.';
         btnStart.textContent = '✨ 러블리 드림하우스 모험 시작하기!';
-        colorTitle.textContent = '인테리어 컬러';
         hintText.textContent = '🖐️ 화면을 드래그하여 360° 드림하우스를 감상하세요!';
 
         // 아바타 칩 전환 (룸꾸미기용)
@@ -2513,16 +3657,6 @@
           '<div class="avatar-chip" data-avatar="✨">✨</div>'
         ].join('');
         AppState.studentProfile.avatar = '🎀';
-
-        // 컬러 스와치 전환 (파스텔 인테리어)
-        swatchWrapper.innerHTML = [
-          '<div class="color-swatch active" style="background: #FB7185;" data-color="#FB7185" title="로즈 핑크"></div>',
-          '<div class="color-swatch" style="background: #C084FC;" data-color="#C084FC" title="파스텔 라벤더"></div>',
-          '<div class="color-swatch" style="background: #FEF08A;" data-color="#FEF08A" title="밀크 바닐라"></div>',
-          '<div class="color-swatch" style="background: #6EE7B7;" data-color="#6EE7B7" title="민트 애플"></div>',
-          '<div class="color-swatch" style="background: #FDBA74;" data-color="#FDBA74" title="스위트 피치"></div>',
-          '<div class="color-swatch" style="background: #7DD3FC;" data-color="#7DD3FC" title="베이비 스카이"></div>'
-        ].join('');
 
         updateHudPartsIcons(DOMAIN_INFO_ROOM);
 
@@ -2541,13 +3675,14 @@
         if (carGroup) carGroup.visible = true;
         if (roomGroup) roomGroup.visible = false;
 
+        applyCarCustomization();
+
         hudBadge.textContent = 'SUPERCAR SHOWROOM';
         hudTitle.textContent = '🏁 미래 하이퍼카 쇼룸';
         introIcon.textContent = '🏎️';
         introTitle.textContent = '나만의 하이퍼카 마음 튜닝';
         introSub.innerHTML = '18가지 마음 모험 질문에 답하며 나만의 슈퍼카를 튜닝해보세요!<br>끈기와 마음의 힘이 모일수록 멋진 파츠가 장착됩니다.';
         btnStart.textContent = '🚀 슈퍼카 쇼룸 모험 시작하기!';
-        colorTitle.textContent = '차체 컬러';
         hintText.textContent = '🖐️ 화면을 드래그하여 360° 슈퍼카를 감상하세요!';
 
         // 아바타 칩 복원 (슈퍼카용)
@@ -2560,16 +3695,6 @@
         ].join('');
         AppState.studentProfile.avatar = '🏎️';
 
-        // 컬러 스와치 복원 (슈퍼카)
-        swatchWrapper.innerHTML = [
-          '<div class="color-swatch active" style="background: #E11D48;" data-color="#E11D48" title="크림슨 레드"></div>',
-          '<div class="color-swatch" style="background: #06B6D4;" data-color="#06B6D4" title="사이버 사이언"></div>',
-          '<div class="color-swatch" style="background: #EAB308;" data-color="#EAB308" title="레이싱 옐로우"></div>',
-          '<div class="color-swatch" style="background: #8B5CF6;" data-color="#8B5CF6" title="네온 바이올렛"></div>',
-          '<div class="color-swatch" style="background: #18181B;" data-color="#18181B" title="팬텀 블랙"></div>',
-          '<div class="color-swatch" style="background: #F8FAFC;" data-color="#F8FAFC" title="티타늄 화이트"></div>'
-        ].join('');
-
         updateHudPartsIcons(DOMAIN_INFO_CAR);
 
         orbitAngleY = 2.4;
@@ -2577,6 +3702,7 @@
         targetCameraLookAt.set(0, 0.45, 0);
       }
 
+      renderStudioUI();
       bindDynamicEvents();
     }
 
@@ -2947,9 +4073,47 @@
       window.print();
     });
 
+    // 🌟 결과 모달에서 "내 작품 더 꾸미기 (자유 스튜디오)" 진입 버튼
+    var btnFreeStudio = document.getElementById('btnOpenFreeStudio');
+    if (btnFreeStudio) {
+      btnFreeStudio.addEventListener('click', function() {
+        document.getElementById('resultOverlay').classList.remove('active');
+        document.getElementById('studioReturnBar').classList.add('active');
+        toggleCustomStudio(true);
+      });
+    }
+
+    // 🌟 스튜디오에서 수료증으로 복귀하는 상단 플로팅 버튼
+    var btnBackCert = document.getElementById('btnBackToResultCert');
+    if (btnBackCert) {
+      btnBackCert.addEventListener('click', function() {
+        document.getElementById('studioReturnBar').classList.remove('active');
+        toggleCustomStudio(false);
+        document.getElementById('resultOverlay').classList.add('active');
+      });
+    }
+
+    // 🌟 하단 플로팅 스튜디오 토글 버튼
+    var btnToggle = document.getElementById('btnToggleStudio');
+    if (btnToggle) {
+      btnToggle.addEventListener('click', function() {
+        toggleCustomStudio();
+      });
+    }
+
+    // 🌟 스튜디오 닫기 [✕] 버튼
+    var btnClose = document.getElementById('btnCloseStudio');
+    if (btnClose) {
+      btnClose.addEventListener('click', function() {
+        toggleCustomStudio(false);
+      });
+    }
+
     // 다시 하기
     document.getElementById('btnRestart').addEventListener('click', function() {
       document.getElementById('resultOverlay').classList.remove('active');
+      document.getElementById('studioReturnBar').classList.remove('active');
+      toggleCustomStudio(false);
       document.getElementById('introOverlay').classList.remove('hidden');
       document.getElementById('hudProgressCluster').style.display = 'none';
 
@@ -2971,12 +4135,17 @@
         }
       }
       if (moodLight) moodLight.intensity = 1.6;
+
+      renderStudioUI();
+      updateCertCustomSummary();
     });
 
     // 윈도우 로드 시 Three.js 엔진 구동 및 동적 이벤트 초기화
     window.addEventListener('load', function() {
       initThreeScene();
       bindDynamicEvents();
+      renderStudioUI();
+      updateCertCustomSummary();
     });
   </script>
 </body>
