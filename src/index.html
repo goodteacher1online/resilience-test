@@ -1,0 +1,1886 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <title>🏎️ 하이퍼 슈퍼카 3D - 회복탄력성 쇼룸</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Jua&family=Plus+Jakarta+Sans:wght@500;700;800;900&family=Noto+Sans+KR:wght@400;500;700;900&display=swap" rel="stylesheet">
+  <!-- Three.js 3D Engine & Loaders -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/GLTFLoader.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/DRACOLoader.js"></script>
+
+  <style>
+    :root {
+      --bg-dark: #0B0E14;
+      --panel-bg: rgba(18, 24, 38, 0.88);
+      --panel-border: rgba(255, 255, 255, 0.12);
+      --accent-cyan: #06B6D4;
+      --accent-red: #E11D48;
+      --accent-amber: #F59E0B;
+      --accent-green: #10B981;
+      --text-main: #F8FAFC;
+      --text-muted: #94A3B8;
+      --neon-glow: 0 0 24px rgba(6, 182, 212, 0.45);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      -webkit-tap-highlight-color: transparent;
+      user-select: none;
+    }
+
+    body, html {
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      font-family: 'Noto Sans KR', sans-serif;
+      background-color: var(--bg-dark);
+      color: var(--text-main);
+    }
+
+    .font-jua {
+      font-family: 'Jua', cursive, sans-serif;
+    }
+
+    #canvas-container {
+      position: fixed;
+      inset: 0;
+      z-index: 1;
+      cursor: grab;
+      touch-action: none;
+    }
+    #canvas-container:active {
+      cursor: grabbing;
+    }
+
+    /* 상단 HUD */
+    .top-hud {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      z-index: 20;
+      padding: 18px 26px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      pointer-events: none;
+    }
+
+    .hud-title-card {
+      pointer-events: auto;
+      background: var(--panel-bg);
+      backdrop-filter: blur(16px);
+      border: 1px solid var(--panel-border);
+      padding: 9px 20px;
+      border-radius: 20px;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.4);
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .hud-title-badge {
+      background: linear-gradient(135deg, #06B6D4 0%, #3B82F6 100%);
+      color: #fff;
+      font-size: 11px;
+      font-weight: 900;
+      padding: 4px 10px;
+      border-radius: 12px;
+      letter-spacing: 0.5px;
+      box-shadow: 0 0 12px rgba(6, 182, 212, 0.5);
+    }
+    .hud-title-text {
+      font-size: 15px;
+      font-weight: 800;
+      color: #FFFFFF;
+      letter-spacing: -0.2px;
+    }
+
+    .hud-progress-wrap {
+      position: absolute;
+      left: 50%;
+      transform: translateX(-50%);
+      pointer-events: auto;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 6px;
+    }
+    .hud-progress-pill {
+      width: 180px;
+      height: 8px;
+      background: rgba(255, 255, 255, 0.1);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      border-radius: 10px;
+      overflow: hidden;
+      box-shadow: inset 0 2px 4px rgba(0,0,0,0.5);
+    }
+    .hud-progress-bar {
+      height: 100%;
+      width: 0%;
+      background: linear-gradient(90deg, #06B6D4, #10B981);
+      border-radius: 10px;
+      box-shadow: 0 0 10px rgba(6, 182, 212, 0.6);
+      transition: width 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+    .hud-progress-text {
+      font-size: 12px;
+      font-weight: 800;
+      color: #CBD5E1;
+      background: rgba(15, 23, 42, 0.75);
+      padding: 2px 12px;
+      border-radius: 12px;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+    }
+
+    .hud-tuning-parts {
+      pointer-events: auto;
+      background: var(--panel-bg);
+      backdrop-filter: blur(16px);
+      border: 1px solid var(--panel-border);
+      padding: 7px 16px;
+      border-radius: 20px;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.4);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .part-dot {
+      font-size: 17px;
+      filter: grayscale(1) opacity(0.3);
+      transition: all 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+    .part-dot.unlocked {
+      filter: grayscale(0) opacity(1);
+      transform: scale(1.25);
+      text-shadow: 0 0 10px rgba(6, 182, 212, 0.8);
+    }
+
+    /* 하단 좌측: 차체 실시간 컬러 커스터마이저 */
+    .car-color-picker-bar {
+      position: fixed;
+      bottom: 24px;
+      left: 28px;
+      z-index: 20;
+      background: var(--panel-bg);
+      backdrop-filter: blur(16px);
+      border: 1px solid var(--panel-border);
+      padding: 8px 16px;
+      border-radius: 24px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      box-shadow: 0 12px 28px rgba(0, 0, 0, 0.5);
+    }
+    .color-picker-title {
+      font-size: 12px;
+      font-weight: 800;
+      color: #94A3B8;
+      margin-right: 4px;
+    }
+    .color-swatch {
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      cursor: pointer;
+      border: 2px solid rgba(255, 255, 255, 0.3);
+      transition: all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+    .color-swatch:hover {
+      transform: scale(1.25);
+      border-color: #FFFFFF;
+    }
+    .color-swatch.active {
+      transform: scale(1.3);
+      border-color: #FFFFFF;
+      box-shadow: 0 0 12px #FFFFFF;
+    }
+
+    /* 뷰포트 드래그 회전 안내 힌트 */
+    .viewport-orbit-hint {
+      position: fixed;
+      bottom: 24px;
+      right: 28px;
+      z-index: 10;
+      background: rgba(15, 23, 42, 0.75);
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      color: #94A3B8;
+      padding: 8px 16px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: 700;
+      pointer-events: none;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    /* 인트로 오버레이 */
+    .overlay-container {
+      position: fixed;
+      inset: 0;
+      z-index: 30;
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      padding: 24px 60px;
+      pointer-events: none;
+      transition: opacity 0.5s ease, visibility 0.5s ease;
+    }
+    .overlay-container.hidden {
+      opacity: 0;
+      visibility: hidden;
+      pointer-events: none;
+    }
+
+    @media (max-width: 960px) {
+      .overlay-container {
+        justify-content: center;
+        padding: 20px;
+      }
+      .car-color-picker-bar {
+        bottom: 84px;
+        left: 50%;
+        transform: translateX(-50%);
+      }
+      .viewport-orbit-hint {
+        display: none;
+      }
+    }
+
+    .cyber-card {
+      pointer-events: auto;
+      background: rgba(15, 23, 42, 0.92);
+      backdrop-filter: blur(24px);
+      border: 1px solid rgba(255, 255, 255, 0.16);
+      border-radius: 28px;
+      box-shadow: 0 25px 60px -10px rgba(0, 0, 0, 0.7), 0 0 30px rgba(6, 182, 212, 0.15);
+      max-width: 410px;
+      width: 100%;
+      padding: 28px 24px;
+      text-align: center;
+      transform: translateY(0);
+      transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+
+    .intro-header-icon {
+      font-size: 40px;
+      margin-bottom: 6px;
+      display: inline-block;
+      animation: carRev 3s infinite ease-in-out;
+    }
+    @keyframes carRev {
+      0%, 100% { transform: translateY(0) scale(1); }
+      50% { transform: translateY(-4px) scale(1.05); }
+    }
+
+    .intro-title {
+      font-size: 24px;
+      color: #FFFFFF;
+      margin-bottom: 6px;
+      font-weight: 800;
+      letter-spacing: -0.3px;
+    }
+    .intro-subtitle {
+      font-size: 13px;
+      color: var(--text-muted);
+      line-height: 1.5;
+      margin-bottom: 20px;
+    }
+
+    .avatar-chips-row {
+      display: flex;
+      justify-content: center;
+      gap: 10px;
+      margin-bottom: 18px;
+    }
+    .avatar-chip {
+      width: 42px;
+      height: 42px;
+      border-radius: 50%;
+      background: rgba(30, 41, 59, 0.8);
+      border: 2px solid rgba(255, 255, 255, 0.12);
+      font-size: 20px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+    .avatar-chip:hover {
+      transform: scale(1.15);
+      border-color: var(--accent-cyan);
+    }
+    .avatar-chip.active {
+      transform: scale(1.2);
+      border-color: var(--accent-cyan);
+      background: rgba(6, 182, 212, 0.2);
+      box-shadow: 0 0 14px rgba(6, 182, 212, 0.6);
+    }
+
+    .input-form-grid {
+      display: flex;
+      flex-direction: column;
+      gap: 11px;
+      margin-bottom: 22px;
+      text-align: left;
+    }
+    .form-group-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 8px;
+    }
+    .form-label {
+      font-size: 11.5px;
+      font-weight: 800;
+      color: #94A3B8;
+      margin-bottom: 4px;
+      display: block;
+    }
+    .cyber-input {
+      width: 100%;
+      padding: 10px 14px;
+      border-radius: 14px;
+      border: 1px solid rgba(255, 255, 255, 0.14);
+      background: rgba(30, 41, 59, 0.6);
+      font-size: 13.5px;
+      font-weight: 600;
+      color: #FFFFFF;
+      outline: none;
+      transition: all 0.2s;
+    }
+    .cyber-input:focus {
+      border-color: var(--accent-cyan);
+      background: rgba(30, 41, 59, 0.9);
+      box-shadow: 0 0 12px rgba(6, 182, 212, 0.3);
+    }
+
+    .btn-cyber-primary {
+      width: 100%;
+      padding: 14px 20px;
+      border-radius: 18px;
+      border: none;
+      background: linear-gradient(135deg, #06B6D4 0%, #2563EB 100%);
+      color: #FFFFFF;
+      font-size: 17px;
+      font-weight: 800;
+      cursor: pointer;
+      box-shadow: 0 8px 24px rgba(6, 182, 212, 0.4);
+      transition: all 0.2s ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+    }
+    .btn-cyber-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 12px 30px rgba(6, 182, 212, 0.6);
+    }
+    .btn-cyber-primary:active {
+      transform: translateY(2px);
+      box-shadow: 0 4px 12px rgba(6, 182, 212, 0.3);
+    }
+
+    /* 게임플레이 HUD & 질문 다이얼로그 */
+    .gameplay-hud-container {
+      position: fixed;
+      inset: 0;
+      z-index: 25;
+      pointer-events: none;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      padding: 82px 24px 28px 24px;
+      opacity: 0;
+      visibility: hidden;
+      transition: opacity 0.4s ease, visibility 0.4s ease;
+    }
+    .gameplay-hud-container.active {
+      opacity: 1;
+      visibility: visible;
+    }
+
+    .question-dialog-card {
+      pointer-events: auto;
+      max-width: 680px;
+      width: 100%;
+      margin: 0 auto;
+      background: rgba(15, 23, 42, 0.92);
+      backdrop-filter: blur(20px);
+      border: 1px solid rgba(255, 255, 255, 0.16);
+      border-radius: 26px;
+      padding: 22px 30px;
+      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.6), 0 0 30px rgba(6, 182, 212, 0.12);
+      text-align: center;
+      animation: dialogPop 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+    @keyframes dialogPop {
+      0% { transform: scale(0.94) translateY(12px); opacity: 0; }
+      100% { transform: scale(1) translateY(0); opacity: 1; }
+    }
+
+    .question-badge {
+      display: inline-block;
+      background: rgba(6, 182, 212, 0.15);
+      color: #38BDF8;
+      border: 1px solid rgba(56, 189, 248, 0.4);
+      font-size: 13px;
+      font-weight: 800;
+      padding: 4px 16px;
+      border-radius: 14px;
+      margin-bottom: 12px;
+      letter-spacing: 0.3px;
+    }
+    .question-text {
+      font-size: 21px;
+      font-weight: 800;
+      color: #FFFFFF;
+      line-height: 1.48;
+      word-break: keep-all;
+    }
+
+    .choices-bottom-bar {
+      pointer-events: auto;
+      max-width: 820px;
+      width: 100%;
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 12px;
+    }
+
+    .choice-cyber-btn {
+      background: rgba(15, 23, 42, 0.9);
+      border: 1px solid rgba(255, 255, 255, 0.14);
+      border-radius: 20px;
+      padding: 16px 8px;
+      cursor: pointer;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      box-shadow: 0 6px 16px rgba(0, 0, 0, 0.4);
+      transition: all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+    .choice-cyber-btn:hover {
+      transform: translateY(-4px);
+      border-color: var(--accent-cyan);
+      box-shadow: 0 10px 24px rgba(6, 182, 212, 0.4);
+      background: rgba(30, 41, 59, 0.95);
+    }
+    .choice-cyber-btn:active {
+      transform: translateY(2px);
+    }
+    .choice-cyber-btn .choice-emoji {
+      font-size: 26px;
+      line-height: 1;
+    }
+    .choice-cyber-btn .choice-label {
+      font-size: 13px;
+      font-weight: 800;
+      color: #F1F5F9;
+    }
+    .choice-cyber-btn .choice-sub {
+      font-size: 11px;
+      color: #94A3B8;
+      font-weight: 600;
+    }
+
+    /* 튜닝 파츠 업그레이드 팝업 토스트 */
+    .part-toast-popup {
+      position: fixed;
+      top: 135px;
+      left: 50%;
+      transform: translateX(-50%) scale(0.8);
+      background: rgba(15, 23, 42, 0.95);
+      border: 1.5px solid var(--accent-cyan);
+      border-radius: 26px;
+      padding: 16px 28px;
+      box-shadow: 0 16px 40px rgba(6, 182, 212, 0.4);
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      z-index: 50;
+      pointer-events: none;
+      opacity: 0;
+      transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+    .part-toast-popup.show {
+      opacity: 1;
+      transform: translateX(-50%) scale(1);
+    }
+    .part-toast-icon {
+      font-size: 38px;
+      animation: pulseSpin 1s infinite alternate ease-in-out;
+    }
+    @keyframes pulseSpin {
+      0% { transform: scale(1) rotate(-8deg); }
+      100% { transform: scale(1.2) rotate(8deg); }
+    }
+    .part-toast-title {
+      font-size: 18px;
+      font-weight: 900;
+      color: #38BDF8;
+      margin-bottom: 2px;
+    }
+    .part-toast-desc {
+      font-size: 13px;
+      color: #E2E8F0;
+      font-weight: 600;
+    }
+
+    /* 결과 모달 */
+    .result-overlay-container {
+      position: fixed;
+      inset: 0;
+      z-index: 60;
+      background: rgba(5, 8, 15, 0.88);
+      backdrop-filter: blur(20px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      opacity: 0;
+      visibility: hidden;
+      transition: all 0.4s ease;
+    }
+    .result-overlay-container.active {
+      opacity: 1;
+      visibility: visible;
+    }
+
+    .result-modal-box {
+      background: rgba(15, 23, 42, 0.95);
+      border: 1px solid rgba(255, 255, 255, 0.16);
+      border-radius: 32px;
+      max-width: 640px;
+      width: 100%;
+      padding: 32px 30px;
+      box-shadow: 0 30px 70px rgba(0, 0, 0, 0.8), 0 0 40px rgba(6, 182, 212, 0.25);
+      text-align: center;
+      max-height: 92vh;
+      overflow-y: auto;
+    }
+
+    .result-score-badge {
+      display: inline-block;
+      background: linear-gradient(135deg, #06B6D4 0%, #3B82F6 100%);
+      color: #FFFFFF;
+      font-size: 14px;
+      font-weight: 900;
+      padding: 5px 16px;
+      border-radius: 16px;
+      margin-bottom: 10px;
+    }
+    .result-main-title {
+      font-size: 28px;
+      font-weight: 900;
+      color: #FFFFFF;
+      margin-bottom: 6px;
+    }
+    .result-score-num {
+      font-size: 54px;
+      font-weight: 900;
+      color: #38BDF8;
+      line-height: 1;
+      margin-bottom: 12px;
+      text-shadow: 0 0 20px rgba(56, 189, 248, 0.5);
+    }
+
+    .domain-stat-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+      margin: 20px 0;
+      text-align: left;
+    }
+    .domain-stat-card {
+      background: rgba(30, 41, 59, 0.6);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 16px;
+      padding: 12px;
+    }
+    .domain-stat-name {
+      font-size: 12px;
+      font-weight: 700;
+      color: #94A3B8;
+      margin-bottom: 4px;
+    }
+    .domain-stat-score {
+      font-size: 18px;
+      font-weight: 900;
+      color: #F8FAFC;
+    }
+
+    .result-actions-row {
+      display: flex;
+      justify-content: center;
+      gap: 14px;
+      margin-top: 24px;
+    }
+    .btn-action-outline {
+      padding: 12px 24px;
+      border-radius: 18px;
+      border: 1.5px solid rgba(255, 255, 255, 0.2);
+      background: transparent;
+      color: #E2E8F0;
+      font-size: 15px;
+      font-weight: 800;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .btn-action-outline:hover {
+      background: rgba(255, 255, 255, 0.1);
+      border-color: #FFFFFF;
+    }
+
+    /* A4 세로 1장 완벽 출력 수료증 */
+    #printCertificateArea {
+      display: none;
+    }
+
+    @media print {
+      html, body {
+        background: #FFFFFF !important;
+        color: #0F172A !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        width: 100% !important;
+        height: 100% !important;
+        overflow: visible !important;
+      }
+      #canvas-container, .top-hud, .car-color-picker-bar, .viewport-orbit-hint, .gameplay-hud-container, .part-toast-popup, #introOverlay, #resultOverlay {
+        display: none !important;
+        visibility: hidden !important;
+      }
+      #printCertificateArea {
+        display: block !important;
+        visibility: visible !important;
+        position: relative !important;
+        width: 100% !important;
+        max-width: 780px !important;
+        margin: 0 auto !important;
+        padding: 30px !important;
+        background: #FFFFFF !important;
+        color: #1E293B !important;
+        box-sizing: border-box !important;
+        box-shadow: none !important;
+      }
+      #printCertificateArea * {
+        visibility: visible !important;
+      }
+      @page {
+        size: A4 portrait;
+        margin: 8mm;
+      }
+    }
+
+    .cert-border-outer {
+      position: absolute;
+      inset: 20px;
+      border: 4px double #0284C7;
+      pointer-events: none;
+    }
+    .cert-border-inner {
+      position: absolute;
+      inset: 28px;
+      border: 1px solid #BAE6FD;
+      pointer-events: none;
+    }
+    .cert-header {
+      text-align: center;
+      margin-top: 30px;
+      margin-bottom: 24px;
+    }
+    .cert-emblem {
+      font-size: 46px;
+      line-height: 1;
+      margin-bottom: 10px;
+    }
+    .cert-main-title {
+      font-family: 'Jua', sans-serif;
+      font-size: 34px;
+      color: #0369A1;
+      margin-bottom: 6px;
+      letter-spacing: 2px;
+    }
+    .cert-sub-title {
+      font-size: 15px;
+      color: #64748B;
+      font-weight: 700;
+    }
+    .cert-recipient-box {
+      border-bottom: 2px solid #E2E8F0;
+      padding-bottom: 16px;
+      margin-bottom: 24px;
+      text-align: center;
+    }
+    .cert-recipient-school {
+      font-size: 16px;
+      color: #475569;
+      font-weight: 600;
+      margin-bottom: 6px;
+    }
+    .cert-recipient-name {
+      font-size: 28px;
+      font-weight: 900;
+      color: #0F172A;
+      letter-spacing: 1px;
+    }
+    .cert-body-text {
+      font-size: 15px;
+      line-height: 1.8;
+      color: #334155;
+      text-align: justify;
+      margin-bottom: 28px;
+      word-break: keep-all;
+    }
+    .cert-stats-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-bottom: 30px;
+      font-size: 12.5px;
+    }
+    .cert-stats-table th, .cert-stats-table td {
+      border: 1px solid #CBD5E1;
+      padding: 8px 6px;
+      text-align: center;
+    }
+    .cert-stats-table th {
+      background-color: #F0F9FF;
+      color: #0369A1;
+      font-weight: 800;
+    }
+    .cert-footer {
+      text-align: center;
+      margin-top: 40px;
+    }
+    .cert-date {
+      font-size: 14px;
+      color: #64748B;
+      margin-bottom: 12px;
+    }
+    .cert-issuer {
+      font-family: 'Jua', sans-serif;
+      font-size: 20px;
+      color: #0F172A;
+      letter-spacing: 1px;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- 1. 3D WebGL 캔버스 뷰포트 -->
+  <div id="canvas-container"></div>
+
+  <!-- 2. 상단 네비게이션 HUD -->
+  <div class="top-hud">
+    <div class="hud-title-card">
+      <div class="hud-title-badge">SUPERCAR SHOWROOM</div>
+      <div class="hud-title-text font-jua" id="hudChapterTitle">🏁 미래 하이퍼카 쇼룸</div>
+    </div>
+
+    <div class="hud-progress-wrap" id="hudProgressCluster" style="display: none;">
+      <div class="hud-progress-pill">
+        <div class="hud-progress-bar" id="hudProgressBar"></div>
+      </div>
+      <div class="hud-progress-text font-jua" id="hudProgressText">1 / 18</div>
+    </div>
+
+    <!-- 6대 튜닝 파츠 획득 현황 -->
+    <div class="hud-tuning-parts">
+      <span class="part-dot" id="partDot0" title="바디 섀시">🎨</span>
+      <span class="part-dot" id="partDot1" title="스포츠 휠">🛞</span>
+      <span class="part-dot" id="partDot2" title="LED 라이트">💡</span>
+      <span class="part-dot" id="partDot3" title="에어로 스커트">🛡️</span>
+      <span class="part-dot" id="partDot4" title="레이싱 윙">🪽</span>
+      <span class="part-dot" id="partDot5" title="하이퍼 부스터">🚀</span>
+    </div>
+  </div>
+
+  <!-- 3. 실시간 차체 컬러 커스터마이저 (하단 좌측) -->
+  <div class="car-color-picker-bar">
+    <span class="color-picker-title font-jua">차체 컬러</span>
+    <div class="color-swatch active" style="background: #E11D48;" data-color="#E11D48" title="크림슨 레드"></div>
+    <div class="color-swatch" style="background: #06B6D4;" data-color="#06B6D4" title="사이버 사이언"></div>
+    <div class="color-swatch" style="background: #EAB308;" data-color="#EAB308" title="레이싱 옐로우"></div>
+    <div class="color-swatch" style="background: #8B5CF6;" data-color="#8B5CF6" title="네온 바이올렛"></div>
+    <div class="color-swatch" style="background: #18181B;" data-color="#18181B" title="팬텀 블랙"></div>
+    <div class="color-swatch" style="background: #F8FAFC;" data-color="#F8FAFC" title="티타늄 화이트"></div>
+  </div>
+
+  <!-- 뷰포트 조작 안내 -->
+  <div class="viewport-orbit-hint font-jua">
+    <span>🖐️ 화면을 드래그하여 360° 슈퍼카를 감상하세요!</span>
+  </div>
+
+  <!-- 4. 인트로 오버레이 카드 -->
+  <div class="overlay-container" id="introOverlay">
+    <div class="cyber-card">
+      <div class="intro-header-icon">🏎️</div>
+      <h2 class="intro-title font-jua">나만의 하이퍼카 마음 튜닝</h2>
+      <p class="intro-subtitle">
+        18가지 마음 모험 질문에 답하며 나만의 슈퍼카를 튜닝해보세요!<br>
+        끈기와 마음의 힘이 모일수록 멋진 파츠가 장착됩니다.
+      </p>
+
+      <!-- 아바타 파일럿 선택 -->
+      <div class="avatar-chips-row">
+        <div class="avatar-chip active" data-avatar="🏎️">🏎️</div>
+        <div class="avatar-chip" data-avatar="🚀">🚀</div>
+        <div class="avatar-chip" data-avatar="⚡">⚡</div>
+        <div class="avatar-chip" data-avatar="👑">👑</div>
+        <div class="avatar-chip" data-avatar="🔥">🔥</div>
+      </div>
+
+      <!-- 학생 정보 입력 -->
+      <div class="input-form-grid">
+        <div>
+          <label class="form-label" for="schoolName">학교 이름</label>
+          <input type="text" id="schoolName" class="cyber-input" value="행복초등학교" placeholder="예: 행복초등학교">
+        </div>
+        <div class="form-group-row">
+          <div>
+            <label class="form-label" for="studentGrade">학년</label>
+            <input type="number" id="studentGrade" class="cyber-input" value="3" min="1" max="6">
+          </div>
+          <div>
+            <label class="form-label" for="studentClass">반</label>
+            <input type="text" id="studentClass" class="cyber-input" value="사랑반" placeholder="예: 1반">
+          </div>
+          <div>
+            <label class="form-label" for="studentNum">번호</label>
+            <input type="number" id="studentNum" class="cyber-input" value="7" min="1" max="50">
+          </div>
+        </div>
+        <div>
+          <label class="form-label" for="studentName">학생 이름</label>
+          <input type="text" id="studentName" class="cyber-input" value="박하늘" placeholder="이름을 입력하세요">
+        </div>
+      </div>
+
+      <button type="button" class="btn-cyber-primary font-jua" id="btnStartAdventure">
+        🚀 슈퍼카 쇼룸 모험 시작하기!
+      </button>
+    </div>
+  </div>
+
+  <!-- 5. 질문 응답 HUD & 카드 -->
+  <div class="gameplay-hud-container" id="gameplayOverlay">
+    <div class="question-dialog-card">
+      <div class="question-badge font-jua" id="dialogQBadge">질문 1 / 18</div>
+      <div class="question-text" id="dialogQText">질문이 여기에 표시됩니다.</div>
+    </div>
+
+    <div class="choices-bottom-bar">
+      <button type="button" class="choice-cyber-btn" onclick="submitAnswer(1)">
+        <span class="choice-emoji">🌧️</span>
+        <span class="choice-label font-jua">전혀 아니야</span>
+        <span class="choice-sub">1점</span>
+      </button>
+      <button type="button" class="choice-cyber-btn" onclick="submitAnswer(2)">
+        <span class="choice-emoji">☁️</span>
+        <span class="choice-label font-jua">조금 아니야</span>
+        <span class="choice-sub">2점</span>
+      </button>
+      <button type="button" class="choice-cyber-btn" onclick="submitAnswer(3)">
+        <span class="choice-emoji">⛅</span>
+        <span class="choice-label font-jua">보통이야</span>
+        <span class="choice-sub">3점</span>
+      </button>
+      <button type="button" class="choice-cyber-btn" onclick="submitAnswer(4)">
+        <span class="choice-emoji">🌤️</span>
+        <span class="choice-label font-jua">조금 맞아</span>
+        <span class="choice-sub">4점</span>
+      </button>
+      <button type="button" class="choice-cyber-btn" onclick="submitAnswer(5)">
+        <span class="choice-emoji">☀️</span>
+        <span class="choice-label font-jua">아주 맞아!</span>
+        <span class="choice-sub">5점</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- 튜닝 파츠 업그레이드 토스트 -->
+  <div class="part-toast-popup" id="partToast">
+    <div class="part-toast-icon" id="partToastIcon">🛞</div>
+    <div>
+      <div class="part-toast-title font-jua" id="partToastTitle">파츠 튜닝 완료!</div>
+      <div class="part-toast-desc" id="partToastDesc">스포츠 알루미늄 휠이 장착되었습니다.</div>
+    </div>
+  </div>
+
+  <!-- 6. 최종 결과 모달 -->
+  <div class="result-overlay-container" id="resultOverlay">
+    <div class="result-modal-box">
+      <div class="result-score-badge font-jua" id="resultLevelBadge">하이퍼 마스터</div>
+      <h2 class="result-main-title font-jua" id="resultBadgeTitle">황금 포뮬러 챔피언</h2>
+      <div class="result-score-num font-jua" id="resultTotalScore">85점</div>
+      <p style="color:#94A3B8; font-size:14px; margin-bottom: 16px;" id="resultLevelDesc">
+        모든 난관을 뚫고 씩씩하게 질주하는 최고의 회복탄력성 파일럿입니다!
+      </p>
+
+      <div class="domain-stat-grid font-jua">
+        <div class="domain-stat-card">
+          <div class="domain-stat-name">끈기력 🔥</div>
+          <div class="domain-stat-score" id="statD1">15 / 15</div>
+        </div>
+        <div class="domain-stat-card">
+          <div class="domain-stat-name">마음다스림 💧</div>
+          <div class="domain-stat-score" id="statD2">14 / 15</div>
+        </div>
+        <div class="domain-stat-card">
+          <div class="domain-stat-name">긍정마음 ☀️</div>
+          <div class="domain-stat-score" id="statD3">15 / 15</div>
+        </div>
+        <div class="domain-stat-card">
+          <div class="domain-stat-name">친화력 🤝</div>
+          <div class="domain-stat-score" id="statD4">13 / 15</div>
+        </div>
+        <div class="domain-stat-card">
+          <div class="domain-stat-name">친구우정 💖</div>
+          <div class="domain-stat-score" id="statD5">14 / 15</div>
+        </div>
+        <div class="domain-stat-card">
+          <div class="domain-stat-name">자신감 📢</div>
+          <div class="domain-stat-score" id="statD6">14 / 15</div>
+        </div>
+      </div>
+
+      <div class="result-actions-row">
+        <button type="button" class="btn-cyber-primary font-jua" id="btnPrintCert" style="width: auto; padding: 13px 30px;">
+          🖨️ 수료증 인쇄 / PDF 저장
+        </button>
+        <button type="button" class="btn-action-outline font-jua" id="btnRestart">
+          🔄 다시 모험하기
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 7. 인쇄 전용 A4 수료증 -->
+  <div id="printCertificateArea">
+    <div class="cert-border-outer"></div>
+    <div class="cert-border-inner"></div>
+
+    <div class="cert-header">
+      <div class="cert-emblem" id="certBadgeIconPrint">🏎️</div>
+      <h1 class="cert-main-title">회복탄력성 하이퍼카 수료증</h1>
+      <p class="cert-sub-title" id="certBadgeNamePrint">황금 포뮬러 챔피언</p>
+    </div>
+
+    <div class="cert-recipient-box">
+      <div class="cert-recipient-school" id="certSchoolPrint">행복초등학교 3학년 사랑반 7번</div>
+      <div class="cert-recipient-name" id="certNamePrint">박 하늘</div>
+    </div>
+
+    <p class="cert-body-text" id="certBodyPrint">
+      위 학생은 18문항의 마음 모험을 성실하게 수행하여, 넘어져도 다시 씩씩하게 일어나는 건강하고 튼튼한 회복탄력성 마음 근육을 훌륭하게 증명하였기에 이 수료증을 수여합니다.
+    </p>
+
+    <table class="cert-stats-table">
+      <thead>
+        <tr>
+          <th>총점 (90점)</th>
+          <th>판정 수준</th>
+          <th>끈기력</th>
+          <th>마음다스림</th>
+          <th>긍정마음</th>
+          <th>친화력</th>
+          <th>친구우정</th>
+          <th>자신감</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td id="certScoreCell" style="font-weight:bold; color:#0284C7;">85점</td>
+          <td id="certLevelCell">매우 높음</td>
+          <td id="certD1">15</td>
+          <td id="certD2">14</td>
+          <td id="certD3">15</td>
+          <td id="certD4">13</td>
+          <td id="certD5">14</td>
+          <td id="certD6">14</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="cert-footer">
+      <div class="cert-date" id="certDatePrint">2026년 09월 26일</div>
+      <div class="cert-issuer">초등학교 마음성장 연구회</div>
+    </div>
+  </div>
+
+  <!-- ============================================================
+       Three.js 실사 PBR 슈퍼카 쇼룸 엔진 스크립트
+       ============================================================ -->
+  <script>
+    var QUESTIONS = [
+      { id: 1, domain: 0, text: '나는 힘든 일이 생겨도 쉽게 포기하지 않고 끝까지 해내요.' },
+      { id: 2, domain: 0, text: '어려운 숙제나 문제를 만나도 스스로 해결하려고 노력해요.' },
+      { id: 3, domain: 0, text: '시험이나 시합에서 실패해도 실망하지 않고 다시 도전해요.' },
+      { id: 4, domain: 1, text: '화가 나거나 속상할 때 내 마음을 스스로 차분하게 가라앉힐 수 있어요.' },
+      { id: 5, domain: 1, text: '기분 나쁜 일이 생겨도 금방 툭툭 털어내고 밝은 기분을 되찾아요.' },
+      { id: 6, domain: 1, text: '짜증이 날 때 친구나 다른 사람에게 함부로 화내지 않아요.' },
+      { id: 7, domain: 2, text: '나는 내 자신이 소중하고 자랑스러운 사람이라고 생각해요.' },
+      { id: 8, domain: 2, text: '매일매일 학교생활과 하루하루가 대체로 즐겁고 행복해요.' },
+      { id: 9, domain: 2, text: '나에게는 다른 사람을 도울 수 있는 멋진 장점들이 많아요.' },
+      { id: 10, domain: 3, text: '처음 보는 친구에게도 다정하게 먼저 다가가서 인사할 수 있어요.' },
+      { id: 11, domain: 3, text: '친구의 슬픈 일이나 기쁜 일에 진심으로 마음을 함께 나눠요.' },
+      { id: 12, domain: 3, text: '친구와 다투었을 때 먼저 사과하고 화해할 줄 알아요.' },
+      { id: 13, domain: 4, text: '내가 힘들고 외로울 때 내 이야기를 잘 들어주는 친구가 있어요.' },
+      { id: 14, domain: 4, text: '고민이 생기면 언제든 믿고 털어놓을 수 있는 사람이 있어요.' },
+      { id: 15, domain: 4, text: '내가 도움이 필요할 때 선뜻 손을 내밀어 주는 든든한 친구들이 있어요.' },
+      { id: 16, domain: 5, text: '많은 사람들 앞에서도 내 생각과 의견을 씩씩하게 말할 수 있어요.' },
+      { id: 17, domain: 5, text: '예상하지 못한 당황스러운 일이 생겨도 침착하게 대처해요.' },
+      { id: 18, domain: 5, text: '다른 사람들과 이야기할 때 내 생각을 자신감 있게 설득할 수 있어요.' }
+    ];
+
+    var DOMAIN_INFO = [
+      { name: '끈기력 섀시 & 메탈릭 도장', badge: '끈기력 💎', icon: '🎨', desc: '견고한 하이퍼 차체와 클리어코트 메탈릭 도장 장착!' },
+      { name: '마음다스림 알로이 휠 & 캘리퍼', badge: '마음다스림 💎', icon: '🛞', desc: '초정밀 스포츠 휠과 고성능 브레이크 캘리퍼 튜닝!' },
+      { name: '긍정마음 크리스탈 LED 라이트', badge: '긍정마음 💎', icon: '💡', desc: '밤길을 밝히는 크리스탈 LED 렌즈와 틴팅 글래스!' },
+      { name: '친화력 에어로 카본 스커트', badge: '친화력 💎', icon: '🛡️', desc: '공기저항을 줄여주는 탄소섬유 사이드 스커트 & 디퓨저!' },
+      { name: '친구우정 GT 레이싱 리어 윙', badge: '친구우정 💎', icon: '🪽', desc: '고속 주행을 완벽히 지지하는 GT 리어 스포일러 윙!' },
+      { name: '당당자신감 네온 언더글로우 & 부스터', badge: '당당자신감 💎', icon: '🚀', desc: '바닥을 화려하게 수놓는 네온 언더글로우 & 하이퍼 부스터!' }
+    ];
+
+    var AppState = {
+      currentStep: 'intro',
+      currentQIndex: 0,
+      userAnswers: [],
+      unlockedParts: [false, false, false, false, false, false],
+      currentColor: '#E11D48',
+      studentProfile: {
+        avatar: '🏎️',
+        schoolName: '행복초등학교',
+        grade: '3',
+        classNum: '사랑반',
+        studentNum: '7',
+        name: '박하늘'
+      }
+    };
+
+    var scene, camera, renderer;
+    var showroomGroup, carGroup, wheels = [];
+    var carPaintMaterial, glassMaterial, wheelRimMaterial, brakeCaliperMaterial, carbonMat;
+    var spoilerWingGroup, underglowMesh, headlightLights = [];
+    var realisticModelLoaded = false;
+
+    // Car Visualizer 스타일 다이내믹 전면 쿼터뷰 구도
+    var targetCameraPos = new THREE.Vector3(3.8, 1.6, -3.8);
+    var targetCameraLookAt = new THREE.Vector3(0, 0.45, 0);
+    var isDragging = false;
+    var previousMousePosition = { x: 0, y: 0 };
+    var orbitAngleY = 2.4;
+    var orbitAngleX = 0.22;
+
+    // 프로시저럴 스튜디오 환경맵 생성 (Car Visualizer의 실사 광택 비결!)
+    function createStudioEnvironment() {
+      var canvas = document.createElement('canvas');
+      canvas.width = 1024;
+      canvas.height = 512;
+      var ctx = canvas.getContext('2d');
+
+      // 다크 그레이 스튜디오 그라데이션
+      var grad = ctx.createLinearGradient(0, 0, 0, 512);
+      grad.addColorStop(0, '#1E293B');
+      grad.addColorStop(0.5, '#0F172A');
+      grad.addColorStop(1, '#020617');
+      ctx.fillStyle = grad;
+      ctx.fillRect(0, 0, 1024, 512);
+
+      // 천장 거대 직사각형 소프트박스 조명 패널 2개 (차체에 비치는 유광 라인!)
+      ctx.fillStyle = '#FFFFFF';
+      ctx.fillRect(200, 60, 280, 70);
+      ctx.fillRect(560, 60, 280, 70);
+
+      // 측면 은은한 필라이트 바
+      ctx.fillStyle = 'rgba(255, 255, 255, 0.4)';
+      ctx.fillRect(80, 200, 120, 40);
+      ctx.fillRect(820, 200, 120, 40);
+
+      var tex = new THREE.CanvasTexture(canvas);
+      tex.mapping = THREE.EquirectangularReflectionMapping;
+      return tex;
+    }
+
+    // 둥근 박스 메쉬 헬퍼
+    function createRoundedBox(w, h, d, r, bevel) {
+      var shape = new THREE.Shape();
+      var x = -w / 2, y = -h / 2;
+      shape.moveTo(x + r, y);
+      shape.lineTo(x + w - r, y);
+      shape.quadraticCurveTo(x + w, y, x + w, y + r);
+      shape.lineTo(x + w, y + h - r);
+      shape.quadraticCurveTo(x + w, y + h, x + w - r, y + h);
+      shape.lineTo(x + r, y + h);
+      shape.quadraticCurveTo(x, y + h, x, y + h - r);
+      shape.lineTo(x, y + r);
+      shape.quadraticCurveTo(x, y, x + r, y);
+
+      var extrudeSettings = {
+        depth: Math.max(0.01, d - (bevel ? bevel * 2 : 0)),
+        bevelEnabled: !!bevel,
+        bevelSegments: 3,
+        steps: 1,
+        bevelSize: bevel || 0,
+        bevelThickness: bevel || 0
+      };
+      var geom = new THREE.ExtrudeGeometry(shape, extrudeSettings);
+      geom.center();
+      return geom;
+    }
+
+    function initThreeScene() {
+      var container = document.getElementById('canvas-container');
+      var width = window.innerWidth;
+      var height = window.innerHeight;
+
+      scene = new THREE.Scene();
+      scene.background = new THREE.Color(0x0A0D14);
+
+      var studioEnv = createStudioEnvironment();
+      scene.environment = studioEnv;
+
+      camera = new THREE.PerspectiveCamera(28, width / height, 0.1, 100);
+      camera.position.copy(targetCameraPos);
+      camera.lookAt(targetCameraLookAt);
+
+      renderer = new THREE.WebGLRenderer({ antialias: true, alpha: false });
+      renderer.setSize(width, height);
+      renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+
+      // Car Visualizer급 실사 ACESFilmicToneMapping 적용
+      renderer.toneMapping = THREE.ACESFilmicToneMapping;
+      renderer.toneMappingExposure = 1.15;
+      renderer.shadowMap.enabled = true;
+      renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+      container.appendChild(renderer.domElement);
+
+      // 스튜디오 조명 배치
+      var ambLight = new THREE.AmbientLight(0xFFFFFF, 0.6);
+      scene.add(ambLight);
+
+      var keyLight = new THREE.DirectionalLight(0xFFFFFF, 1.4);
+      keyLight.position.set(6, 9, 6);
+      keyLight.castShadow = true;
+      keyLight.shadow.mapSize.width = 2048;
+      keyLight.shadow.mapSize.height = 2048;
+      keyLight.shadow.bias = -0.0002;
+      scene.add(keyLight);
+
+      var fillLight = new THREE.DirectionalLight(0x93C5FD, 0.7);
+      fillLight.position.set(-6, 7, -5);
+      scene.add(fillLight);
+
+      showroomGroup = new THREE.Group();
+      scene.add(showroomGroup);
+
+      buildShowroomFloor();
+      buildHyperSupercar();
+      loadRealisticSupercarModel();
+
+      setupOrbitControls(container);
+      window.addEventListener('resize', onWindowResize, false);
+      animate();
+    }
+
+    // 1. 쇼룸 턴테이블 및 리플렉션 바닥
+    function buildShowroomFloor() {
+      // 글로시 블랙 쇼룸 원형 턴테이블 바닥
+      var floorMat = new THREE.MeshStandardMaterial({
+        color: 0x111622,
+        roughness: 0.18,
+        metalness: 0.8
+      });
+      var floor = new THREE.Mesh(new THREE.CylinderGeometry(6.5, 6.7, 0.12, 64), floorMat);
+      floor.position.y = -0.06;
+      floor.receiveShadow = true;
+      showroomGroup.add(floor);
+
+      // 네온 림 서클 (바닥을 감싸는 푸른 원형 네온)
+      var ringGeom = new THREE.TorusGeometry(6.45, 0.035, 12, 64);
+      var ringMat = new THREE.MeshBasicMaterial({ color: 0x06B6D4 });
+      var neonRing = new THREE.Mesh(ringGeom, ringMat);
+      neonRing.rotation.x = Math.PI / 2;
+      neonRing.position.y = 0.005;
+      showroomGroup.add(neonRing);
+
+      // 천장 거대 소프트박스 조명 메쉬 (시각적 현실감 제공)
+      var softboxGeom = createRoundedBox(3.8, 1.6, 0.08, 0.1, 0.02);
+      var softboxMat = new THREE.MeshBasicMaterial({ color: 0xFFFFFF });
+
+      var sb1 = new THREE.Mesh(softboxGeom, softboxMat);
+      sb1.rotation.x = Math.PI / 2;
+      sb1.position.set(0, 4.8, 0.8);
+      showroomGroup.add(sb1);
+
+      var sb2 = new THREE.Mesh(softboxGeom, softboxMat);
+      sb2.rotation.x = Math.PI / 2;
+      sb2.position.set(0, 4.8, -1.8);
+      showroomGroup.add(sb2);
+    }
+
+    // 2. 고화질 PBR 하이퍼 슈퍼카 모델링
+    function buildHyperSupercar() {
+      carGroup = new THREE.Group();
+      carGroup.position.set(0, 0, 0);
+
+      // 최고급 자동차 클리어코트 메탈릭 도장 머티리얼 (Car Visualizer 1:1 싱크)
+      carPaintMaterial = new THREE.MeshPhysicalMaterial({
+        color: new THREE.Color(AppState.currentColor),
+        metalness: 0.85,
+        roughness: 0.15,
+        clearcoat: 1.0,
+        clearcoatRoughness: 0.06,
+        reflectivity: 0.95
+      });
+
+      // 틴팅 글래스
+      glassMaterial = new THREE.MeshPhysicalMaterial({
+        color: 0x0F172A,
+        metalness: 0.2,
+        roughness: 0.05,
+        transmission: 0.6,
+        transparent: true,
+        opacity: 0.88
+      });
+
+      // 알루미늄 휠 림
+      wheelRimMaterial = new THREE.MeshStandardMaterial({
+        color: 0xE2E8F0,
+        metalness: 0.95,
+        roughness: 0.12
+      });
+
+      // 카본 파이버 파츠 (스플리터, 디퓨저)
+      carbonMat = new THREE.MeshStandardMaterial({
+        color: 0x1E2229,
+        roughness: 0.45,
+        metalness: 0.6
+      });
+
+      // 스포츠 캘리퍼
+      brakeCaliperMaterial = new THREE.MeshStandardMaterial({
+        color: 0xDC2626,
+        roughness: 0.3,
+        metalness: 0.5
+      });
+
+      // 타이어 고무
+      var tireMat = new THREE.MeshStandardMaterial({
+        color: 0x15181F,
+        roughness: 0.88,
+        metalness: 0.05
+      });
+
+      // [A. 메인 차체 언더바디]
+      var underBody = new THREE.Mesh(
+        createRoundedBox(2.2, 0.45, 4.4, 0.25, 0.04),
+        carPaintMaterial
+      );
+      underBody.position.set(0, 0.48, 0);
+      underBody.castShadow = true;
+      underBody.receiveShadow = true;
+      carGroup.add(underBody);
+
+      // [B. 날렵한 프론트 노즈 & 본넷]
+      var hoodGeom = createRoundedBox(2.0, 0.3, 1.8, 0.22, 0.03);
+      var hood = new THREE.Mesh(hoodGeom, carPaintMaterial);
+      hood.position.set(0, 0.58, 1.25);
+      hood.rotation.x = 0.08;
+      hood.castShadow = true;
+      carGroup.add(hood);
+
+      var frontSplitter = new THREE.Mesh(
+        createRoundedBox(2.1, 0.08, 0.5, 0.08, 0.015),
+        carbonMat
+      );
+      frontSplitter.position.set(0, 0.26, 2.15);
+      frontSplitter.castShadow = true;
+      carGroup.add(frontSplitter);
+
+      // [C. 콕핏 캐빈 & 커브드 루프]
+      var cabinGeom = createRoundedBox(1.65, 0.55, 2.1, 0.35, 0.05);
+      var cabin = new THREE.Mesh(cabinGeom, carPaintMaterial);
+      cabin.position.set(0, 0.95, -0.2);
+      cabin.castShadow = true;
+      carGroup.add(cabin);
+
+      // [D. 윈드실드 전면 유리]
+      var windshield = new THREE.Mesh(
+        createRoundedBox(1.5, 0.06, 0.95, 0.1, 0.01),
+        glassMaterial
+      );
+      windshield.position.set(0, 0.98, 0.58);
+      windshield.rotation.x = -0.55;
+      carGroup.add(windshield);
+
+      // 사이드 윈도우 (좌/우)
+      var sideWinGeom = createRoundedBox(0.04, 0.32, 1.1, 0.06, 0.01);
+      var sideWinL = new THREE.Mesh(sideWinGeom, glassMaterial);
+      sideWinL.position.set(-0.81, 0.92, -0.15);
+      carGroup.add(sideWinL);
+
+      var sideWinR = new THREE.Mesh(sideWinGeom, glassMaterial);
+      sideWinR.position.set(0.81, 0.92, -0.15);
+      carGroup.add(sideWinR);
+
+      // 리어 윈도우
+      var rearWin = new THREE.Mesh(
+        createRoundedBox(1.4, 0.06, 0.8, 0.1, 0.01),
+        glassMaterial
+      );
+      rearWin.position.set(0, 0.92, -1.05);
+      rearWin.rotation.x = 0.45;
+      carGroup.add(rearWin);
+
+      // [E. 리어 펜더 & 숄더 머슬 라인]
+      var rearFenderL = new THREE.Mesh(
+        createRoundedBox(0.42, 0.52, 1.6, 0.15, 0.03),
+        carPaintMaterial
+      );
+      rearFenderL.position.set(-1.05, 0.56, -0.9);
+      rearFenderL.castShadow = true;
+      carGroup.add(rearFenderL);
+
+      var rearFenderR = new THREE.Mesh(
+        createRoundedBox(0.42, 0.52, 1.6, 0.15, 0.03),
+        carPaintMaterial
+      );
+      rearFenderR.position.set(1.05, 0.56, -0.9);
+      rearFenderR.castShadow = true;
+      carGroup.add(rearFenderR);
+
+      // [F. 리어 디퓨저 & 듀얼 크롬 머플러]
+      var diffuser = new THREE.Mesh(
+        createRoundedBox(1.9, 0.22, 0.35, 0.06, 0.01),
+        carbonMat
+      );
+      diffuser.position.set(0, 0.32, -2.18);
+      diffuser.castShadow = true;
+      carGroup.add(diffuser);
+
+      var exhaustMat = new THREE.MeshStandardMaterial({ color: 0xCBD5E1, metalness: 0.95, roughness: 0.1 });
+      var pipeGeom = new THREE.CylinderGeometry(0.08, 0.08, 0.25, 16);
+      pipeGeom.rotateX(Math.PI / 2);
+
+      var pipe1 = new THREE.Mesh(pipeGeom, exhaustMat);
+      pipe1.position.set(-0.45, 0.36, -2.25);
+      carGroup.add(pipe1);
+
+      var pipe2 = new THREE.Mesh(pipeGeom, exhaustMat);
+      pipe2.position.set(0.45, 0.36, -2.25);
+      carGroup.add(pipe2);
+
+      // [G. LED 헤드라이트 & 테일라이트 바]
+      var lightLensMat = new THREE.MeshBasicMaterial({ color: 0xE0F2FE });
+      var dHeadlight = createRoundedBox(0.45, 0.08, 0.15, 0.03, 0.01);
+
+      var hlLeft = new THREE.Mesh(dHeadlight, lightLensMat);
+      hlLeft.position.set(-0.75, 0.62, 2.05);
+      hlLeft.rotation.y = 0.18;
+      carGroup.add(hlLeft);
+
+      var hlRight = new THREE.Mesh(dHeadlight, lightLensMat);
+      hlRight.position.set(0.75, 0.62, 2.05);
+      hlRight.rotation.y = -0.18;
+      carGroup.add(hlRight);
+
+      // 리어 수평 일자형 LED 테일램프
+      var tailLensMat = new THREE.MeshBasicMaterial({ color: 0xEF4444 });
+      var tailBar = new THREE.Mesh(
+        createRoundedBox(1.7, 0.06, 0.08, 0.02, 0.005),
+        tailLensMat
+      );
+      tailBar.position.set(0, 0.66, -2.18);
+      carGroup.add(tailBar);
+
+      // [H. 고성능 알루미늄 스포츠 바퀴 4개]
+      wheels = [];
+      var wheelPositions = [
+        [-1.08, 0.38, 1.25],   // 전륜 좌
+        [1.08, 0.38, 1.25],    // 전륜 우
+        [-1.12, 0.40, -1.25],  // 후륜 좌
+        [1.12, 0.40, -1.25]    // 후륜 우
+      ];
+
+      for (var w = 0; w < 4; w++) {
+        var wGroup = new THREE.Group();
+        wGroup.position.set(wheelPositions[w][0], wheelPositions[w][1], wheelPositions[w][2]);
+
+        var isRightSide = wheelPositions[w][0] > 0;
+        if (isRightSide) wGroup.rotation.y = Math.PI;
+
+        // 타이어 고무
+        var tireMesh = new THREE.Mesh(
+          new THREE.CylinderGeometry(0.38, 0.38, 0.28, 28),
+          tireMat
+        );
+        tireMesh.rotation.z = Math.PI / 2;
+        tireMesh.castShadow = true;
+        wGroup.add(tireMesh);
+
+        // 크롬 알루미늄 림
+        var rimMesh = new THREE.Mesh(
+          new THREE.CylinderGeometry(0.26, 0.26, 0.285, 24),
+          wheelRimMaterial
+        );
+        rimMesh.rotation.z = Math.PI / 2;
+        wGroup.add(rimMesh);
+
+        // 5스포크 레이싱 살
+        for (var sp = 0; sp < 5; sp++) {
+          var spoke = new THREE.Mesh(
+            createRoundedBox(0.045, 0.22, 0.02, 0.01, 0.002),
+            wheelRimMaterial
+          );
+          spoke.rotation.x = (sp * Math.PI * 2) / 5;
+          spoke.position.set(-0.13, 0, 0);
+          wGroup.add(spoke);
+        }
+
+        // 브레이크 디스크 & 레드 캘리퍼
+        var diskMesh = new THREE.Mesh(
+          new THREE.CylinderGeometry(0.22, 0.22, 0.03, 20),
+          new THREE.MeshStandardMaterial({ color: 0x94A3B8, metalness: 0.9, roughness: 0.2 })
+        );
+        diskMesh.rotation.z = Math.PI / 2;
+        diskMesh.position.set(-0.06, 0, 0);
+        wGroup.add(diskMesh);
+
+        var caliperMesh = new THREE.Mesh(
+          createRoundedBox(0.06, 0.12, 0.08, 0.02, 0.005),
+          brakeCaliperMaterial
+        );
+        caliperMesh.position.set(-0.06, 0.12, 0);
+        wGroup.add(caliperMesh);
+
+        carGroup.add(wGroup);
+        wheels.push(wGroup);
+      }
+
+      // [I. GT 레이싱 리어 윙 스포일러 (도메인 5 클리어 시 장착!)]
+      spoilerWingGroup = new THREE.Group();
+      spoilerWingGroup.position.set(0, 0.96, -1.95);
+
+      var wingBlade = new THREE.Mesh(
+        createRoundedBox(2.1, 0.06, 0.42, 0.05, 0.01),
+        carbonMat
+      );
+      wingBlade.position.y = 0.32;
+      wingBlade.rotation.x = -0.12;
+      wingBlade.castShadow = true;
+      spoilerWingGroup.add(wingBlade);
+
+      // 스포일러 지지대 2개
+      var stayGeom = new THREE.CylinderGeometry(0.025, 0.035, 0.34, 12);
+      var stayL = new THREE.Mesh(stayGeom, carbonMat);
+      stayL.position.set(-0.6, 0.15, 0);
+      stayL.rotation.z = -0.15;
+      spoilerWingGroup.add(stayL);
+
+      var stayR = new THREE.Mesh(stayGeom, carbonMat);
+      stayR.position.set(0.6, 0.15, 0);
+      stayR.rotation.z = 0.15;
+      spoilerWingGroup.add(stayR);
+
+      spoilerWingGroup.visible = false; // 초기에는 미장착 상태
+      carGroup.add(spoilerWingGroup);
+
+      // [J. 하이퍼 네온 언더글로우 (도메인 6 클리어 시 풀가동!)]
+      var underglowGeom = new THREE.PlaneGeometry(2.4, 4.2);
+      var underglowMat = new THREE.MeshBasicMaterial({
+        color: 0x06B6D4,
+        transparent: true,
+        opacity: 0.0
+      });
+      underglowMesh = new THREE.Mesh(underglowGeom, underglowMat);
+      underglowMesh.rotation.x = -Math.PI / 2;
+      underglowMesh.position.y = 0.02;
+      carGroup.add(underglowMesh);
+
+      showroomGroup.add(carGroup);
+    }
+
+    // 2-B. Car Visualizer 실사 페라리 458 Italia 3D PBR 모델 로더
+    function loadRealisticSupercarModel() {
+      if (typeof THREE.GLTFLoader === 'undefined') {
+        console.log('GLTFLoader not available, using procedural supercar.');
+        return;
+      }
+
+      try {
+        var dracoLoader = new THREE.DRACOLoader();
+        dracoLoader.setDecoderPath('https://www.gstatic.com/draco/versioned/decoders/1.4.3/');
+
+        var loader = new THREE.GLTFLoader();
+        loader.setDRACOLoader(dracoLoader);
+
+        var shadowTex = new THREE.TextureLoader().load(
+          'https://cdn.jsdelivr.net/gh/mrdoob/three.js@dev/examples/models/gltf/ferrari_ao.png'
+        );
+
+        loader.load('https://cdn.jsdelivr.net/gh/mrdoob/three.js@dev/examples/models/gltf/ferrari.glb', function(gltf) {
+          var ferrari = gltf.scene.children[0];
+
+          // 1. 실사 클리어코트 메탈릭 도장 머티리얼 바인딩
+          var bodyMesh = ferrari.getObjectByName('body');
+          if (bodyMesh) bodyMesh.material = carPaintMaterial;
+
+          // 2. 알루미늄 스포츠 림 바인딩
+          ['rim_fl', 'rim_fr', 'rim_rl', 'rim_rr'].forEach(function(rName) {
+            var rim = ferrari.getObjectByName(rName);
+            if (rim) rim.material = wheelRimMaterial;
+          });
+
+          // 3. 카본 트림 & 크리스탈 글래스 바인딩
+          var trimMesh = ferrari.getObjectByName('trim');
+          if (trimMesh) trimMesh.material = carbonMat;
+
+          var glassMesh = ferrari.getObjectByName('glass');
+          if (glassMesh) glassMesh.material = glassMaterial;
+
+          // 4. 바퀴 회전 객체 리스트 갱신
+          wheels = [];
+          ['wheel_fl', 'wheel_fr', 'wheel_rl', 'wheel_rr'].forEach(function(wName) {
+            var w = ferrari.getObjectByName(wName);
+            if (w) wheels.push(w);
+          });
+
+          // 5. 차체 하부 리얼 AO 그림자 메쉬
+          var shadowMesh = new THREE.Mesh(
+            new THREE.PlaneGeometry(0.655 * 4, 1.3 * 4),
+            new THREE.MeshBasicMaterial({
+              map: shadowTex,
+              blending: THREE.MultiplyBlending,
+              toneMapped: false,
+              transparent: true,
+              premultipliedAlpha: true
+            })
+          );
+          shadowMesh.rotation.x = -Math.PI / 2;
+          shadowMesh.renderOrder = 2;
+          ferrari.add(shadowMesh);
+
+          // 6. 페라리 기본 축 유지 (전면 Z-, 후면 Z+)
+          ferrari.rotation.y = 0;
+
+          // 7. 튜닝 파츠(스포일러 윙, 언더글로우)를 페라리 차체에 결합
+          if (spoilerWingGroup) {
+            spoilerWingGroup.position.set(0, 0.76, 1.85);
+            spoilerWingGroup.rotation.y = 0;
+            ferrari.add(spoilerWingGroup);
+          }
+          if (underglowMesh) {
+            underglowMesh.position.set(0, 0.02, 0);
+            ferrari.add(underglowMesh);
+          }
+
+          // 기존 임시 차체 교체
+          carGroup.clear();
+          carGroup.add(ferrari);
+          realisticModelLoaded = true;
+          console.log('🏎️ Car Visualizer Real Ferrari 458 Italia PBR Loaded!');
+        }, undefined, function(err) {
+          console.warn('Ferrari GLB failed to load, keeping procedural car model:', err);
+        });
+      } catch (e) {
+        console.warn('Error initiating GLTFLoader:', e);
+      }
+    }
+
+    // 차체 컬러 변경 (실시간 PBR 리플렉션 반영)
+    function changeCarColor(hexString) {
+      AppState.currentColor = hexString;
+      if (carPaintMaterial) {
+        carPaintMaterial.color.set(hexString);
+      }
+      document.querySelectorAll('.color-swatch').forEach(function(sw) {
+        if (sw.getAttribute('data-color') === hexString) sw.classList.add('active');
+        else sw.classList.remove('active');
+      });
+    }
+
+    // 마우스/터치 드래그 360도 회전
+    function setupOrbitControls(domElement) {
+      domElement.addEventListener('pointerdown', function(e) {
+        isDragging = true;
+        previousMousePosition = { x: e.clientX, y: e.clientY };
+      });
+
+      window.addEventListener('pointermove', function(e) {
+        if (!isDragging) return;
+        var deltaX = e.clientX - previousMousePosition.x;
+        var deltaY = e.clientY - previousMousePosition.y;
+
+        orbitAngleY += deltaX * 0.006;
+        orbitAngleX += deltaY * 0.003;
+        orbitAngleX = Math.max(-0.05, Math.min(0.65, orbitAngleX));
+
+        previousMousePosition = { x: e.clientX, y: e.clientY };
+      });
+
+      window.addEventListener('pointerup', function() { isDragging = false; });
+      window.addEventListener('pointercancel', function() { isDragging = false; });
+    }
+
+    function onWindowResize() {
+      if (!camera || !renderer) return;
+      var w = window.innerWidth;
+      var h = window.innerHeight;
+      camera.aspect = w / h;
+      camera.updateProjectionMatrix();
+      renderer.setSize(w, h);
+    }
+
+    var clock = new THREE.Clock();
+    function animate() {
+      requestAnimationFrame(animate);
+      var elapsedTime = clock.getElapsedTime();
+
+      // 자동 턴테이블 회전 (드래그하지 않을 때 은은하게 회전)
+      if (!isDragging) {
+        orbitAngleY += 0.0025;
+      }
+
+      var radius = 6.8;
+      var cx = Math.sin(orbitAngleY) * Math.cos(orbitAngleX) * radius;
+      var cz = Math.cos(orbitAngleY) * Math.cos(orbitAngleX) * radius;
+      var cy = Math.sin(orbitAngleX) * radius + 1.2;
+
+      targetCameraPos.set(cx, cy, cz);
+      camera.position.lerp(targetCameraPos, 0.08);
+      camera.lookAt(targetCameraLookAt);
+
+      // 네온 언더글로우 펄스
+      if (underglowMesh && underglowMesh.material.opacity > 0) {
+        underglowMesh.material.opacity = 0.55 + Math.sin(elapsedTime * 6) * 0.15;
+      }
+
+      renderer.render(scene, camera);
+    }
+
+    // ============================================================
+    // 앱 인터랙션 및 튜닝 진행 로직
+    // ============================================================
+
+    // 컬러 스와치 이벤트
+    document.querySelectorAll('.color-swatch').forEach(function(sw) {
+      sw.addEventListener('click', function() {
+        var color = sw.getAttribute('data-color');
+        changeCarColor(color);
+      });
+    });
+
+    // 아바타 파일럿 선택
+    document.querySelectorAll('.avatar-chip').forEach(function(chip) {
+      chip.addEventListener('click', function() {
+        document.querySelectorAll('.avatar-chip').forEach(function(c) { c.classList.remove('active'); });
+        chip.classList.add('active');
+        AppState.studentProfile.avatar = chip.getAttribute('data-avatar');
+      });
+    });
+
+    // 시작 버튼
+    document.getElementById('btnStartAdventure').addEventListener('click', function() {
+      var school = document.getElementById('schoolName').value.trim();
+      var grade = document.getElementById('studentGrade').value.trim();
+      var classNum = document.getElementById('studentClass').value.trim();
+      var sNum = document.getElementById('studentNum').value.trim();
+      var name = document.getElementById('studentName').value.trim();
+
+      if (!name) {
+        alert('파일럿(학생) 이름을 입력해주세요!');
+        return;
+      }
+
+      AppState.studentProfile.schoolName = school || '행복초등학교';
+      AppState.studentProfile.grade = grade || '3';
+      AppState.studentProfile.classNum = classNum || '사랑반';
+      AppState.studentProfile.studentNum = sNum || '7';
+      AppState.studentProfile.name = name;
+
+      document.getElementById('introOverlay').classList.add('hidden');
+      document.getElementById('hudProgressCluster').style.display = 'flex';
+      document.getElementById('gameplayOverlay').classList.add('active');
+
+      AppState.currentStep = 'gameplay';
+      AppState.currentQIndex = 0;
+      AppState.userAnswers = [];
+
+      renderCurrentQuestion();
+    });
+
+    function renderCurrentQuestion() {
+      var q = QUESTIONS[AppState.currentQIndex];
+      var d = DOMAIN_INFO[q.domain];
+
+      document.getElementById('hudChapterTitle').textContent = '[' + (q.domain + 1) + '단계] ' + d.name;
+      document.getElementById('hudProgressText').textContent = (AppState.currentQIndex + 1) + ' / 18';
+      var pct = ((AppState.currentQIndex) / 18) * 100;
+      document.getElementById('hudProgressBar').style.width = pct + '%';
+
+      document.getElementById('dialogQBadge').textContent = '퀘스트 ' + (AppState.currentQIndex + 1) + ' / 18 (' + d.badge + ')';
+      document.getElementById('dialogQText').textContent = q.text;
+    }
+
+    function submitAnswer(score) {
+      AppState.userAnswers.push(score);
+
+      var q = QUESTIONS[AppState.currentQIndex];
+      var domainIndex = q.domain;
+
+      // 3문항마다 영역 완료 튜닝 파츠 언락
+      if ((AppState.currentQIndex + 1) % 3 === 0) {
+        unlockTuningPart(domainIndex);
+      }
+
+      AppState.currentQIndex++;
+      if (AppState.currentQIndex < QUESTIONS.length) {
+        renderCurrentQuestion();
+      } else {
+        finishResilienceTest();
+      }
+    }
+
+    // 파츠 튜닝 언락 및 시각 효과
+    function unlockTuningPart(domainIndex) {
+      if (AppState.unlockedParts[domainIndex]) return;
+      AppState.unlockedParts[domainIndex] = true;
+
+      var d = DOMAIN_INFO[domainIndex];
+      var dot = document.getElementById('partDot' + domainIndex);
+      if (dot) dot.classList.add('unlocked');
+
+      // 3D 슈퍼카 파츠별 실시간 비주얼 변경
+      if (domainIndex === 1) {
+        // 휠 림을 골드 크롬으로 업그레이드!
+        if (wheelRimMaterial) wheelRimMaterial.color.set(0xF59E0B);
+      } else if (domainIndex === 4) {
+        // GT 리어 윙 스포일러 장착!
+        if (spoilerWingGroup) spoilerWingGroup.visible = true;
+      } else if (domainIndex === 5) {
+        // 하이퍼 네온 언더글로우 점등!
+        if (underglowMesh) underglowMesh.material.opacity = 0.6;
+      }
+
+      // 튜닝 축하 토스트 팝업
+      var toast = document.getElementById('partToast');
+      document.getElementById('partToastIcon').textContent = d.icon;
+      document.getElementById('partToastTitle').textContent = '[' + (domainIndex + 1) + '단계 튜닝] ' + d.name;
+      document.getElementById('partToastDesc').textContent = d.desc;
+
+      toast.classList.add('show');
+      setTimeout(function() {
+        toast.classList.remove('show');
+      }, 2600);
+    }
+
+    function finishResilienceTest() {
+      document.getElementById('gameplayOverlay').classList.remove('active');
+      AppState.currentStep = 'result';
+
+      var totalScore = AppState.userAnswers.reduce(function(acc, val) { return acc + val; }, 0);
+      var domainScores = [0, 0, 0, 0, 0, 0];
+      for (var i = 0; i < AppState.userAnswers.length; i++) {
+        var dIdx = QUESTIONS[i].domain;
+        domainScores[dIdx] += AppState.userAnswers[i];
+      }
+
+      // 판정 기준
+      var badgeTitle = '황금 포뮬러 챔피언';
+      var levelBadge = '하이퍼 마스터';
+      var levelDesc = '어떤 어려운 코너와 장애물도 침착하게 극복하는 최상위(상위 10%) 회복탄력성 슈퍼 파일럿입니다!';
+      if (totalScore < 50) {
+        badgeTitle = '새싹 루키 드라이버';
+        levelBadge = '워밍업 레이서';
+        levelDesc = '엔진을 차근차근 예열하며 마음의 힘을 길러가는 씩씩한 루키입니다!';
+      } else if (totalScore < 72) {
+        badgeTitle = '질주하는 스피드 파일럿';
+        levelBadge = '베테랑 레이서';
+        levelDesc = '다양한 트랙을 자신감 있게 주파하는 탄탄하고 건강한 회복탄력성을 지녔습니다!';
+      }
+
+      document.getElementById('resultLevelBadge').textContent = levelBadge;
+      document.getElementById('resultBadgeTitle').textContent = badgeTitle;
+      document.getElementById('resultTotalScore').textContent = totalScore + '점';
+      document.getElementById('resultLevelDesc').textContent = levelDesc;
+
+      for (var k = 0; k < 6; k++) {
+        document.getElementById('statD' + (k + 1)).textContent = domainScores[k] + ' / 15';
+      }
+
+      // A4 수료증 인쇄 영역 데이터 바인딩
+      var profile = AppState.studentProfile;
+      document.getElementById('certSchoolPrint').textContent = profile.schoolName + ' ' + profile.grade + '학년 ' + profile.classNum + ' ' + profile.studentNum + '번';
+      document.getElementById('certNamePrint').textContent = profile.name;
+      document.getElementById('certBadgeNamePrint').textContent = badgeTitle;
+      document.getElementById('certScoreCell').textContent = totalScore + '점';
+      document.getElementById('certLevelCell').textContent = levelBadge;
+
+      for (var m = 0; m < 6; m++) {
+        document.getElementById('certD' + (m + 1)).textContent = domainScores[m];
+      }
+
+      var now = new Date();
+      var dateStr = now.getFullYear() + '년 ' + String(now.getMonth() + 1).padStart(2, '0') + '월 ' + String(now.getDate()).padStart(2, '0') + '일';
+      document.getElementById('certDatePrint').textContent = dateStr;
+
+      document.getElementById('resultOverlay').classList.add('active');
+
+      // Google Apps Script 서버 스프레드시트 기록
+      if (typeof google !== 'undefined' && google.script && google.script.run) {
+        google.script.run
+          .withSuccessHandler(function() { console.log('Spreadsheet recorded successfully.'); })
+          .withFailureHandler(function(err) { console.error('Spreadsheet save failed:', err); })
+          .submitResilienceData({
+            school: profile.schoolName,
+            grade: profile.grade,
+            classNum: profile.classNum,
+            studentNum: profile.studentNum,
+            name: profile.name,
+            totalScore: totalScore,
+            domainScores: domainScores,
+            answers: AppState.userAnswers,
+            badge: badgeTitle
+          });
+      }
+    }
+
+    // 수료증 인쇄
+    document.getElementById('btnPrintCert').addEventListener('click', function() {
+      window.print();
+    });
+
+    // 다시 하기
+    document.getElementById('btnRestart').addEventListener('click', function() {
+      document.getElementById('resultOverlay').classList.remove('active');
+      document.getElementById('introOverlay').classList.remove('hidden');
+      document.getElementById('hudProgressCluster').style.display = 'none';
+
+      AppState.unlockedParts = [false, false, false, false, false, false];
+      for (var p = 0; p < 6; p++) {
+        var dot = document.getElementById('partDot' + p);
+        if (dot) dot.classList.remove('unlocked');
+      }
+      if (spoilerWingGroup) spoilerWingGroup.visible = false;
+      if (underglowMesh) underglowMesh.material.opacity = 0.0;
+      if (wheelRimMaterial) wheelRimMaterial.color.set(0xE2E8F0);
+    });
+
+    // 윈도우 로드 시 Three.js 엔진 구동
+    window.addEventListener('load', function() {
+      initThreeScene();
+    });
+  </script>
+</body>
+</html>
