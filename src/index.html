@@ -641,20 +641,26 @@
       border-color: #FFFFFF;
     }
 
-    /* A4 세로 1장 완벽 출력 수료증 */
+    /* A4 세로 1장 완벽 출력 수료증 (Full-Height A4 Portrait) */
     #printCertificateArea {
       display: none;
     }
 
     @media print {
+      @page {
+        size: 210mm 297mm;
+        margin: 0;
+      }
       html, body {
-        background: #FFFFFF !important;
-        color: #0F172A !important;
+        width: 210mm !important;
+        height: 297mm !important;
         margin: 0 !important;
         padding: 0 !important;
-        width: 100% !important;
-        height: 100% !important;
-        overflow: visible !important;
+        background: #FFFFFF !important;
+        color: #0F172A !important;
+        overflow: hidden !important;
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important;
       }
       #canvas-container, .top-hud, .car-color-picker-bar, .viewport-orbit-hint, .gameplay-hud-container, .part-toast-popup, #introOverlay, #resultOverlay {
         display: none !important;
@@ -663,115 +669,304 @@
       #printCertificateArea {
         display: block !important;
         visibility: visible !important;
-        position: relative !important;
-        width: 100% !important;
-        max-width: 780px !important;
-        margin: 0 auto !important;
-        padding: 30px !important;
-        background: #FFFFFF !important;
-        color: #1E293B !important;
+        width: 210mm !important;
+        height: 297mm !important;
+        max-width: 210mm !important;
+        max-height: 297mm !important;
         box-sizing: border-box !important;
-        box-shadow: none !important;
+        padding: 10mm 12mm !important;
+        background: #FFFFFF !important;
+        page-break-after: avoid !important;
+        page-break-inside: avoid !important;
       }
       #printCertificateArea * {
         visibility: visible !important;
       }
-      @page {
-        size: A4 portrait;
-        margin: 8mm;
-      }
     }
 
-    .cert-border-outer {
+    /* 수료증 외곽 프레임 (골드 & 로열 네이비 2중 장식 & 코너 오너먼트) */
+    .cert-frame-wrapper {
+      position: relative;
+      width: 100%;
+      height: 100%;
+      border: 3.5px solid #1E3A8A;
+      outline: 2px solid #D97706;
+      outline-offset: -7px;
+      box-sizing: border-box;
+      padding: 12mm 14mm 10mm 14mm;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      background: radial-gradient(circle at 50% 50%, #FFFFFF 70%, #F8FAFC 100%);
+    }
+
+    /* 4대 모서리 코너 오너먼트 */
+    .cert-corner {
       position: absolute;
-      inset: 20px;
-      border: 4px double #0284C7;
+      width: 26px;
+      height: 26px;
+      border: 3px solid #D97706;
       pointer-events: none;
     }
-    .cert-border-inner {
-      position: absolute;
-      inset: 28px;
-      border: 1px solid #BAE6FD;
-      pointer-events: none;
+    .cert-corner.top-left { top: 2px; left: 2px; border-right: none; border-bottom: none; }
+    .cert-corner.top-right { top: 2px; right: 2px; border-left: none; border-bottom: none; }
+    .cert-corner.bottom-left { bottom: 2px; left: 2px; border-right: none; border-top: none; }
+    .cert-corner.bottom-right { bottom: 2px; right: 2px; border-left: none; border-top: none; }
+
+    /* 상단 발급 메타 정보 */
+    .cert-top-meta {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 13px;
+      font-weight: 700;
+      color: #64748B;
+      letter-spacing: 0.5px;
+      border-bottom: 1px dashed #CBD5E1;
+      padding-bottom: 6px;
+      margin-bottom: 6px;
     }
+    .cert-serial-tag {
+      color: #0369A1;
+      background: #E0F2FE;
+      padding: 2px 8px;
+      border-radius: 4px;
+      font-size: 12px;
+    }
+
+    /* 헤더 섹션 */
     .cert-header {
       text-align: center;
-      margin-top: 30px;
-      margin-bottom: 24px;
-    }
-    .cert-emblem {
-      font-size: 46px;
-      line-height: 1;
       margin-bottom: 10px;
+    }
+    .cert-emblem-cluster {
+      display: inline-flex;
+      align-items: center;
+      gap: 12px;
+      font-size: 26px;
+      margin-bottom: 4px;
     }
     .cert-main-title {
       font-family: 'Jua', sans-serif;
-      font-size: 34px;
-      color: #0369A1;
-      margin-bottom: 6px;
-      letter-spacing: 2px;
+      font-size: 44px;
+      color: #1E3A8A;
+      letter-spacing: 18px;
+      text-indent: 18px;
+      margin-bottom: 4px;
+      line-height: 1.1;
+      text-shadow: 0 1px 2px rgba(0, 0, 0, 0.08);
     }
     .cert-sub-title {
       font-size: 15px;
-      color: #64748B;
-      font-weight: 700;
+      font-weight: 800;
+      color: #B45309;
+      letter-spacing: 3px;
     }
-    .cert-recipient-box {
-      border-bottom: 2px solid #E2E8F0;
-      padding-bottom: 16px;
-      margin-bottom: 24px;
-      text-align: center;
+
+    /* 수여자 프로필 & 칭호 카드 */
+    .cert-recipient-card {
+      background: #FFFBEB;
+      border: 1.5px solid #FDE68A;
+      border-radius: 12px;
+      padding: 12px 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 10px;
+      box-shadow: 0 2px 8px rgba(217, 119, 6, 0.06);
+    }
+    .cert-recipient-info {
+      text-align: left;
     }
     .cert-recipient-school {
-      font-size: 16px;
+      font-size: 15px;
+      font-weight: 700;
       color: #475569;
-      font-weight: 600;
-      margin-bottom: 6px;
+      margin-bottom: 4px;
     }
     .cert-recipient-name {
-      font-size: 28px;
+      font-size: 32px;
       font-weight: 900;
       color: #0F172A;
-      letter-spacing: 1px;
+      letter-spacing: 3px;
+      line-height: 1.1;
     }
-    .cert-body-text {
-      font-size: 15px;
-      line-height: 1.8;
-      color: #334155;
+    .cert-title-badge-box {
+      text-align: right;
+    }
+    .cert-title-badge {
+      display: inline-block;
+      background: linear-gradient(135deg, #F59E0B 0%, #D97706 100%);
+      color: #FFFFFF;
+      font-family: 'Jua', sans-serif;
+      font-size: 16px;
+      padding: 6px 14px;
+      border-radius: 20px;
+      box-shadow: 0 3px 8px rgba(217, 119, 6, 0.3);
+      margin-bottom: 4px;
+    }
+    .cert-level-text {
+      font-size: 13px;
+      font-weight: 800;
+      color: #B45309;
+    }
+
+    /* 본문 표창 문구 */
+    .cert-citation-box {
+      padding: 6px 4px;
+      margin-bottom: 12px;
       text-align: justify;
-      margin-bottom: 28px;
       word-break: keep-all;
     }
-    .cert-stats-table {
-      width: 100%;
-      border-collapse: collapse;
-      margin-bottom: 30px;
-      font-size: 12.5px;
+    .cert-citation-text {
+      font-size: 15.5px;
+      line-height: 1.85;
+      color: #334155;
+      font-weight: 500;
+      letter-spacing: -0.2px;
     }
-    .cert-stats-table th, .cert-stats-table td {
-      border: 1px solid #CBD5E1;
-      padding: 8px 6px;
-      text-align: center;
-    }
-    .cert-stats-table th {
-      background-color: #F0F9FF;
-      color: #0369A1;
-      font-weight: 800;
-    }
-    .cert-footer {
-      text-align: center;
-      margin-top: 40px;
-    }
-    .cert-date {
-      font-size: 14px;
-      color: #64748B;
+
+    /* 6대 역량 정밀 진단 대시보드 */
+    .cert-diagnostics-dashboard {
+      background: #F8FAFC;
+      border: 1.5px solid #E2E8F0;
+      border-radius: 12px;
+      padding: 12px 14px;
       margin-bottom: 12px;
     }
-    .cert-issuer {
+    .cert-dash-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 10px;
+      padding-bottom: 6px;
+      border-bottom: 1px solid #CBD5E1;
+    }
+    .cert-dash-title {
+      font-size: 14.5px;
+      font-weight: 900;
+      color: #1E3A8A;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .cert-total-score-pill {
+      background: #1E3A8A;
+      color: #FFFFFF;
+      padding: 4px 12px;
+      border-radius: 14px;
+      font-size: 13.5px;
+      font-weight: 900;
+      letter-spacing: 0.5px;
+    }
+    .cert-score-highlight {
+      color: #FCD34D;
+      font-size: 16px;
+      margin-left: 2px;
+    }
+
+    /* 6개 영역 2열 3행 카드 그리드 */
+    .cert-domains-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px 14px;
+    }
+    .cert-domain-card {
+      background: #FFFFFF;
+      border: 1px solid #E2E8F0;
+      border-radius: 8px;
+      padding: 8px 10px;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.03);
+    }
+    .cert-domain-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 4px;
+    }
+    .cert-domain-label {
+      font-size: 13px;
+      font-weight: 800;
+      color: #1E293B;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+    .cert-domain-points {
+      font-size: 13px;
+      font-weight: 900;
+      color: #0284C7;
+    }
+    .cert-bar-track {
+      width: 100%;
+      height: 7px;
+      background: #E2E8F0;
+      border-radius: 4px;
+      overflow: hidden;
+      margin-bottom: 4px;
+    }
+    .cert-bar-fill {
+      height: 100%;
+      background: linear-gradient(90deg, #0284C7, #06B6D4);
+      border-radius: 4px;
+      transition: width 0.3s;
+    }
+    .cert-domain-desc {
+      font-size: 11px;
+      color: #64748B;
+      font-weight: 500;
+      line-height: 1.3;
+    }
+
+    /* 하단 푸터 & 공식 직인 */
+    .cert-footer-box {
+      text-align: center;
+      padding-top: 6px;
+      position: relative;
+    }
+    .cert-date-text {
+      font-size: 15px;
+      font-weight: 700;
+      color: #475569;
+      letter-spacing: 2px;
+      margin-bottom: 10px;
+    }
+    .cert-issuer-container {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+    }
+    .cert-issuer-name {
       font-family: 'Jua', sans-serif;
-      font-size: 20px;
+      font-size: 26px;
+      font-weight: 900;
       color: #0F172A;
+      letter-spacing: 3px;
+      padding-right: 25px;
+    }
+    /* 붉은 공식 직인 도장 */
+    .cert-seal-stamp {
+      position: absolute;
+      right: -25px;
+      top: -12px;
+      width: 58px;
+      height: 58px;
+      border: 3.5px solid #DC2626;
+      border-radius: 6px;
+      color: #DC2626;
+      font-size: 12px;
+      font-weight: 900;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      line-height: 1.15;
       letter-spacing: 1px;
+      transform: rotate(-4deg);
+      background: rgba(254, 226, 226, 0.4);
+      box-shadow: 0 0 2px rgba(220, 38, 38, 0.4);
+      pointer-events: none;
     }
   </style>
 </head>
@@ -965,56 +1160,151 @@
     </div>
   </div>
 
-  <!-- 7. 인쇄 전용 A4 수료증 -->
+  <!-- 7. 인쇄 전용 A4 세로 꽉 찬 수료증 (Full-Height A4 Layout) -->
   <div id="printCertificateArea">
-    <div class="cert-border-outer"></div>
-    <div class="cert-border-inner"></div>
+    <div class="cert-frame-wrapper">
+      <!-- 4대 모서리 코너 오너먼트 -->
+      <div class="cert-corner top-left"></div>
+      <div class="cert-corner top-right"></div>
+      <div class="cert-corner bottom-left"></div>
+      <div class="cert-corner bottom-right"></div>
 
-    <div class="cert-header">
-      <div class="cert-emblem" id="certBadgeIconPrint">🏎️</div>
-      <h1 class="cert-main-title">회복탄력성 하이퍼카 수료증</h1>
-      <p class="cert-sub-title" id="certBadgeNamePrint">황금 포뮬러 챔피언</p>
-    </div>
+      <!-- 상단 발급 메타 바 -->
+      <div class="cert-top-meta">
+        <div>발급 번호 : <span class="cert-serial-tag" id="certSerialPrint">제 2026-R07호</span></div>
+        <div>★ VERIFIED RESILIENCE MASTER CERTIFICATE ★</div>
+      </div>
 
-    <div class="cert-recipient-box">
-      <div class="cert-recipient-school" id="certSchoolPrint">행복초등학교 3학년 사랑반 7번</div>
-      <div class="cert-recipient-name" id="certNamePrint">박 하늘</div>
-    </div>
+      <!-- 상단 헤더 -->
+      <div class="cert-header">
+        <div class="cert-emblem-cluster">
+          <span>🏆</span>
+          <span id="certBadgeIconPrint">🏎️</span>
+          <span>🏆</span>
+        </div>
+        <h1 class="cert-main-title">수 료 증</h1>
+        <div class="cert-sub-title">초등 마음성장 회복탄력성 하이퍼 레이서 인증서</div>
+      </div>
 
-    <p class="cert-body-text" id="certBodyPrint">
-      위 학생은 18문항의 마음 모험을 성실하게 수행하여, 넘어져도 다시 씩씩하게 일어나는 건강하고 튼튼한 회복탄력성 마음 근육을 훌륭하게 증명하였기에 이 수료증을 수여합니다.
-    </p>
+      <!-- 수여자 정보 카드 -->
+      <div class="cert-recipient-card">
+        <div class="cert-recipient-info">
+          <div class="cert-recipient-school" id="certSchoolPrint">행복초등학교 3학년 사랑반 7번</div>
+          <div class="cert-recipient-name" id="certNamePrint">박 하늘</div>
+        </div>
+        <div class="cert-title-badge-box">
+          <div class="cert-title-badge" id="certBadgeNamePrint">황금 포뮬러 챔피언</div>
+          <div class="cert-level-text" id="certLevelBadgePrint">최상위 10% [하이퍼 마스터]</div>
+        </div>
+      </div>
 
-    <table class="cert-stats-table">
-      <thead>
-        <tr>
-          <th>총점 (90점)</th>
-          <th>판정 수준</th>
-          <th>끈기력</th>
-          <th>마음다스림</th>
-          <th>긍정마음</th>
-          <th>친화력</th>
-          <th>친구우정</th>
-          <th>자신감</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr>
-          <td id="certScoreCell" style="font-weight:bold; color:#0284C7;">85점</td>
-          <td id="certLevelCell">매우 높음</td>
-          <td id="certD1">15</td>
-          <td id="certD2">14</td>
-          <td id="certD3">15</td>
-          <td id="certD4">13</td>
-          <td id="certD5">14</td>
-          <td id="certD6">14</td>
-        </tr>
-      </tbody>
-    </table>
+      <!-- 본문 표창 문구 -->
+      <div class="cert-citation-box">
+        <p class="cert-citation-text" id="certBodyPrint">
+          위 학생은 18문항의 마음 모험과 하이퍼 슈퍼카 튜닝 미션을 성실하고 훌륭하게 완수하여,
+          어떠한 난관이나 실패 앞에서도 오뚝이처럼 툭툭 털고 다시 일어나는 강인하고 건강한 회복탄력성(마음 근육)을
+          훌륭하게 증명하였으므로, 미래를 힘차게 질주할 자랑스러운 슈퍼 파일럿으로 인정하며 이 수료증을 수여합니다.
+        </p>
+      </div>
 
-    <div class="cert-footer">
-      <div class="cert-date" id="certDatePrint">2026년 09월 26일</div>
-      <div class="cert-issuer">초등학교 마음성장 연구회</div>
+      <!-- 6대 역량 정밀 진단 대시보드 리포트 -->
+      <div class="cert-diagnostics-dashboard">
+        <div class="cert-dash-header">
+          <div class="cert-dash-title">
+            <span>📊</span>
+            <span>6대 회복탄력성 마음 역량 정밀 진단 리포트</span>
+          </div>
+          <div class="cert-total-score-pill">
+            종합 총점 <span class="cert-score-highlight" id="certScoreCell">90</span> / 90점
+          </div>
+        </div>
+
+        <div class="cert-domains-grid">
+          <!-- 1. 과제지속 끈기력 -->
+          <div class="cert-domain-card">
+            <div class="cert-domain-top">
+              <span class="cert-domain-label"><span>🔥</span> 1. 과제지속 끈기력</span>
+              <span class="cert-domain-points" id="certD1">15 / 15점</span>
+            </div>
+            <div class="cert-bar-track">
+              <div class="cert-bar-fill" id="certBarD1" style="width: 100%;"></div>
+            </div>
+            <div class="cert-domain-desc">어려운 문제나 실패를 만나도 쉽게 포기하지 않고 끝까지 해냄</div>
+          </div>
+
+          <!-- 2. 감정조절 마음다스림 -->
+          <div class="cert-domain-card">
+            <div class="cert-domain-top">
+              <span class="cert-domain-label"><span>💧</span> 2. 감정조절 마음다스림</span>
+              <span class="cert-domain-points" id="certD2">15 / 15점</span>
+            </div>
+            <div class="cert-bar-track">
+              <div class="cert-bar-fill" id="certBarD2" style="width: 100%;"></div>
+            </div>
+            <div class="cert-domain-desc">속상하거나 화가 날 때 스스로 차분히 진정하고 기분을 전환함</div>
+          </div>
+
+          <!-- 3. 긍정성 자아존중 -->
+          <div class="cert-domain-card">
+            <div class="cert-domain-top">
+              <span class="cert-domain-label"><span>☀️</span> 3. 긍정성 자아존중</span>
+              <span class="cert-domain-points" id="certD3">15 / 15점</span>
+            </div>
+            <div class="cert-bar-track">
+              <div class="cert-bar-fill" id="certBarD3" style="width: 100%;"></div>
+            </div>
+            <div class="cert-domain-desc">나 자신을 소중히 여기며 일상에서 감사와 행복을 발견함</div>
+          </div>
+
+          <!-- 4. 대인관계 친화력 -->
+          <div class="cert-domain-card">
+            <div class="cert-domain-top">
+              <span class="cert-domain-label"><span>🤝</span> 4. 대인관계 친화력</span>
+              <span class="cert-domain-points" id="certD4">15 / 15점</span>
+            </div>
+            <div class="cert-bar-track">
+              <div class="cert-bar-fill" id="certBarD4" style="width: 100%;"></div>
+            </div>
+            <div class="cert-domain-desc">친구의 마음에 깊이 공감하고 다툼 시 먼저 화해를 청함</div>
+          </div>
+
+          <!-- 5. 사회적지지 친구우정 -->
+          <div class="cert-domain-card">
+            <div class="cert-domain-top">
+              <span class="cert-domain-label"><span>💖</span> 5. 사회적지지 친구우정</span>
+              <span class="cert-domain-points" id="certD5">15 / 15점</span>
+            </div>
+            <div class="cert-bar-track">
+              <div class="cert-bar-fill" id="certBarD5" style="width: 100%;"></div>
+            </div>
+            <div class="cert-domain-desc">힘들 때 믿고 털어놓으며 도움을 주고받는 든든한 우정을 보유함</div>
+          </div>
+
+          <!-- 6. 자기표현 당당자신감 -->
+          <div class="cert-domain-card">
+            <div class="cert-domain-top">
+              <span class="cert-domain-label"><span>📢</span> 6. 자기표현 당당자신감</span>
+              <span class="cert-domain-points" id="certD6">15 / 15점</span>
+            </div>
+            <div class="cert-bar-track">
+              <div class="cert-bar-fill" id="certBarD6" style="width: 100%;"></div>
+            </div>
+            <div class="cert-domain-desc">많은 사람 앞에서도 내 생각과 의견을 침착하고 씩씩하게 표현함</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 하단 날짜, 수여기관 및 공식 직인 -->
+      <div class="cert-footer-box">
+        <div class="cert-date-text" id="certDatePrint">2026년 09월 26일</div>
+        <div class="cert-issuer-container">
+          <span class="cert-issuer-name">초등학교 마음성장 교육연구회장</span>
+          <div class="cert-seal-stamp">
+            <span>마음성장</span>
+            <span>연구회인</span>
+          </div>
+        </div>
+      </div>
     </div>
   </div>
 
@@ -1819,16 +2109,29 @@
         document.getElementById('statD' + (k + 1)).textContent = domainScores[k] + ' / 15';
       }
 
-      // A4 수료증 인쇄 영역 데이터 바인딩
+      // A4 세로 꽉 찬 수료증 데이터 바인딩
       var profile = AppState.studentProfile;
+      var sNum = String(profile.studentNum || '7').padStart(2, '0');
+      var certSerial = document.getElementById('certSerialPrint');
+      if (certSerial) certSerial.textContent = '제 2026-R' + sNum + '호';
+
+      var badgeIcon = document.getElementById('certBadgeIconPrint');
+      if (badgeIcon) badgeIcon.textContent = profile.avatar || '🏎️';
+
       document.getElementById('certSchoolPrint').textContent = profile.schoolName + ' ' + profile.grade + '학년 ' + profile.classNum + ' ' + profile.studentNum + '번';
       document.getElementById('certNamePrint').textContent = profile.name;
       document.getElementById('certBadgeNamePrint').textContent = badgeTitle;
-      document.getElementById('certScoreCell').textContent = totalScore + '점';
-      document.getElementById('certLevelCell').textContent = levelBadge;
+
+      var certLevel = document.getElementById('certLevelBadgePrint');
+      if (certLevel) certLevel.textContent = (totalScore >= 75 ? '상위 10% 이내 [' : totalScore >= 70 ? '상위 20% 이내 [' : '평균 수준 [') + levelBadge + ']';
+
+      document.getElementById('certScoreCell').textContent = totalScore;
 
       for (var m = 0; m < 6; m++) {
-        document.getElementById('certD' + (m + 1)).textContent = domainScores[m];
+        var scoreEl = document.getElementById('certD' + (m + 1));
+        if (scoreEl) scoreEl.textContent = domainScores[m] + ' / 15점';
+        var barEl = document.getElementById('certBarD' + (m + 1));
+        if (barEl) barEl.style.width = Math.round((domainScores[m] / 15) * 100) + '%';
       }
 
       var now = new Date();
