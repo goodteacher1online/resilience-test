@@ -2941,12 +2941,12 @@
             if (w) wheels.push(w);
           });
 
-          // 4-B. 🌟 앞바퀴 조향 객체 및 스티어링 휠 바인딩
+          // 4-B. 🌟 앞바퀴 및 스티어링 휠 바인딩
           frontWheels = [];
           var w_fl = ferrari.getObjectByName('wheel_fl');
           var w_fr = ferrari.getObjectByName('wheel_fr');
-          if (w_fl) { w_fl.rotation.order = 'YXZ'; frontWheels.push(w_fl); }
-          if (w_fr) { w_fr.rotation.order = 'YXZ'; frontWheels.push(w_fr); }
+          if (w_fl) frontWheels.push(w_fl);
+          if (w_fr) frontWheels.push(w_fr);
 
           steeringWheelMesh = ferrari.getObjectByName('steering_wheel');
           if (steeringWheelMesh) {
@@ -4690,28 +4690,31 @@
           }
         }
 
-        // 🌟 스티어링 휠(핸들) & 앞바퀴 조향 & 주행 휠 회전 애니메이션
+        // 🌟 스티어링 휠(핸들) & 바퀴 주행 회전 애니메이션
         if (isRunning) {
-          // 1. 앞바퀴 조향각 계산 (우아한 주행 코너링 웨이브)
-          var steerAngle = Math.sin(elapsedTime * 1.0) * 0.28; // 약 ±16도
+          // 1. 마우스 드래그 시 반응형 조향각 (정지 시에는 똑바로 0 정렬)
+          var steerAngle = 0;
           if (isDragging) {
-            steerAngle = Math.max(-0.45, Math.min(0.45, (targetCameraPos.x - camera.position.x) * 0.8));
+            steerAngle = Math.max(-0.35, Math.min(0.35, (targetCameraPos.x - camera.position.x) * 0.6));
           }
           frontWheels.forEach(function(fw) {
             if (fw) fw.rotation.y = steerAngle;
           });
 
-          // 2. 스티어링 휠(핸들)은 조향비 2.8배로 정밀 연동 회전!
+          // 2. 스티어링 휠(핸들) 연동 회전
           if (steeringWheelMesh) {
             steeringWheelMesh.rotation.z = -steerAngle * 2.8;
           }
 
-          // 3. 바퀴 주행 회전
-          wheels.forEach(function(w) {
-            if (w) w.rotation.z -= 0.035;
-          });
+          // 3. 🌟 바퀴 주행 구름 회전 (Three.js 공식 X축 정석 회전)
+          // 설문 완료 후 파워온(시동) 상태에서만 바퀴가 힘차게 앞으로 굴러감!
+          if (AppState.isPoweredOn) {
+            wheels.forEach(function(w) {
+              if (w) w.rotation.x -= 0.035;
+            });
+          }
         } else {
-          // 설문 중 대기 상태: 핸들과 바퀴를 정면 0으로 정숙 유지
+          // 설문 중 대기 상태: 바퀴 정숙 정지 유지
           frontWheels.forEach(function(fw) {
             if (fw) fw.rotation.y = 0;
           });
