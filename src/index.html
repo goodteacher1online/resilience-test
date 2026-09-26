@@ -703,11 +703,230 @@
       border-color: #FFFFFF;
     }
 
-    /* A4 세로 1장 완벽 출력 수료증 (Full-Height A4 Portrait) */
-    #printCertificateArea {
+    /* 🌟 수료증 미리보기 모달 (Screen Preview Overlay) */
+    .cert-preview-overlay {
+      position: fixed;
+      inset: 0;
+      z-index: 100;
+      background: rgba(10, 14, 22, 0.92);
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
       display: none;
+      flex-direction: column;
+      align-items: center;
+      overflow-y: auto;
+      padding: 24px 16px 40px 16px;
+      animation: fadeIn 0.3s ease-out;
+    }
+    .cert-preview-overlay.active {
+      display: flex;
     }
 
+    .cert-preview-toolbar {
+      width: 100%;
+      max-width: 860px;
+      background: rgba(18, 24, 38, 0.95);
+      border: 1px solid rgba(255, 255, 255, 0.16);
+      border-radius: 20px;
+      padding: 14px 22px;
+      margin-bottom: 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 14px;
+      box-shadow: 0 12px 35px rgba(0, 0, 0, 0.55);
+    }
+    .cert-preview-title-box {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .cert-preview-title {
+      font-size: 17px;
+      font-weight: 800;
+      color: #FFFFFF;
+      letter-spacing: -0.2px;
+    }
+    .cert-preview-tips {
+      font-size: 12px;
+      color: #94A3B8;
+      background: rgba(255, 255, 255, 0.05);
+      padding: 4px 10px;
+      border-radius: 8px;
+    }
+    .cert-preview-btn-group {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+    .btn-cert-print-main {
+      background: linear-gradient(135deg, #10B981 0%, #059669 100%);
+      color: #FFFFFF;
+      border: none;
+      padding: 11px 22px;
+      border-radius: 14px;
+      font-size: 15px;
+      font-weight: 900;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      box-shadow: 0 4px 15px rgba(16, 185, 129, 0.4);
+      transition: all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+    .btn-cert-print-main:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(16, 185, 129, 0.6);
+    }
+    .btn-cert-back-studio {
+      background: rgba(56, 189, 248, 0.12);
+      border: 1px solid rgba(56, 189, 248, 0.4);
+      color: #38BDF8;
+      padding: 11px 18px;
+      border-radius: 14px;
+      font-size: 14px;
+      font-weight: 800;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      transition: all 0.2s;
+    }
+    .btn-cert-back-studio:hover {
+      background: rgba(56, 189, 248, 0.22);
+      border-color: #38BDF8;
+    }
+    .btn-cert-close {
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      color: #CBD5E1;
+      width: 38px;
+      height: 38px;
+      border-radius: 12px;
+      font-size: 16px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.2s;
+    }
+    .btn-cert-close:hover {
+      background: rgba(255, 255, 255, 0.2);
+      color: #FFFFFF;
+    }
+
+    /* 화면용 수료증 미리보기 용지 컨테이너 (실물 A4 비율) */
+    .cert-preview-sheet-wrapper {
+      width: 100%;
+      max-width: 840px;
+      background: #FFFFFF;
+      border-radius: 12px;
+      box-shadow: 0 25px 70px rgba(0, 0, 0, 0.7), 0 0 0 1px rgba(255, 255, 255, 0.15);
+      overflow: hidden;
+      margin-bottom: 24px;
+    }
+
+    #printCertificateArea {
+      display: block;
+      width: 100%;
+      box-sizing: border-box;
+      padding: 12mm 14mm;
+      background: #FFFFFF;
+      color: #0F172A;
+    }
+
+    /* 설문 완료 후 3D 하단 중앙에 나타나는 수료증 미리보기 플로팅 버튼 */
+    .btn-final-cert-preview {
+      position: fixed;
+      bottom: 28px;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 45;
+      background: linear-gradient(135deg, #06B6D4 0%, #3B82F6 100%);
+      color: #FFFFFF;
+      border: 2px solid rgba(255, 255, 255, 0.4);
+      padding: 14px 32px;
+      border-radius: 30px;
+      font-size: 16px;
+      font-weight: 900;
+      cursor: pointer;
+      display: none;
+      align-items: center;
+      gap: 10px;
+      box-shadow: 0 10px 30px rgba(6, 182, 212, 0.6), 0 0 20px rgba(59, 130, 246, 0.4);
+      transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+      animation: pulseGlow 2s infinite;
+    }
+    .btn-final-cert-preview.active {
+      display: flex;
+    }
+    .btn-final-cert-preview:hover {
+      transform: translateX(-50%) translateY(-3px) scale(1.03);
+      box-shadow: 0 15px 40px rgba(6, 182, 212, 0.8);
+    }
+    body.theme-room-mode .btn-final-cert-preview {
+      background: linear-gradient(135deg, #EC4899 0%, #8B5CF6 100%);
+      box-shadow: 0 10px 30px rgba(236, 72, 153, 0.6), 0 0 20px rgba(139, 92, 246, 0.4);
+    }
+
+    /* 설문 완료 축하 배너 */
+    .finale-celebration-banner {
+      position: fixed;
+      top: 76px;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 40;
+      background: rgba(18, 24, 38, 0.94);
+      backdrop-filter: blur(16px);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      border-radius: 20px;
+      padding: 12px 24px;
+      box-shadow: 0 15px 40px rgba(0, 0, 0, 0.5);
+      display: none;
+      align-items: center;
+      gap: 14px;
+      animation: slideDownFade 0.4s ease-out;
+      pointer-events: auto;
+    }
+    .finale-celebration-banner.active {
+      display: flex;
+    }
+    .finale-banner-icon {
+      font-size: 28px;
+    }
+    .finale-banner-text-wrap {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+    .finale-banner-title {
+      font-size: 15px;
+      font-weight: 800;
+      color: #38BDF8;
+    }
+    body.theme-room-mode .finale-banner-title {
+      color: #F472B6;
+    }
+    .finale-banner-sub {
+      font-size: 13px;
+      color: #E2E8F0;
+    }
+    .finale-banner-close {
+      background: transparent;
+      border: none;
+      color: #94A3B8;
+      font-size: 16px;
+      cursor: pointer;
+      padding: 4px;
+      margin-left: 6px;
+    }
+    .finale-banner-close:hover {
+      color: #FFFFFF;
+    }
+
+    /* @media print: 브라우저 인쇄 시 순수 A4 단일 페이지 출력 */
     @media print {
       @page {
         size: 210mm 297mm;
@@ -724,9 +943,32 @@
         -webkit-print-color-adjust: exact !important;
         print-color-adjust: exact !important;
       }
-      #canvas-container, .top-hud, .car-color-picker-bar, .viewport-orbit-hint, .gameplay-hud-container, .part-toast-popup, #introOverlay, #resultOverlay, .custom-studio-trigger-btn, .custom-studio-drawer, .studio-return-bar {
+      #canvas-container, .top-hud, .car-color-picker-bar, .viewport-orbit-hint,
+      .gameplay-hud-container, .part-toast-popup, #introOverlay, #resultOverlay,
+      .custom-studio-trigger-btn, .custom-studio-drawer, .studio-return-bar,
+      .cert-preview-toolbar, #finaleCelebrationBanner, #btnFinalCertPreview {
         display: none !important;
         visibility: hidden !important;
+      }
+      .cert-preview-overlay {
+        position: static !important;
+        display: block !important;
+        padding: 0 !important;
+        margin: 0 !important;
+        background: transparent !important;
+        backdrop-filter: none !important;
+        overflow: visible !important;
+        width: 210mm !important;
+        height: 297mm !important;
+      }
+      .cert-preview-sheet-wrapper {
+        max-width: 210mm !important;
+        width: 210mm !important;
+        height: 297mm !important;
+        box-shadow: none !important;
+        border-radius: 0 !important;
+        background: #FFFFFF !important;
+        margin: 0 !important;
       }
       #printCertificateArea {
         display: block !important;
@@ -1048,11 +1290,14 @@
       font-size: 15px;
       font-weight: 800;
       cursor: pointer;
-      display: flex;
+      display: none; /* 설문 완료 전에는 숨김 */
       align-items: center;
       gap: 8px;
       box-shadow: 0 10px 28px rgba(6, 182, 212, 0.45);
       transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+    .custom-studio-trigger-btn.active {
+      display: flex;
     }
     .custom-studio-trigger-btn:hover {
       transform: translateY(-4px) scale(1.04);
@@ -1356,11 +1601,27 @@
     </div>
   </div>
 
+  <!-- 🌟 설문 완료 피날레 축하 배너 -->
+  <div class="finale-celebration-banner" id="finaleCelebrationBanner">
+    <div class="finale-banner-icon" id="finaleBannerIcon">🎉</div>
+    <div class="finale-banner-text-wrap">
+      <div class="finale-banner-title font-jua" id="finaleBannerTitle">회복탄력성 18문항 완주! 100% 에너지 충전 완료!</div>
+      <div class="finale-banner-sub font-jua" id="finaleBannerSub">설문하면서 모은 보상들로 나만의 멋진 작품을 마음껏 꾸며보세요!</div>
+    </div>
+    <button type="button" class="finale-banner-close" id="btnCloseFinaleBanner" title="배너 닫기">✕</button>
+  </div>
+
+  <!-- 🌟 설문 완료 후 3D 화면 하단 중앙에 나타나는 수료증 미리보기 플로팅 버튼 -->
+  <button type="button" class="btn-final-cert-preview font-jua" id="btnFinalCertPreview">
+    <span>📋</span>
+    <span>회복탄력성 결과 & 수료증 미리보기 ▶</span>
+  </button>
+
   <!-- 상단 수료증 복귀 플로팅 바 (결과 모달에서 스튜디오 진입 시 노출) -->
   <div class="studio-return-bar" id="studioReturnBar">
     <button type="button" class="btn-return-cert" id="btnBackToResultCert">
       <span>📄</span>
-      <span>수료증 확인 / 인쇄하기</span>
+      <span>수료증 미리보기 / 인쇄</span>
     </button>
   </div>
 
@@ -1377,7 +1638,13 @@
         <span style="font-size: 24px;" id="studioHeaderEmoji">🎨</span>
         <span class="studio-title font-jua" id="studioHeaderTitle">3D 하이퍼 튜닝 스튜디오</span>
       </div>
-      <button type="button" class="studio-close-btn" id="btnCloseStudio" title="닫기">✕</button>
+      <div class="studio-header-actions" style="display: flex; align-items: center; gap: 10px;">
+        <button type="button" class="btn-drawer-cert font-jua" id="btnDrawerCertPreview" style="background: linear-gradient(135deg, #10B981, #059669); color: #fff; border: 1.5px solid rgba(255,255,255,0.4); padding: 7px 18px; border-radius: 16px; font-size: 13.5px; font-weight: 900; cursor: pointer; display: flex; align-items: center; gap: 6px; box-shadow: 0 4px 14px rgba(16,185,129,0.35);">
+          <span>📜</span>
+          <span>수료증 미리보기 ▶</span>
+        </button>
+        <button type="button" class="studio-close-btn" id="btnCloseStudio" title="닫기">✕</button>
+      </div>
     </div>
 
     <!-- 탭 네비게이션 -->
@@ -1541,10 +1808,10 @@
 
       <div class="result-actions-row" style="flex-wrap: wrap;">
         <button type="button" class="btn-cyber-primary font-jua" id="btnPrintCert" style="width: auto; padding: 13px 26px;">
-          🖨️ 수료증 인쇄 / PDF 저장
+          📜 수료증 미리보기 & 인쇄
         </button>
         <button type="button" class="btn-action-outline font-jua" id="btnOpenFreeStudio" style="border-color: #38BDF8; color: #38BDF8; background: rgba(56, 189, 248, 0.1);">
-          🎨 내 작품 더 꾸미기 (자유 스튜디오)
+          🎨 3D 자유 스튜디오로 가기
         </button>
         <button type="button" class="btn-action-outline font-jua" id="btnRestart">
           🔄 다시 모험하기
@@ -1553,9 +1820,37 @@
     </div>
   </div>
 
-  <!-- 7. 인쇄 전용 A4 세로 꽉 찬 수료증 (Full-Height A4 Layout) -->
-  <div id="printCertificateArea">
-    <div class="cert-frame-wrapper">
+  <!-- 7. 🌟 수료증 미리보기 모달 (Screen Preview) & 인쇄 레이아웃 (A4 Portrait) -->
+  <div class="cert-preview-overlay" id="certPreviewOverlay">
+    <div class="cert-preview-toolbar">
+      <div class="cert-preview-title-box">
+        <span style="font-size: 24px;">📜</span>
+        <div>
+          <div class="cert-preview-title font-jua">수료증 미리보기</div>
+          <div class="cert-preview-tips font-jua">💡 인쇄 설정에서 [배경 그래픽]을 체크하시면 황금 테두리와 모든 컬러가 선명하게 출력됩니다!</div>
+        </div>
+      </div>
+      <div class="cert-preview-btn-group">
+        <button type="button" class="btn-cert-print-main font-jua" id="btnPrintCertAction">
+          <span>🖨️</span>
+          <span>지금 인쇄 / PDF 저장</span>
+        </button>
+        <button type="button" class="btn-cert-back-studio font-jua" id="btnPreviewBackToStudio">
+          <span>🎨</span>
+          <span>3D 더 꾸미기</span>
+        </button>
+        <button type="button" class="btn-cert-back-studio font-jua" id="btnPreviewOpenResult" style="border-color: #A855F7; color: #C084FC; background: rgba(168, 85, 247, 0.12);">
+          <span>📊</span>
+          <span>역량 진단표</span>
+        </button>
+        <button type="button" class="btn-cert-close" id="btnCloseCertPreview" title="미리보기 닫기">✕</button>
+      </div>
+    </div>
+
+    <!-- 실물 A4 비율 종이 래퍼 -->
+    <div class="cert-preview-sheet-wrapper">
+      <div id="printCertificateArea">
+        <div class="cert-frame-wrapper">
       <!-- 4대 모서리 코너 오너먼트 -->
       <div class="cert-corner top-left"></div>
       <div class="cert-corner top-right"></div>
@@ -1705,6 +2000,8 @@
           </div>
         </div>
       </div>
+        </div>
+      </div>
     </div>
   </div>
 
@@ -1759,6 +2056,7 @@
       currentQIndex: 0,
       userAnswers: [],
       unlockedParts: [false, false, false, false, false, false],
+      isPoweredOn: false, // 설문 완료 전: 정지 및 대기 모드 / 설문 완료 후: 화려한 시동 & 전등 점등
       currentColor: '#E11D48',
       currentRoomColor: '#FB7185',
       studentProfile: {
@@ -1794,6 +2092,7 @@
     };
 
     var scene, camera, renderer;
+    var ambLight, keyLight, fillLight;
     var showroomGroup, carGroup, wheels = [];
     var carPaintMaterial, glassMaterial, wheelRimMaterial, brakeCaliperMaterial, carbonMat;
     var spoilerWingGroup, underglowMesh, headlightLights = [];
@@ -1905,11 +2204,11 @@
       renderer.shadowMap.type = THREE.PCFSoftShadowMap;
       container.appendChild(renderer.domElement);
 
-      // 스튜디오 조명 배치
-      var ambLight = new THREE.AmbientLight(0xFFFFFF, 0.6);
+      // 스튜디오 조명 배치 (전역 조명 객체 참조)
+      ambLight = new THREE.AmbientLight(0xFFFFFF, 0.6);
       scene.add(ambLight);
 
-      var keyLight = new THREE.DirectionalLight(0xFFFFFF, 1.4);
+      keyLight = new THREE.DirectionalLight(0xFFFFFF, 1.4);
       keyLight.position.set(6, 9, 6);
       keyLight.castShadow = true;
       keyLight.shadow.mapSize.width = 2048;
@@ -1917,7 +2216,7 @@
       keyLight.shadow.bias = -0.0002;
       scene.add(keyLight);
 
-      var fillLight = new THREE.DirectionalLight(0x93C5FD, 0.7);
+      fillLight = new THREE.DirectionalLight(0x93C5FD, 0.7);
       fillLight.position.set(-6, 7, -5);
       scene.add(fillLight);
 
@@ -3761,37 +4060,51 @@
       requestAnimationFrame(animate);
       var elapsedTime = clock.getElapsedTime();
 
+      var isRunning = AppState.isPoweredOn || (AppState.currentStep === 'intro');
       var radius = 6.8;
+
       if (AppState.currentTheme === 'room') {
         radius = 8.4;
         targetCameraLookAt.set(-0.2, 1.15, -0.2);
 
-        // 룸 모드: 드래그 중이 아닐 때는 정면 45도 뷰에서 우아하게 살랑살랑 스윙 모션
+        // 룸 모드: 설문 중에는 정면 45도에 고정 정지! 설문 완료 시에만 우아한 스윙
         if (!isDragging) {
-          orbitAngleY = 0.78 + Math.sin(elapsedTime * 0.35) * 0.12;
+          if (isRunning) {
+            orbitAngleY = 0.78 + Math.sin(elapsedTime * 0.35) * 0.12;
+          } else {
+            orbitAngleY = 0.78; // 설문 중 대기 정지
+          }
         }
 
-        // 페어리 스타 반짝임 및 부유 애니메이션 (드림하우스)
+        // 페어리 스타 반짝임 및 부유 애니메이션 (파워온 시에만)
         if (fairyStars && fairyStars.length > 0) {
           for (var fs = 0; fs < fairyStars.length; fs++) {
             var star = fairyStars[fs];
-            star.position.y = star.userData.origY + Math.sin(elapsedTime * star.userData.speed + star.userData.offset) * 0.08;
-            star.rotation.y += 0.02;
-            star.rotation.z += 0.015;
+            if (isRunning) {
+              star.position.y = star.userData.origY + Math.sin(elapsedTime * star.userData.speed + star.userData.offset) * 0.08;
+              star.rotation.y += 0.02;
+              star.rotation.z += 0.015;
+            }
           }
         }
       } else {
         radius = 6.8;
         targetCameraLookAt.set(0, 0.45, 0);
 
-        // 슈퍼카 모드: 자동 턴테이블 회전
+        // 슈퍼카 모드: 설문 중에는 완전히 멈춰 있음! 설문 완료 시에만 자동 턴테이블 회전
         if (!isDragging) {
-          orbitAngleY += 0.0025;
+          if (isRunning) {
+            orbitAngleY += 0.0025;
+          }
         }
 
-        // 네온 언더글로우 펄스 (슈퍼카)
-        if (underglowMesh && underglowMesh.material.opacity > 0) {
-          underglowMesh.material.opacity = 0.55 + Math.sin(elapsedTime * 6) * 0.15;
+        // 네온 언더글로우 펄스 (슈퍼카 - 파워온 시에만 펄스)
+        if (underglowMesh && underglowMesh.material) {
+          if (isRunning && underglowMesh.material.opacity > 0) {
+            underglowMesh.material.opacity = 0.55 + Math.sin(elapsedTime * 6) * 0.15;
+          } else if (!isRunning) {
+            underglowMesh.material.opacity = 0.0;
+          }
         }
       }
 
@@ -3859,6 +4172,23 @@
       AppState.currentStep = 'gameplay';
       AppState.currentQIndex = 0;
       AppState.userAnswers = [];
+      AppState.isPoweredOn = false; // 설문 중에는 멈춤 & 대기 모드
+
+      // 스튜디오 및 피날레 버튼 숨김
+      var triggerBtn = document.getElementById('btnToggleStudio');
+      if (triggerBtn) triggerBtn.classList.remove('active');
+      var finalCertBtn = document.getElementById('btnFinalCertPreview');
+      if (finalCertBtn) finalCertBtn.classList.remove('active');
+      var finaleBanner = document.getElementById('finaleCelebrationBanner');
+      if (finaleBanner) finaleBanner.classList.remove('active');
+      var retBar = document.getElementById('studioReturnBar');
+      if (retBar) retBar.classList.remove('active');
+      toggleCustomStudio(false);
+
+      // 설문 중에는 차고/방 조명을 차분한 에너지 충전 대기 모드로 설정
+      if (ambLight) ambLight.intensity = 0.38;
+      if (keyLight) keyLight.intensity = 0.7;
+      if (fillLight) fillLight.intensity = 0.4;
 
       // 룸꾸미기 모드일 경우 모험 시작과 함께 1단계부터 언락되도록 가구 리셋
       if (AppState.currentTheme === 'room') {
@@ -3868,6 +4198,8 @@
           }
         }
         if (moodLight) moodLight.intensity = 0.0;
+      } else {
+        if (underglowMesh) underglowMesh.material.opacity = 0.0;
       }
 
       renderCurrentQuestion();
@@ -4046,7 +4378,29 @@
       var dateStr = now.getFullYear() + '년 ' + String(now.getMonth() + 1).padStart(2, '0') + '월 ' + String(now.getDate()).padStart(2, '0') + '일';
       document.getElementById('certDatePrint').textContent = dateStr;
 
-      document.getElementById('resultOverlay').classList.add('active');
+      // 🌟 설문 완료 피날레 발동: 자동차 시동 ON / 드림하우스 전등 점등!
+      startPowerOnSequence();
+
+      // 피날레 축하 배너 노출
+      var finaleBanner = document.getElementById('finaleCelebrationBanner');
+      if (finaleBanner) {
+        finaleBanner.classList.add('active');
+        var bannerTitle = document.getElementById('finaleBannerTitle');
+        var bannerSub = document.getElementById('finaleBannerSub');
+        if (bannerTitle) bannerTitle.textContent = isRoom ? '🎀 18문항 완주! 러블리 드림하우스 전등 점등 완료!' : '🏎️ 18문항 완주! 슈퍼카 시동 스타트 완료!';
+        if (bannerSub) bannerSub.textContent = '설문하면서 모은 보상들로 나만의 멋진 작품을 마음껏 꾸며보세요!';
+      }
+
+      // 하단 중앙에 "회복탄력성 결과 & 수료증 미리보기 ▶" 버튼 노출
+      var finalCertBtn = document.getElementById('btnFinalCertPreview');
+      if (finalCertBtn) finalCertBtn.classList.add('active');
+
+      // 하단 좌측 스튜디오 버튼 활성화 및 자동으로 스튜디오 드로어 열기!
+      var triggerBtn = document.getElementById('btnToggleStudio');
+      if (triggerBtn) triggerBtn.classList.add('active');
+      var retBar = document.getElementById('studioReturnBar');
+      if (retBar) retBar.classList.add('active');
+      toggleCustomStudio(true);
 
       // Google Apps Script 서버 스프레드시트 기록
       if (typeof google !== 'undefined' && google.script && google.script.run) {
@@ -4068,10 +4422,153 @@
       }
     }
 
-    // 수료증 인쇄
-    document.getElementById('btnPrintCert').addEventListener('click', function() {
-      window.print();
-    });
+    // 🌟 파워온 효과음 합성 (Web Audio API)
+    function playPowerOnSound(theme) {
+      try {
+        var AudioContext = window.AudioContext || window.webkitAudioContext;
+        if (!AudioContext) return;
+        var ctx = new AudioContext();
+        var now = ctx.currentTime;
+        if (theme === 'car') {
+          var osc = ctx.createOscillator();
+          var gain = ctx.createGain();
+          osc.type = 'sawtooth';
+          osc.frequency.setValueAtTime(55, now);
+          osc.frequency.exponentialRampToValueAtTime(140, now + 0.35);
+          osc.frequency.exponentialRampToValueAtTime(80, now + 0.7);
+          osc.frequency.exponentialRampToValueAtTime(260, now + 1.3);
+          gain.gain.setValueAtTime(0.18, now);
+          gain.gain.exponentialRampToValueAtTime(0.01, now + 1.5);
+          osc.connect(gain);
+          gain.connect(ctx.destination);
+          osc.start(now);
+          osc.stop(now + 1.5);
+        } else {
+          var freqs = [523.25, 659.25, 783.99, 1046.50];
+          freqs.forEach(function(f, idx) {
+            var osc = ctx.createOscillator();
+            var gain = ctx.createGain();
+            osc.type = 'triangle';
+            osc.frequency.setValueAtTime(f, now + idx * 0.16);
+            gain.gain.setValueAtTime(0.22, now + idx * 0.16);
+            gain.gain.exponentialRampToValueAtTime(0.001, now + idx * 0.16 + 0.8);
+            osc.connect(gain);
+            gain.connect(ctx.destination);
+            osc.start(now + idx * 0.16);
+            osc.stop(now + idx * 0.16 + 0.8);
+          });
+        }
+      } catch (e) {
+        console.log('Audio not supported or restricted:', e);
+      }
+    }
+
+    // 🌟 화려한 시동 피날레 및 3D 파워온 연출
+    function startPowerOnSequence() {
+      AppState.isPoweredOn = true;
+      playPowerOnSound(AppState.currentTheme);
+
+      // 조명 쇼룸 모드로 업그레이드
+      if (ambLight) ambLight.intensity = 0.75;
+      if (keyLight) keyLight.intensity = 1.5;
+      if (fillLight) fillLight.intensity = 0.8;
+
+      if (AppState.currentTheme === 'room') {
+        if (moodLight) moodLight.intensity = 1.9;
+        if (roomNeonHeartMesh && roomNeonHeartMesh.material) {
+          roomNeonHeartMesh.material.color.set(0xFF1493);
+          roomNeonHeartMesh.material.emissive.set(0xFF1493);
+          roomNeonHeartMesh.material.emissiveIntensity = 2.0;
+        }
+        applyRoomCustomization();
+      } else {
+        if (underglowMesh && underglowMesh.material) {
+          underglowMesh.material.opacity = 0.8;
+        }
+        applyCarCustomization();
+      }
+    }
+
+    // 🌟 수료증 미리보기 모달 제어 함수
+    function openCertPreview() {
+      updateCertCustomSummary();
+      var previewOverlay = document.getElementById('certPreviewOverlay');
+      if (previewOverlay) {
+        previewOverlay.classList.add('active');
+        previewOverlay.scrollTop = 0;
+      }
+    }
+
+    function closeCertPreview() {
+      var previewOverlay = document.getElementById('certPreviewOverlay');
+      if (previewOverlay) {
+        previewOverlay.classList.remove('active');
+      }
+    }
+
+    function closeFinaleBanner() {
+      var banner = document.getElementById('finaleCelebrationBanner');
+      if (banner) banner.classList.remove('active');
+    }
+
+    // 수료증 인쇄 및 미리보기 버튼 이벤트 바인딩
+    var btnPrintCert = document.getElementById('btnPrintCert');
+    if (btnPrintCert) {
+      btnPrintCert.addEventListener('click', function() {
+        openCertPreview();
+      });
+    }
+
+    var btnFinalCert = document.getElementById('btnFinalCertPreview');
+    if (btnFinalCert) {
+      btnFinalCert.addEventListener('click', function() {
+        openCertPreview();
+      });
+    }
+
+    var btnDrawerCert = document.getElementById('btnDrawerCertPreview');
+    if (btnDrawerCert) {
+      btnDrawerCert.addEventListener('click', function() {
+        openCertPreview();
+      });
+    }
+
+    var btnPrintCertAction = document.getElementById('btnPrintCertAction');
+    if (btnPrintCertAction) {
+      btnPrintCertAction.addEventListener('click', function() {
+        window.print();
+      });
+    }
+
+    var btnPreviewBack = document.getElementById('btnPreviewBackToStudio');
+    if (btnPreviewBack) {
+      btnPreviewBack.addEventListener('click', function() {
+        closeCertPreview();
+        toggleCustomStudio(true);
+      });
+    }
+
+    var btnPreviewResult = document.getElementById('btnPreviewOpenResult');
+    if (btnPreviewResult) {
+      btnPreviewResult.addEventListener('click', function() {
+        closeCertPreview();
+        document.getElementById('resultOverlay').classList.add('active');
+      });
+    }
+
+    var btnClosePreview = document.getElementById('btnCloseCertPreview');
+    if (btnClosePreview) {
+      btnClosePreview.addEventListener('click', function() {
+        closeCertPreview();
+      });
+    }
+
+    var btnCloseBanner = document.getElementById('btnCloseFinaleBanner');
+    if (btnCloseBanner) {
+      btnCloseBanner.addEventListener('click', function() {
+        closeFinaleBanner();
+      });
+    }
 
     // 🌟 결과 모달에서 "내 작품 더 꾸미기 (자유 스튜디오)" 진입 버튼
     var btnFreeStudio = document.getElementById('btnOpenFreeStudio');
@@ -4083,13 +4580,11 @@
       });
     }
 
-    // 🌟 스튜디오에서 수료증으로 복귀하는 상단 플로팅 버튼
+    // 🌟 스튜디오에서 수료증 미리보기로 복귀하는 상단 플로팅 버튼
     var btnBackCert = document.getElementById('btnBackToResultCert');
     if (btnBackCert) {
       btnBackCert.addEventListener('click', function() {
-        document.getElementById('studioReturnBar').classList.remove('active');
-        toggleCustomStudio(false);
-        document.getElementById('resultOverlay').classList.add('active');
+        openCertPreview();
       });
     }
 
@@ -4113,11 +4608,19 @@
     document.getElementById('btnRestart').addEventListener('click', function() {
       document.getElementById('resultOverlay').classList.remove('active');
       document.getElementById('studioReturnBar').classList.remove('active');
+      closeCertPreview();
+      closeFinaleBanner();
       toggleCustomStudio(false);
+      var triggerBtn = document.getElementById('btnToggleStudio');
+      if (triggerBtn) triggerBtn.classList.remove('active');
+      var finalCertBtn = document.getElementById('btnFinalCertPreview');
+      if (finalCertBtn) finalCertBtn.classList.remove('active');
+
       document.getElementById('introOverlay').classList.remove('hidden');
       document.getElementById('hudProgressCluster').style.display = 'none';
 
       AppState.currentStep = 'intro';
+      AppState.isPoweredOn = false;
       AppState.unlockedParts = [false, false, false, false, false, false];
       for (var p = 0; p < 6; p++) {
         var dot = document.getElementById('partDot' + p);
