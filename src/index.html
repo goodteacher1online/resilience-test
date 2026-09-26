@@ -2202,6 +2202,7 @@
 
     // 🌟 3D 자유 커스텀 스튜디오 상세 상태 관리
     var CustomStudioState = {
+      activeTab: null, // 🌟 현재 선택된 튜닝 탭 유지 ('car-paint', 'car-wheels', 'room-bed' 등)
       room: {
         theme: 'pink',      // 'pink', 'mint', 'lavender', 'check'
         windowView: 'day',  // 'day', 'night'
@@ -3727,6 +3728,19 @@
 
       if (!tabBar || !contentArea) return;
 
+      // 🌟 스크롤 위치 보존
+      var prevScrollTop = contentArea.scrollTop;
+
+      // 🌟 현재 테마별 유효 탭 목록 및 활성 탭 결정 (도색 탭으로 튕김 현상 완전 방지)
+      var validTabs = (AppState.currentTheme === 'room')
+        ? ['room-space', 'room-bed', 'room-pet', 'room-lighting']
+        : ['car-paint', 'car-wheels', 'car-wings', 'car-lights'];
+
+      if (!CustomStudioState.activeTab || validTabs.indexOf(CustomStudioState.activeTab) === -1) {
+        CustomStudioState.activeTab = validTabs[0];
+      }
+      var currentTab = CustomStudioState.activeTab;
+
       if (AppState.currentTheme === 'room') {
         headerTitle.textContent = '🎀 나만의 드림룸 스타일 스튜디오';
         headerEmoji.textContent = '🎀';
@@ -3735,15 +3749,15 @@
 
         // 룸 전용 4개 탭
         tabBar.innerHTML = [
-          '<button type="button" class="studio-tab-pill active" data-tab="room-space">🎨 공간 & 벽지</button>',
-          '<button type="button" class="studio-tab-pill" data-tab="room-bed">🛏️ 침대 스타일</button>',
-          '<button type="button" class="studio-tab-pill" data-tab="room-pet">🧸 친구 인형</button>',
-          '<button type="button" class="studio-tab-pill" data-tab="room-lighting">💡 조명 & 이펙트</button>'
+          '<button type="button" class="studio-tab-pill ' + (currentTab === 'room-space' ? 'active' : '') + '" data-tab="room-space">🎨 공간 & 벽지</button>',
+          '<button type="button" class="studio-tab-pill ' + (currentTab === 'room-bed' ? 'active' : '') + '" data-tab="room-bed">🛏️ 침대 스타일</button>',
+          '<button type="button" class="studio-tab-pill ' + (currentTab === 'room-pet' ? 'active' : '') + '" data-tab="room-pet">🧸 친구 인형</button>',
+          '<button type="button" class="studio-tab-pill ' + (currentTab === 'room-lighting' ? 'active' : '') + '" data-tab="room-lighting">💡 조명 & 이펙트</button>'
         ].join('');
 
         contentArea.innerHTML = [
           // 탭 1: 공간 & 벽지
-          '<div class="studio-content-section active" id="sec-room-space">',
+          '<div class="studio-content-section ' + (currentTab === 'room-space' ? 'active' : '') + '" id="sec-room-space">',
           '  <div class="studio-options-grid">',
           '    <div class="studio-opt-btn ' + (CustomStudioState.room.theme === 'pink' ? 'active' : '') + '" onclick="setRoomOption(\'theme\', \'pink\')">',
           '      <span class="studio-opt-icon">🌸</span>',
@@ -3779,7 +3793,7 @@
           '</div>',
 
           // 탭 2: 침대 스타일
-          '<div class="studio-content-section" id="sec-room-bed">',
+          '<div class="studio-content-section ' + (currentTab === 'room-bed' ? 'active' : '') + '" id="sec-room-bed">',
           '  <div class="studio-options-grid">',
           '    <div class="studio-opt-btn ' + (CustomStudioState.room.bedStyle === 'canopy' ? 'active' : '') + '" onclick="setRoomOption(\'bedStyle\', \'canopy\')">',
           '      <span class="studio-opt-icon">👑</span>',
@@ -3800,7 +3814,7 @@
           '</div>',
 
           // 탭 3: 친구 인형
-          '<div class="studio-content-section" id="sec-room-pet">',
+          '<div class="studio-content-section ' + (currentTab === 'room-pet' ? 'active' : '') + '" id="sec-room-pet">',
           '  <div class="studio-options-grid">',
           '    <div class="studio-opt-btn ' + (CustomStudioState.room.petStyle === 'bear' ? 'active' : '') + '" onclick="setRoomOption(\'petStyle\', \'bear\')">',
           '      <span class="studio-opt-icon">🧸</span>',
@@ -3821,7 +3835,7 @@
           '</div>',
 
           // 탭 4: 조명 & 이펙트
-          '<div class="studio-content-section" id="sec-room-lighting">',
+          '<div class="studio-content-section ' + (currentTab === 'room-lighting' ? 'active' : '') + '" id="sec-room-lighting">',
           '  <div class="studio-options-grid">',
           '    <div class="studio-opt-btn ' + (CustomStudioState.room.lampStyle === 'moon' ? 'active' : '') + '" onclick="setRoomOption(\'lampStyle\', \'moon\')">',
           '      <span class="studio-opt-icon">🌙</span>',
@@ -3860,15 +3874,15 @@
         if (btnIcon) btnIcon.textContent = '🏎️';
 
         tabBar.innerHTML = [
-          '<button type="button" class="studio-tab-pill active" data-tab="car-paint">🎨 바디 & 도색</button>',
-          '<button type="button" class="studio-tab-pill" data-tab="car-wheels">🛞 스포츠 휠</button>',
-          '<button type="button" class="studio-tab-pill" data-tab="car-wings">🪽 리어 윙</button>',
-          '<button type="button" class="studio-tab-pill" data-tab="car-lights">⚡ 라이트 & 네온</button>'
+          '<button type="button" class="studio-tab-pill ' + (currentTab === 'car-paint' ? 'active' : '') + '" data-tab="car-paint">🎨 바디 & 도색</button>',
+          '<button type="button" class="studio-tab-pill ' + (currentTab === 'car-wheels' ? 'active' : '') + '" data-tab="car-wheels">🛞 스포츠 휠</button>',
+          '<button type="button" class="studio-tab-pill ' + (currentTab === 'car-wings' ? 'active' : '') + '" data-tab="car-wings">🪽 리어 윙</button>',
+          '<button type="button" class="studio-tab-pill ' + (currentTab === 'car-lights' ? 'active' : '') + '" data-tab="car-lights">⚡ 라이트 & 네온</button>'
         ].join('');
 
         contentArea.innerHTML = [
           // 탭 1: 바디 & 도색
-          '<div class="studio-content-section active" id="sec-car-paint">',
+          '<div class="studio-content-section ' + (currentTab === 'car-paint' ? 'active' : '') + '" id="sec-car-paint">',
           '  <div class="studio-options-grid">',
           '    <div class="studio-opt-btn ' + (CustomStudioState.car.color === '#E11D48' ? 'active' : '') + '" onclick="setCarOption(\'color\', \'#E11D48\')">',
           '      <div style="width:24px; height:24px; border-radius:50%; background:#E11D48; border:2px solid #FFF;"></div>',
@@ -3909,7 +3923,7 @@
           '</div>',
 
           // 탭 2: 스포츠 휠
-          '<div class="studio-content-section" id="sec-car-wheels">',
+          '<div class="studio-content-section ' + (currentTab === 'car-wheels' ? 'active' : '') + '" id="sec-car-wheels">',
           '  <div class="studio-options-grid">',
           '    <div class="studio-opt-btn ' + (CustomStudioState.car.wheelStyle === 'spoke' ? 'active' : '') + '" onclick="setCarOption(\'wheelStyle\', \'spoke\')">',
           '      <span class="studio-opt-icon">🛞</span>',
@@ -3930,7 +3944,7 @@
           '</div>',
 
           // 탭 3: 리어 윙
-          '<div class="studio-content-section" id="sec-car-wings">',
+          '<div class="studio-content-section ' + (currentTab === 'car-wings' ? 'active' : '') + '" id="sec-car-wings">',
           '  <div class="studio-options-grid">',
           '    <div class="studio-opt-btn ' + (CustomStudioState.car.wingStyle === 'gt' ? 'active' : '') + '" onclick="setCarOption(\'wingStyle\', \'gt\')">',
           '      <span class="studio-opt-icon">🦅</span>',
@@ -3951,7 +3965,7 @@
           '</div>',
 
           // 탭 4: 라이트 & 네온
-          '<div class="studio-content-section" id="sec-car-lights">',
+          '<div class="studio-content-section ' + (currentTab === 'car-lights' ? 'active' : '') + '" id="sec-car-lights">',
           '  <div class="studio-options-grid">',
           '    <div class="studio-opt-btn ' + (CustomStudioState.car.headlightColor === '#00F0FF' ? 'active' : '') + '" onclick="setCarOption(\'headlightColor\', \'#00F0FF\')">',
           '      <span class="studio-opt-icon">💎</span>',
@@ -3984,6 +3998,7 @@
           tabBar.querySelectorAll('.studio-tab-pill').forEach(function(p) { p.classList.remove('active'); });
           pill.classList.add('active');
           var targetTab = pill.getAttribute('data-tab');
+          CustomStudioState.activeTab = targetTab; // 🌟 현재 탭 상태 즉시 기억!
           contentArea.querySelectorAll('.studio-content-section').forEach(function(sec) {
             sec.classList.remove('active');
           });
@@ -3991,6 +4006,9 @@
           if (targetSec) targetSec.classList.add('active');
         };
       });
+
+      // 🌟 이전 스크롤 위치 복원
+      contentArea.scrollTop = prevScrollTop;
     }
 
     function setRoomOption(key, val) {
@@ -4036,6 +4054,7 @@
     // 테마 모드 전환 (슈퍼카 vs 룸꾸미기)
     function switchTheme(theme) {
       AppState.currentTheme = theme;
+      CustomStudioState.activeTab = (theme === 'room' ? 'room-space' : 'car-paint');
 
       var tabCar = document.getElementById('tabCarTheme');
       var tabRoom = document.getElementById('tabRoomTheme');
