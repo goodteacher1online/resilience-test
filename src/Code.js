@@ -17,7 +17,7 @@ function getTargetSpreadsheet() {
 function doGet(e) {
   var template = HtmlService.createTemplateFromFile('index');
   var output = template.evaluate()
-    .setTitle('🏎️ 하이퍼 슈퍼카 3D - 초등 회복탄력성 쇼룸')
+    .setTitle('🏎️ 하이퍼 슈퍼카 & 🎀 러블리 드림하우스 - 초등 회복탄력성 검사')
     .addMetaTag('viewport', 'width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no')
     .setXFrameOptionsMode(HtmlService.XFrameOptionsMode.ALLOWALL);
   return output;
