@@ -1808,6 +1808,10 @@
 
   <!-- 상단 수료증 복귀 플로팅 바 (결과 모달에서 스튜디오 진입 시 노출) -->
   <div class="studio-return-bar" id="studioReturnBar">
+    <button type="button" class="btn-return-cert" id="btnBrochureFloatingBar" onclick="exportBrochure()" style="background: linear-gradient(135deg, #6366F1, #8B5CF6); border-color: rgba(255,255,255,0.4); margin-right: 8px;">
+      <span>📸</span>
+      <span>팜플렛/매거진 저장</span>
+    </button>
     <button type="button" class="btn-return-cert" id="btnBackToResultCert">
       <span>📄</span>
       <span>수료증 미리보기 / 인쇄</span>
@@ -1828,6 +1832,10 @@
         <span class="studio-title font-jua" id="studioHeaderTitle">3D 하이퍼 튜닝 스튜디오</span>
       </div>
       <div class="studio-header-actions" style="display: flex; align-items: center; gap: 10px;">
+        <button type="button" class="btn-drawer-brochure font-jua" id="btnDrawerExportBrochure" onclick="exportBrochure()" style="background: linear-gradient(135deg, #6366F1, #8B5CF6); color: #fff; border: 1.5px solid rgba(255,255,255,0.4); padding: 7px 18px; border-radius: 16px; font-size: 13.5px; font-weight: 900; cursor: pointer; display: flex; align-items: center; gap: 6px; box-shadow: 0 4px 14px rgba(99,102,241,0.35);" title="4대 멀티 앵글 팜플렛 / 매거진 화보 이미지 저장">
+          <span>📸</span>
+          <span>저장</span>
+        </button>
         <button type="button" class="btn-drawer-cert font-jua" id="btnDrawerCertPreview" style="background: linear-gradient(135deg, #10B981, #059669); color: #fff; border: 1.5px solid rgba(255,255,255,0.4); padding: 7px 18px; border-radius: 16px; font-size: 13.5px; font-weight: 900; cursor: pointer; display: flex; align-items: center; gap: 6px; box-shadow: 0 4px 14px rgba(16,185,129,0.35);">
           <span>📜</span>
           <span>수료증 미리보기 ▶</span>
@@ -2030,6 +2038,9 @@
         <button type="button" class="btn-cyber-primary font-jua" id="btnPrintCert" style="width: auto; padding: 13px 26px;">
           📜 수료증 미리보기 & 인쇄
         </button>
+        <button type="button" class="btn-action-outline font-jua" id="btnExportBrochureResult" onclick="exportBrochure()" style="border-color: #8B5CF6; color: #C4B5FD; background: rgba(139, 92, 246, 0.15);">
+          📸 팜플렛/매거진 저장
+        </button>
         <button type="button" class="btn-action-outline font-jua" id="btnOpenFreeStudio" style="border-color: #38BDF8; color: #38BDF8; background: rgba(56, 189, 248, 0.1);">
           🎨 3D 자유 스튜디오로 가기
         </button>
@@ -2051,6 +2062,10 @@
         <button type="button" class="btn-cert-print-main font-jua" id="btnPrintCertAction">
           <span>🖨️</span>
           <span>지금 인쇄 / PDF 저장</span>
+        </button>
+        <button type="button" class="btn-cert-back-studio font-jua" id="btnCertBrochureExport" onclick="exportBrochure()" style="border-color: #8B5CF6; color: #C4B5FD; background: rgba(139, 92, 246, 0.15);">
+          <span>📸</span>
+          <span>팜플렛/매거진</span>
         </button>
         <button type="button" class="btn-cert-back-studio font-jua" id="btnPreviewBackToStudio">
           <span>🎨</span>
@@ -2325,6 +2340,11 @@
     var showroomNeonRing;
     var _radialGlowTexture = null;
 
+    // 🌟 독창적인 미래 엠블럼 및 애프터버너, 팜플렛 상태 참조
+    var customEmblemMeshes = [];
+    var afterburnerBoosterGroup, afterburnerMaterials = [];
+    var isGeneratingBrochure = false;
+
     // 🌟 하이퍼 네온 언더글로우 & 헤드라이트 코로나용 방사형 캔버스 텍스처 (전역 헬퍼)
     function getRadialGlowTexture() {
       if (_radialGlowTexture) return _radialGlowTexture;
@@ -2342,6 +2362,181 @@
       c2d.fillRect(0, 0, 256, 256);
       _radialGlowTexture = new THREE.CanvasTexture(cvs);
       return _radialGlowTexture;
+    }
+
+    // 🌟 드림룸 최고급 헤링본 원목 마루 캔버스 텍스처 캐시
+    var _herringboneTextures = {};
+    function getHerringboneTexture(baseCol, lineCol) {
+      baseCol = baseCol || '#CCA073';
+      lineCol = lineCol || '#996C42';
+      var key = baseCol + '_' + lineCol;
+      if (_herringboneTextures[key]) return _herringboneTextures[key];
+      if (typeof document === 'undefined') return null;
+
+      var cvs = document.createElement('canvas');
+      cvs.width = 512;
+      cvs.height = 512;
+      var ctx = cvs.getContext('2d');
+      ctx.fillStyle = baseCol;
+      ctx.fillRect(0, 0, 512, 512);
+
+      var pW = 64, pH = 24;
+      for (var y = 0; y < 512 + pH * 2; y += pH) {
+        for (var x = 0; x < 512 + pW * 2; x += pW) {
+          ctx.strokeStyle = lineCol;
+          ctx.lineWidth = 1.5;
+          ctx.strokeRect(x, y, pW, pH);
+
+          ctx.fillStyle = ((x / pW + y / pH) % 2 === 0) ? 'rgba(0, 0, 0, 0.06)' : 'rgba(255, 255, 255, 0.07)';
+          ctx.fillRect(x + 1, y + 1, pW - 2, pH - 2);
+
+          ctx.strokeStyle = 'rgba(0, 0, 0, 0.1)';
+          ctx.lineWidth = 1;
+          ctx.beginPath();
+          ctx.moveTo(x + 4, y + pH * 0.35);
+          ctx.lineTo(x + pW - 4, y + pH * 0.38);
+          ctx.moveTo(x + 8, y + pH * 0.7);
+          ctx.lineTo(x + pW - 8, y + pH * 0.68);
+          ctx.stroke();
+        }
+      }
+      var tex = new THREE.CanvasTexture(cvs);
+      tex.wrapS = THREE.RepeatWrapping;
+      tex.wrapT = THREE.RepeatWrapping;
+      tex.repeat.set(5, 5);
+      _herringboneTextures[key] = tex;
+      return tex;
+    }
+
+    // 🌟 이탈리안 카라라 대리석 타일 텍스처
+    var _marbleTexture = null;
+    function getMarbleFloorTexture() {
+      if (_marbleTexture) return _marbleTexture;
+      if (typeof document === 'undefined') return null;
+
+      var cvs = document.createElement('canvas');
+      cvs.width = 512;
+      cvs.height = 512;
+      var ctx = cvs.getContext('2d');
+      ctx.fillStyle = '#F8FAFC';
+      ctx.fillRect(0, 0, 512, 512);
+
+      // 마블링 베인 라인
+      ctx.strokeStyle = '#94A3B8';
+      ctx.lineWidth = 2.5;
+      ctx.globalAlpha = 0.25;
+      for (var i = 0; i < 16; i++) {
+        ctx.beginPath();
+        var sx = (i * 35) % 512;
+        ctx.moveTo(sx, 0);
+        for (var s = 0; s < 6; s++) {
+          sx += ((i % 2 === 0 ? 1 : -1) * 35) + ((i * 17) % 20);
+          ctx.lineTo(sx, (s + 1) * 85);
+        }
+        ctx.stroke();
+      }
+      ctx.globalAlpha = 0.4;
+      ctx.lineWidth = 2;
+      ctx.strokeStyle = '#CBD5E1';
+      ctx.strokeRect(0, 0, 512, 512);
+      ctx.beginPath();
+      ctx.moveTo(256, 0); ctx.lineTo(256, 512);
+      ctx.moveTo(0, 256); ctx.lineTo(512, 256);
+      ctx.stroke();
+
+      _marbleTexture = new THREE.CanvasTexture(cvs);
+      _marbleTexture.wrapS = THREE.RepeatWrapping;
+      _marbleTexture.wrapT = THREE.RepeatWrapping;
+      _marbleTexture.repeat.set(4, 4);
+      return _marbleTexture;
+    }
+
+    // 🌟 모던 갤러리 추상화 캔버스 텍스처 (바우하우스 & 럭셔리 인테리어 갤러리)
+    var _abstractArtTexture = null;
+    function getAbstractArtTexture() {
+      if (_abstractArtTexture) return _abstractArtTexture;
+      if (typeof document === 'undefined') return null;
+
+      var cvs = document.createElement('canvas');
+      cvs.width = 512;
+      cvs.height = 640;
+      var ctx = cvs.getContext('2d');
+
+      // 크림 베이지 캔버스 배경
+      ctx.fillStyle = '#FFF5EB';
+      ctx.fillRect(0, 0, 512, 640);
+
+      // 모던 미니멀 추상 도형들 (로즈 아치 & 앰버 썬 & 사이언 스피어)
+      ctx.fillStyle = '#F43F5E';
+      ctx.beginPath();
+      ctx.arc(256, 260, 160, Math.PI, 0);
+      ctx.fill();
+
+      ctx.fillStyle = '#FBBF24';
+      ctx.beginPath();
+      ctx.arc(180, 360, 90, 0, Math.PI * 2);
+      ctx.fill();
+
+      ctx.fillStyle = '#06B6D4';
+      ctx.beginPath();
+      ctx.arc(330, 420, 110, 0, Math.PI * 2);
+      ctx.fill();
+
+      ctx.strokeStyle = '#1E293B';
+      ctx.lineWidth = 6;
+      ctx.beginPath();
+      ctx.arc(256, 260, 160, Math.PI, 0);
+      ctx.stroke();
+
+      ctx.beginPath();
+      ctx.moveTo(80, 520);
+      ctx.lineTo(432, 520);
+      ctx.stroke();
+
+      _abstractArtTexture = new THREE.CanvasTexture(cvs);
+      return _abstractArtTexture;
+    }
+
+    // 🌟 세상에 없는 독창적인 미래 회복탄력성 하이퍼 엠블럼 생성 헬퍼 (저작권 위험 100% 해소)
+    function createResilienceEmblem(scale, isRear) {
+      scale = scale || 1.0;
+      var grp = new THREE.Group();
+
+      var frameMat = new THREE.MeshStandardMaterial({
+        color: 0xCBD5E1,
+        metalness: 0.95,
+        roughness: 0.15
+      });
+
+      // 좌측 V-에어로 윙
+      var wL = new THREE.Mesh(new THREE.ConeGeometry(0.04 * scale, 0.16 * scale, 4), frameMat);
+      wL.position.set(-0.06 * scale, 0, 0);
+      wL.rotation.z = Math.PI / 3;
+      wL.scale.set(0.55, 1.2, 0.35);
+      grp.add(wL);
+
+      // 우측 V-에어로 윙
+      var wR = new THREE.Mesh(new THREE.ConeGeometry(0.04 * scale, 0.16 * scale, 4), frameMat);
+      wR.position.set(0.06 * scale, 0, 0);
+      wR.rotation.z = -Math.PI / 3;
+      wR.scale.set(0.55, 1.2, 0.35);
+      grp.add(wR);
+
+      // 중앙 네온 발광 다이아몬드 코어 (현재 라이트 컬러 연동)
+      var curCol = (CustomStudioState && CustomStudioState.car && CustomStudioState.car.headlightColor) ? CustomStudioState.car.headlightColor : '#00F0FF';
+      var dMat = new THREE.MeshStandardMaterial({
+        color: new THREE.Color(curCol),
+        emissive: new THREE.Color(curCol),
+        emissiveIntensity: 3.5,
+        roughness: 0.1,
+        metalness: 0.2
+      });
+      var diamond = new THREE.Mesh(new THREE.OctahedronGeometry(0.045 * scale), dMat);
+      diamond.scale.set(0.8, 1.2, 0.35);
+      grp.add(diamond);
+
+      customEmblemMeshes.push(dMat);
+      return grp;
     }
 
     // 휠 스타일 전용 특수 머티리얼
@@ -2446,7 +2641,7 @@
       camera.position.copy(targetCameraPos);
       camera.lookAt(targetCameraLookAt);
 
-      renderer = new THREE.WebGLRenderer({ antialias: true, alpha: false });
+      renderer = new THREE.WebGLRenderer({ antialias: true, alpha: false, preserveDrawingBuffer: true });
       renderer.setSize(width, height);
       renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
 
@@ -3065,12 +3260,166 @@
           // 6. 페라리 기본 축 유지 (전면 Z-, 후면 Z+)
           ferrari.rotation.y = 0;
 
-          // 7. 튜닝 파츠(스포일러 윙, 언더글로우)를 페라리 차체에 결합
+          // 2-B. 🌟 기존 페라리 엠블럼 완전 제거 및 독창적인 미래 엠블럼으로 교체 (저작권 100% 해소)
+          var yellowTrim = ferrari.getObjectByName('yellow_trim');
+          if (yellowTrim) yellowTrim.visible = false; // 보닛 앞코 및 프론트 펜더 노란 말 방패 마크 완전 제거!
+
+          var chromeTrim = ferrari.getObjectByName('chrome');
+          if (chromeTrim) chromeTrim.visible = false; // 전면 그릴 크롬 말 및 후면 테일게이트 Ferrari 레터링/말 마크 완전 제거!
+
+          // 휠 캡 4개 및 스티어링 휠 중앙 마크를 다크 카본 메탈릭으로 변경
+          var carbonCapMat = new THREE.MeshStandardMaterial({
+            color: 0x0F172A,
+            roughness: 0.35,
+            metalness: 0.85
+          });
+          ['centre', 'centre_1', 'centre_2', 'centre_3', 'steering_centre'].forEach(function(cName) {
+            var cObj = ferrari.getObjectByName(cName);
+            if (cObj) cObj.material = carbonCapMat;
+          });
+
+          // 독창적인 미래 회복탄력성 3D 하이퍼 엠블럼 (Resilience Hyper Wing Emblem) 장착
+          customEmblemMeshes = [];
+          // A. 보닛 앞코 끝단 엠블럼 (정면 상단)
+          var frontEmblem = createResilienceEmblem(1.15, false);
+          frontEmblem.position.set(0, 0.705, -1.45);
+          frontEmblem.rotation.x = -0.42; // 보닛 경사각 일체화
+          ferrari.add(frontEmblem);
+
+          // B. 전면 하부 그릴 중앙 엠블럼 (크롬 마크 위치 완벽 차폐 및 미래형 프론트 엠블럼 장착)
+          var grillShield = new THREE.Mesh(
+            new THREE.BoxGeometry(0.12, 0.14, 0.02),
+            new THREE.MeshStandardMaterial({ color: 0x0F172A, roughness: 0.4 })
+          );
+          grillShield.position.set(0, 0.31, -2.14);
+          var grillEmblem = createResilienceEmblem(0.85, false);
+          grillEmblem.position.set(0, 0.31, -2.15);
+          ferrari.add(grillShield);
+          ferrari.add(grillEmblem);
+
+          // C. 후면 리어 테일게이트 중앙 엠블럼 (후면 테일 램프 사이 정중앙)
+          var rearShield = new THREE.Mesh(
+            new THREE.BoxGeometry(0.24, 0.16, 0.03),
+            new THREE.MeshStandardMaterial({ color: 0x0F172A, roughness: 0.3, metalness: 0.7 })
+          );
+          rearShield.position.set(0, 0.70, 2.14);
+          rearShield.rotation.x = 0.12;
+          var rearEmblem = createResilienceEmblem(1.2, true);
+          rearEmblem.position.set(0, 0.70, 2.16);
+          rearEmblem.rotation.x = 0.12;
+          ferrari.add(rearShield);
+          ferrari.add(rearEmblem);
+
+          // 🌟 3-D. 후면 트리플 제트 플라즈마 부스터 배기구 (Afterburner Glow Turbine)
+          afterburnerBoosterGroup = new THREE.Group();
+          afterburnerMaterials = [];
+          var boosterNeonColor = new THREE.Color(CustomStudioState.car.headlightColor || '#00F0FF');
+          var boosterBaseMat = new THREE.MeshBasicMaterial({
+            color: boosterNeonColor,
+            transparent: true,
+            opacity: 0.95
+          });
+          var boosterCoreMat = new THREE.MeshBasicMaterial({
+            color: boosterNeonColor,
+            transparent: true,
+            opacity: 0.85,
+            blending: THREE.AdditiveBlending
+          });
+          afterburnerMaterials.push(boosterBaseMat, boosterCoreMat);
+
+          [-0.105, 0, 0.105].forEach(function(xOff) {
+            // 배기구 내부 네온 링 (실제 머플러 팁 내부로 완벽 정렬)
+            var ringGeom = new THREE.TorusGeometry(0.042, 0.008, 12, 24);
+            var ring = new THREE.Mesh(ringGeom, boosterBaseMat);
+            ring.position.set(xOff, 0.385, 2.22);
+            afterburnerBoosterGroup.add(ring);
+
+            // 배기구 내부 초고온 플라즈마 코어
+            var coreGeom = new THREE.CircleGeometry(0.038, 16);
+            var core = new THREE.Mesh(coreGeom, boosterCoreMat);
+            core.position.set(xOff, 0.385, 2.215);
+            afterburnerBoosterGroup.add(core);
+          });
+          ferrari.add(afterburnerBoosterGroup);
+
+          // 🌟 7. 세련된 하이퍼 리어 에어로 윙 3종 재구축 및 장착 (GT 더블 카본 윙, 샤크핀, 스텔스 덕테일)
           if (spoilerWingGroup) {
-            spoilerWingGroup.position.set(0, 0.76, 1.85);
-            spoilerWingGroup.rotation.y = 0;
-            ferrari.add(spoilerWingGroup);
+            ferrari.remove(spoilerWingGroup);
           }
+          spoilerWingGroup = new THREE.Group();
+          spoilerWingGroup.position.set(0, 0.94, 2.02); // 트렁크 리어 덱 끝단 위에 완벽 안착
+
+          var cWingMat = new THREE.MeshStandardMaterial({
+            color: 0x0F172A,
+            metalness: 0.9,
+            roughness: 0.2
+          });
+
+          // 1) 🌟 하이퍼 GT 더블 카본 윙 (gt)
+          var wingGtGroup = new THREE.Group();
+          // 상단 메인 에어로 블레이드
+          var mainBlade = new THREE.Mesh(createRoundedBox(1.92, 0.045, 0.32, 0.02), cWingMat);
+          mainBlade.position.set(0, 0.26, 0.04);
+          mainBlade.rotation.x = -0.10;
+          wingGtGroup.add(mainBlade);
+
+          // 하단 보조 서브 블레이드
+          var subBlade = new THREE.Mesh(createRoundedBox(1.68, 0.03, 0.20, 0.015), cWingMat);
+          subBlade.position.set(0, 0.15, -0.04);
+          subBlade.rotation.x = -0.06;
+          wingGtGroup.add(subBlade);
+
+          // 좌우 수직 에어로 엔드플레이트 & 네온 LED 바
+          [-0.96, 0.96].forEach(function(xOff) {
+            var ep = new THREE.Mesh(createRoundedBox(0.03, 0.22, 0.36, 0.01), cWingMat);
+            ep.position.set(xOff, 0.23, 0.04);
+            wingGtGroup.add(ep);
+
+            var ledBarMat = new THREE.MeshBasicMaterial({ color: boosterNeonColor });
+            afterburnerMaterials.push(ledBarMat);
+            var ledBar = new THREE.Mesh(createRoundedBox(0.035, 0.18, 0.02, 0.005), ledBarMat);
+            ledBar.position.set(xOff, 0.23, 0.22);
+            wingGtGroup.add(ledBar);
+          });
+
+          // 듀얼 스완넥(Swan-neck) 알루미늄 마운트 지지대
+          [-0.45, 0.45].forEach(function(xOff) {
+            var mount = new THREE.Mesh(createRoundedBox(0.04, 0.30, 0.08, 0.01), cWingMat);
+            mount.position.set(xOff, 0.12, 0);
+            mount.rotation.x = 0.28;
+            wingGtGroup.add(mount);
+          });
+          spoilerWingGroup.add(wingGtGroup);
+
+          // 2) 🌟 중앙 공기역학 샤크핀 (shark)
+          var wingSharkGroup = new THREE.Group();
+          var sharkFin = new THREE.Mesh(createRoundedBox(0.06, 0.42, 1.25, 0.02), cWingMat);
+          sharkFin.position.set(0, 0.20, -0.28);
+          wingSharkGroup.add(sharkFin);
+
+          var sharkLedMat = new THREE.MeshBasicMaterial({ color: boosterNeonColor });
+          afterburnerMaterials.push(sharkLedMat);
+          var sharkLed = new THREE.Mesh(createRoundedBox(0.02, 0.035, 1.2, 0.005), sharkLedMat);
+          sharkLed.position.set(0, 0.41, -0.28);
+          wingSharkGroup.add(sharkLed);
+          spoilerWingGroup.add(wingSharkGroup);
+
+          // 3) 🌟 스텔스 와이드 덕테일 (ducktail)
+          var wingDucktailGroup = new THREE.Group();
+          var ducktail = new THREE.Mesh(createRoundedBox(1.88, 0.14, 0.26, 0.02), cWingMat);
+          ducktail.position.set(0, 0.04, 0.02);
+          ducktail.rotation.x = -0.28;
+          wingDucktailGroup.add(ducktail);
+
+          var ducktailLedMat = new THREE.MeshBasicMaterial({ color: boosterNeonColor });
+          afterburnerMaterials.push(ducktailLedMat);
+          var ducktailLed = new THREE.Mesh(createRoundedBox(1.84, 0.025, 0.03, 0.005), ducktailLedMat);
+          ducktailLed.position.set(0, 0.09, 0.14);
+          wingDucktailGroup.add(ducktailLed);
+          spoilerWingGroup.add(wingDucktailGroup);
+
+          carWingSubgroups = { gt: wingGtGroup, shark: wingSharkGroup, ducktail: wingDucktailGroup };
+          ferrari.add(spoilerWingGroup);
 
           // 🌟 8. 실사 페라리 하이퍼 네온 언더글로우 메쉬 & 차체 하부 네온 광원 결합
           var underglowGeom = new THREE.PlaneGeometry(3.6, 5.6);
@@ -3195,22 +3544,25 @@
       roomGroup = new THREE.Group();
       roomGroup.position.set(0, 0, 0);
 
-      // 1. 기본 머티리얼 정의
+      // 1. 기본 머티리얼 정의 (럭셔리 PBR 인테리어 사양)
       roomWallMat = new THREE.MeshStandardMaterial({
-        color: 0xFFEBEF, // 은은하고 사랑스러운 베이비 핑크 벽지
+        color: 0xFCE8EC, // 차분하고 우아한 프렌치 로즈 크림
         roughness: 0.65,
         metalness: 0.05
       });
 
+      // 🌟 최고급 프랑스산 헤링본 원목 마루 PBR 텍스처 바인딩
+      var initialWoodTex = getHerringboneTexture('#CCA073', '#996C42');
       woodFloorMat = new THREE.MeshStandardMaterial({
-        color: 0xDEB887, // 따뜻한 내추럴 원목 마루 톤
-        roughness: 0.45,
+        map: initialWoodTex,
+        roughness: 0.28,
         metalness: 0.08
       });
 
       var whiteMoldingMat = new THREE.MeshStandardMaterial({
         color: 0xFFFFFF,
-        roughness: 0.25
+        roughness: 0.25,
+        metalness: 0.05
       });
 
       bedLinenMat = new THREE.MeshStandardMaterial({
@@ -3230,7 +3582,7 @@
         roughness: 0.2
       });
 
-      // 디오라마 베이스 원기둥 (우드 플로어)
+      // 디오라마 베이스 원기둥 (헤링본 우드 플로어)
       roomBaseMesh = new THREE.Mesh(
         new THREE.CylinderGeometry(6.5, 6.7, 0.12, 64),
         woodFloorMat
@@ -3239,32 +3591,33 @@
       roomBaseMesh.receiveShadow = true;
       roomGroup.add(roomBaseMesh);
 
-      // 드림하우스 전용 화사하고 따스한 조명
-      var roomWarmLight = new THREE.DirectionalLight(0xFFE4E6, 1.4);
+      // 드림하우스 전용 화사하고 따스한 조명 (부드러운 음영 밸런스)
+      var roomWarmLight = new THREE.DirectionalLight(0xFFE4E6, 1.1);
       roomWarmLight.position.set(5, 8, 5);
       roomWarmLight.castShadow = true;
       roomGroup.add(roomWarmLight);
 
-      // 핑크/로즈골드 원형 림 네온
+      // 🌟 디오라마 베이스 하부 부드러운 코브 네온 링 (공중에 떠 있는 럭셔리 디오라마 연출)
       var roomRing = new THREE.Mesh(
-        new THREE.TorusGeometry(6.45, 0.035, 12, 64),
+        new THREE.TorusGeometry(6.65, 0.04, 16, 64),
         new THREE.MeshBasicMaterial({ color: 0xFB7185 })
       );
       roomRing.rotation.x = Math.PI / 2;
-      roomRing.position.y = 0.005;
+      roomRing.position.y = 0.01;
       roomGroup.add(roomRing);
 
-      // 중앙 원형 러그
+      // 감성 컴팩트 타원 러그 (헤링본 원목 마루의 고급스러운 결을 아름답게 노출)
       var rugMesh = new THREE.Mesh(
-        new THREE.CylinderGeometry(2.7, 2.7, 0.02, 36),
+        new THREE.CylinderGeometry(1.35, 1.35, 0.02, 36),
         rugMat
       );
-      rugMesh.position.set(0.2, 0.01, 0.2);
+      rugMesh.position.set(-0.15, 0.01, 0.35);
+      rugMesh.scale.set(1.15, 1, 0.95);
       rugMesh.receiveShadow = true;
       roomGroup.add(rugMesh);
 
       // ========================================================
-      // 🌟 [기본 방 뼈대: 상시 표시] 아늑한 벽체 & 햇살 아치 창문 & 커튼
+      // 🌟 [기본 방 뼈대: 상시 표시] 아늑한 벽체 & 웨인스코팅 3D 몰딩 & 햇살 창문
       // ========================================================
       backWallMesh = new THREE.Mesh(
         createRoundedBox(4.6, 2.9, 0.12, 0.05, 0.01),
@@ -3296,6 +3649,30 @@
       );
       moldLeft.position.set(-2.19, 0.22, 0.05);
       roomGroup.add(moldLeft);
+
+      // 🌟 럭셔리 프렌치 웨인스코팅(Wainscoting) 3D 입체 몰딩 패널 6개 (뒷벽 3개 + 좌측벽 3개)
+      var wainscotGroup = new THREE.Group();
+      // 1) 뒷벽 패널 3개
+      for (var wb = 0; wb < 3; wb++) {
+        var pOuter = new THREE.Mesh(createRoundedBox(0.95, 0.92, 0.03, 0.02), whiteMoldingMat);
+        pOuter.position.set(-1.1 + wb * 1.1, 0.78, -2.18);
+        wainscotGroup.add(pOuter);
+
+        var pInner = new THREE.Mesh(createRoundedBox(0.82, 0.78, 0.04, 0.02), whiteMoldingMat);
+        pInner.position.set(-1.1 + wb * 1.1, 0.78, -2.17);
+        wainscotGroup.add(pInner);
+      }
+      // 2) 좌측벽 패널 3개
+      for (var wl = 0; wl < 3; wl++) {
+        var pOuterL = new THREE.Mesh(createRoundedBox(0.03, 0.92, 0.95, 0.02), whiteMoldingMat);
+        pOuterL.position.set(-2.14, 0.78, -1.1 + wl * 1.1);
+        wainscotGroup.add(pOuterL);
+
+        var pInnerL = new THREE.Mesh(createRoundedBox(0.04, 0.78, 0.82, 0.02), whiteMoldingMat);
+        pInnerL.position.set(-2.13, 0.78, -1.1 + wl * 1.1);
+        wainscotGroup.add(pInnerL);
+      }
+      roomGroup.add(wainscotGroup);
 
       // 햇살 아치 창문 프레임 & 하늘
       var winFrame = new THREE.Mesh(
@@ -3641,67 +4018,92 @@
       roomParts.push(p1);
 
       // ========================================================
-      // Part 2: [3단계 언락] 티타임 디저트 테이블 & 의자 세트
+      // Part 2: [3단계 언락] 34인치 커브드 모니터 모던 워크스페이스 & 디자이너 체어
       // ========================================================
       var p2 = new THREE.Group();
-      p2.position.set(1.15, 0, 0.55);
+      p2.position.set(1.15, 0, 0.45);
 
-      var tableTop = new THREE.Mesh(
-        new THREE.CylinderGeometry(0.65, 0.65, 0.04, 32),
+      // 모던 데스크 상판 (우드 & 화이트 투톤)
+      var deskTop = new THREE.Mesh(
+        createRoundedBox(1.35, 0.06, 0.7, 0.02),
         new THREE.MeshStandardMaterial({ color: 0xFDFBF7, roughness: 0.2, metalness: 0.1 })
       );
-      tableTop.position.set(0, 0.62, 0);
-      tableTop.castShadow = true;
-      p2.add(tableTop);
+      deskTop.position.set(0, 0.72, 0);
+      deskTop.castShadow = true;
+      p2.add(deskTop);
 
-      var tableLeg = new THREE.Mesh(new THREE.CylinderGeometry(0.04, 0.06, 0.6, 16), goldBrassMat);
-      tableLeg.position.set(0, 0.3, 0);
-      p2.add(tableLeg);
-
-      var tableFoot = new THREE.Mesh(new THREE.CylinderGeometry(0.3, 0.3, 0.03, 24), goldBrassMat);
-      tableFoot.position.set(0, 0.015, 0);
-      p2.add(tableFoot);
-
-      [-0.75, 0.75].forEach(function(xOffset) {
-        var chairGroup = new THREE.Group();
-        chairGroup.position.set(xOffset, 0, 0);
-        chairGroup.lookAt(0, 0, 0);
-
-        var seat = new THREE.Mesh(
-          createRoundedBox(0.42, 0.06, 0.42, 0.05),
-          new THREE.MeshStandardMaterial({ color: 0xF472B6, roughness: 0.5 })
-        );
-        seat.position.set(0, 0.38, 0);
-        seat.castShadow = true;
-        chairGroup.add(seat);
-
-        var backRest = new THREE.Mesh(
-          createRoundedBox(0.4, 0.42, 0.05, 0.05),
-          new THREE.MeshStandardMaterial({ color: 0xF472B6, roughness: 0.5 })
-        );
-        backRest.position.set(0, 0.62, -0.18);
-        chairGroup.add(backRest);
-
-        var cLeg = new THREE.Mesh(new THREE.CylinderGeometry(0.02, 0.02, 0.38, 12), goldBrassMat);
-        cLeg.position.set(0, 0.19, 0);
-        chairGroup.add(cLeg);
-
-        p2.add(chairGroup);
+      // 매트 차콜 스틸 레그 4개
+      var deskLegMat = new THREE.MeshStandardMaterial({ color: 0x1E293B, metalness: 0.9, roughness: 0.2 });
+      [[-0.6, -0.28], [0.6, -0.28], [-0.6, 0.28], [0.6, 0.28]].forEach(function(pos) {
+        var dLeg = new THREE.Mesh(new THREE.CylinderGeometry(0.02, 0.02, 0.72, 12), deskLegMat);
+        dLeg.position.set(pos[0], 0.36, pos[1]);
+        p2.add(dLeg);
       });
 
-      var teapot = new THREE.Mesh(
-        new THREE.SphereGeometry(0.08, 14, 14),
-        new THREE.MeshStandardMaterial({ color: 0xFFFFFF, roughness: 0.2 })
-      );
-      teapot.position.set(0, 0.72, 0);
-      p2.add(teapot);
+      // 🌟 34인치 울트라와이드 커브드 모니터 (화면에 감성 사이버 블루 발광)
+      var monBase = new THREE.Mesh(new THREE.CylinderGeometry(0.12, 0.14, 0.02, 16), deskLegMat);
+      monBase.position.set(0, 0.76, -0.15);
+      p2.add(monBase);
 
-      var teacup1 = new THREE.Mesh(
-        new THREE.CylinderGeometry(0.04, 0.03, 0.05, 12),
-        new THREE.MeshStandardMaterial({ color: 0xFDE047, roughness: 0.2 })
+      var monStand = new THREE.Mesh(createRoundedBox(0.04, 0.3, 0.03, 0.01), deskLegMat);
+      monStand.position.set(0, 0.9, -0.15);
+      p2.add(monStand);
+
+      var monScreen = new THREE.Mesh(
+        createRoundedBox(0.85, 0.38, 0.03, 0.02),
+        new THREE.MeshStandardMaterial({
+          color: 0x06B6D4,
+          emissive: 0x06B6D4,
+          emissiveIntensity: 1.5,
+          roughness: 0.1
+        })
       );
-      teacup1.position.set(-0.25, 0.67, 0);
-      p2.add(teacup1);
+      monScreen.position.set(0, 1.05, -0.14);
+      p2.add(monScreen);
+
+      // 알루미늄 슬림 키보드 & 마우스
+      var kb = new THREE.Mesh(
+        createRoundedBox(0.38, 0.015, 0.14, 0.005),
+        new THREE.MeshStandardMaterial({ color: 0xE2E8F0, metalness: 0.8, roughness: 0.2 })
+      );
+      kb.position.set(-0.06, 0.76, 0.12);
+      p2.add(kb);
+
+      var mouse = new THREE.Mesh(
+        createRoundedBox(0.06, 0.018, 0.09, 0.01),
+        new THREE.MeshStandardMaterial({ color: 0xF8FAFC, roughness: 0.3 })
+      );
+      mouse.position.set(0.25, 0.76, 0.12);
+      p2.add(mouse);
+
+      // 🌟 감성 디자이너 쉘 체어
+      var chairGroup = new THREE.Group();
+      chairGroup.position.set(0, 0, 0.55);
+      chairGroup.lookAt(0, 0, 0);
+
+      var seat = new THREE.Mesh(
+        createRoundedBox(0.46, 0.06, 0.44, 0.04),
+        new THREE.MeshStandardMaterial({ color: 0xFB7185, roughness: 0.6 })
+      );
+      seat.position.set(0, 0.45, 0);
+      chairGroup.add(seat);
+
+      var backRest = new THREE.Mesh(
+        createRoundedBox(0.44, 0.42, 0.05, 0.04),
+        new THREE.MeshStandardMaterial({ color: 0xFB7185, roughness: 0.6 })
+      );
+      backRest.position.set(0, 0.68, 0.2);
+      chairGroup.add(backRest);
+
+      var chairBase = new THREE.Mesh(new THREE.CylinderGeometry(0.24, 0.24, 0.03, 16), deskLegMat);
+      chairBase.position.set(0, 0.08, 0);
+      chairGroup.add(chairBase);
+
+      var chairPillar = new THREE.Mesh(new THREE.CylinderGeometry(0.03, 0.03, 0.35, 12), deskLegMat);
+      chairPillar.position.set(0, 0.25, 0);
+      chairGroup.add(chairPillar);
+
+      p2.add(chairGroup);
 
       p2.visible = true; // 인트로 프리뷰
       roomGroup.add(p2);
@@ -3822,10 +4224,11 @@
       roomParts.push(p3);
 
       // ========================================================
-      // Part 4: [5단계 언락] 감성 갤러리 액자 & 싱그런 화분
+      // Part 4: [5단계 언락] 싱그러운 몬스테라 플랜테리어 & 골드 갤러리 액자
       // ========================================================
       var p4 = new THREE.Group();
 
+      // 모던 골드 갤러리 액자
       var frameMat = new THREE.MeshStandardMaterial({ color: 0xF59E0B, metalness: 0.8, roughness: 0.2 });
       var artFrame1 = new THREE.Mesh(createRoundedBox(0.65, 0.8, 0.04, 0.02), frameMat);
       artFrame1.position.set(-1.1, 2.0, -2.18);
@@ -3833,40 +4236,82 @@
 
       var artInner1 = new THREE.Mesh(
         new THREE.PlaneGeometry(0.55, 0.7),
-        new THREE.MeshBasicMaterial({ color: 0xFCE7F3 })
+        new THREE.MeshStandardMaterial({ map: getAbstractArtTexture(), roughness: 0.35 })
       );
       artInner1.position.set(-1.1, 2.0, -2.15);
       p4.add(artInner1);
 
-      var potGroup = new THREE.Group();
-      potGroup.position.set(-1.85, 0, 1.85);
+      // 🌟 대형 세라믹 화분의 싱그러운 몬스테라 플랜테리어
+      var plantGroup = new THREE.Group();
+      plantGroup.position.set(-1.8, 0, 1.4);
 
       var pot = new THREE.Mesh(
-        new THREE.CylinderGeometry(0.24, 0.18, 0.45, 20),
-        new THREE.MeshStandardMaterial({ color: 0xFFFFFF, roughness: 0.4 })
+        new THREE.CylinderGeometry(0.26, 0.2, 0.52, 24),
+        new THREE.MeshStandardMaterial({ color: 0xF8FAFC, roughness: 0.2 })
       );
-      pot.position.set(0, 0.225, 0);
-      potGroup.add(pot);
+      pot.position.set(0, 0.32, 0);
+      plantGroup.add(pot);
 
-      var leafMat = new THREE.MeshStandardMaterial({ color: 0x10B981, roughness: 0.5 });
-      for (var lf = 0; lf < 4; lf++) {
-        var leaf = new THREE.Mesh(createRoundedBox(0.22, 0.36, 0.02, 0.05), leafMat);
-        leaf.rotation.y = (lf * Math.PI) / 2;
-        leaf.rotation.x = 0.35;
-        leaf.position.set(0, 0.55, 0);
-        potGroup.add(leaf);
+      var monsteraMat = new THREE.MeshStandardMaterial({
+        color: 0x166534,
+        roughness: 0.35,
+        side: THREE.DoubleSide
+      });
+      for (var ml = 0; ml < 7; ml++) {
+        var mAngle = (ml * Math.PI * 2) / 7;
+        var blade = new THREE.Mesh(new THREE.CircleGeometry(0.18, 16), monsteraMat);
+        blade.scale.set(0.7, 1.3, 1);
+        blade.position.set(Math.cos(mAngle) * 0.28, 0.92, Math.sin(mAngle) * 0.28);
+        blade.rotation.x = -Math.PI / 4 + Math.sin(mAngle) * 0.2;
+        blade.rotation.y = mAngle;
+        plantGroup.add(blade);
       }
-      p4.add(potGroup);
+      p4.add(plantGroup);
 
       p4.visible = true; // 인트로 프리뷰
       roomGroup.add(p4);
       roomParts.push(p4);
 
       // ========================================================
-      // Part 5: [6단계 언락] 별빛 페어리 라이트 & 샹들리에
+      // Part 5: [6단계 언락] 아치형 골드 플로어 램프 & 별빛 페어리 라이트 & 샹들리에
       // ========================================================
       var p5 = new THREE.Group();
 
+      // 🌟 아치형 골드 플로어 스탠드 램프 (Arco Lamp)
+      var arcoGroup = new THREE.Group();
+      arcoGroup.position.set(-1.85, 0, -1.85);
+
+      var arcoBase = new THREE.Mesh(
+        new THREE.CylinderGeometry(0.22, 0.22, 0.05, 24),
+        new THREE.MeshStandardMaterial({ color: 0x0F172A, roughness: 0.3, metalness: 0.8 })
+      );
+      arcoBase.position.y = 0.025;
+      arcoGroup.add(arcoBase);
+
+      var arcoCurve = new THREE.QuadraticBezierCurve3(
+        new THREE.Vector3(0, 0.05, 0),
+        new THREE.Vector3(0, 2.7, 0.3),
+        new THREE.Vector3(0.7, 2.3, 0.7)
+      );
+      var arcoTubeGeom = new THREE.TubeGeometry(arcoCurve, 32, 0.018, 12, false);
+      var arcoTube = new THREE.Mesh(arcoTubeGeom, goldBrassMat);
+      arcoGroup.add(arcoTube);
+
+      var arcoDome = new THREE.Mesh(
+        new THREE.SphereGeometry(0.18, 20, 14, 0, Math.PI * 2, 0, Math.PI / 2),
+        goldBrassMat
+      );
+      arcoDome.position.set(0.7, 2.3, 0.7);
+      arcoDome.rotation.x = Math.PI;
+      arcoGroup.add(arcoDome);
+
+      var arcoLight = new THREE.PointLight(0xFDE68A, 1.4, 4.5);
+      arcoLight.position.set(0.7, 2.15, 0.7);
+      arcoGroup.add(arcoLight);
+
+      p5.add(arcoGroup);
+
+      // 골드 샹들리에
       var chandelierGroup = new THREE.Group();
       chandelierGroup.position.set(0, 2.65, 0);
 
@@ -3880,6 +4325,7 @@
 
       p5.add(chandelierGroup);
 
+      // 별빛 페어리 라이트
       fairyGroup = new THREE.Group();
       fairyStars = [];
       var starGeom = new THREE.OctahedronGeometry(0.045, 0);
@@ -3947,6 +4393,9 @@
           }
         });
       }
+      if (spoilerWingGroup) {
+        spoilerWingGroup.visible = (CustomStudioState.car.wingStyle !== 'none');
+      }
       for (var wk in carWingSubgroups) {
         if (carWingSubgroups[wk]) {
           carWingSubgroups[wk].visible = (wk === CustomStudioState.car.wingStyle);
@@ -4007,36 +4456,68 @@
       if (showroomNeonRing && showroomNeonRing.material) {
         showroomNeonRing.material.color.copy(chosenColor);
       }
+      // 9) 🌟 독창적인 미래 엠블럼 중앙 다이아몬드 코어 발광 색상 동기화
+      if (customEmblemMeshes && customEmblemMeshes.length > 0) {
+        customEmblemMeshes.forEach(function(dMat) {
+          if (dMat) {
+            dMat.color.copy(chosenColor);
+            dMat.emissive.copy(chosenColor);
+          }
+        });
+      }
+      // 10) 🌟 리어 애프터버너 배기구 플라즈마 링 및 윙 네온 라인 동기화
+      if (afterburnerMaterials && afterburnerMaterials.length > 0) {
+        afterburnerMaterials.forEach(function(aMat) {
+          if (aMat) aMat.color.copy(chosenColor);
+        });
+      }
       updateCertCustomSummary();
     }
 
-    // 2. 드림하우스(방꾸미기) 커스터마이징 실시간 반영
+    // 2. 드림하우스(방꾸미기) 커스터마이징 실시간 반영 (럭셔리 PBR 인테리어 스튜디오)
     function applyRoomCustomization() {
       var rTheme = CustomStudioState.room.theme;
+      // 🌟 조명 밸런스 리밸런싱 (부드러운 음영 디테일 보존)
+      if (ambLight) ambLight.intensity = 0.55;
+      if (keyLight) keyLight.intensity = 0.85;
+
       if (rTheme === 'pink') {
-        if (roomWallMat) roomWallMat.color.set(0xFFEBEF);
-        if (woodFloorMat) woodFloorMat.color.set(0xDEB887);
+        if (roomWallMat) roomWallMat.color.set(0xFCE8EC);
+        if (woodFloorMat) {
+          woodFloorMat.map = getHerringboneTexture('#CCA073', '#996C42');
+          woodFloorMat.needsUpdate = true;
+        }
         if (rugMat) rugMat.color.set(0xFCE7F3);
         if (curLMesh && curRMesh) { curLMesh.material.color.set(0xFFFFFF); curRMesh.material.color.set(0xFFFFFF); }
-        if (scene && AppState.currentTheme === 'room') scene.background = new THREE.Color(0xFFEFF2);
+        // 🌟 화이트아웃 방지: 은은한 미드나잇 럭셔리 라벤더 차콜 스튜디오 배경
+        if (scene && AppState.currentTheme === 'room') scene.background = new THREE.Color(0x161824);
       } else if (rTheme === 'mint') {
         if (roomWallMat) roomWallMat.color.set(0xE6F7ED);
-        if (woodFloorMat) woodFloorMat.color.set(0xE5D3B3);
+        if (woodFloorMat) {
+          woodFloorMat.map = getHerringboneTexture('#C5B08A', '#8F7A59');
+          woodFloorMat.needsUpdate = true;
+        }
         if (rugMat) rugMat.color.set(0xD1FAE5);
         if (curLMesh && curRMesh) { curLMesh.material.color.set(0xFFFFFF); curRMesh.material.color.set(0xFFFFFF); }
-        if (scene && AppState.currentTheme === 'room') scene.background = new THREE.Color(0xEFFCF6);
+        if (scene && AppState.currentTheme === 'room') scene.background = new THREE.Color(0x111C18);
       } else if (rTheme === 'lavender') {
         if (roomWallMat) roomWallMat.color.set(0xF3E8FF);
-        if (woodFloorMat) woodFloorMat.color.set(0xD8B4FE);
+        if (woodFloorMat) {
+          woodFloorMat.map = getHerringboneTexture('#C4A1D9', '#8C68A5');
+          woodFloorMat.needsUpdate = true;
+        }
         if (rugMat) rugMat.color.set(0xFAF5FF);
         if (curLMesh && curRMesh) { curLMesh.material.color.set(0xE9D5FF); curRMesh.material.color.set(0xE9D5FF); }
-        if (scene && AppState.currentTheme === 'room') scene.background = new THREE.Color(0xFAF5FF);
+        if (scene && AppState.currentTheme === 'room') scene.background = new THREE.Color(0x161324);
       } else if (rTheme === 'check') {
         if (roomWallMat) roomWallMat.color.set(0xF1F5F9);
-        if (woodFloorMat) woodFloorMat.color.set(0xF8FAFC);
+        if (woodFloorMat) {
+          woodFloorMat.map = getMarbleFloorTexture();
+          woodFloorMat.needsUpdate = true;
+        }
         if (rugMat) rugMat.color.set(0xE2E8F0);
         if (curLMesh && curRMesh) { curLMesh.material.color.set(0xCBD5E1); curRMesh.material.color.set(0xCBD5E1); }
-        if (scene && AppState.currentTheme === 'room') scene.background = new THREE.Color(0xF8FAFC);
+        if (scene && AppState.currentTheme === 'room') scene.background = new THREE.Color(0x181B22);
       }
 
       // 창밖 낮 / 밤 풍경 전환
@@ -4109,6 +4590,736 @@
       if (el) el.textContent = summaryText;
       var elIcon = document.getElementById('certSummaryIcon');
       if (elIcon) elIcon.textContent = icon;
+    }
+
+    // ============================================================
+    // 🌟 슈퍼카 멀티 앵글 팜플렛 카탈로그 합성 & PNG 저장 엔진 (Brochure Export)
+    // ============================================================
+    function exportSupercarBrochure() {
+      if (isGeneratingBrochure) return;
+      if (!renderer || !scene || !camera) {
+        alert('3D 렌더러가 준비되지 않았습니다.');
+        return;
+      }
+      isGeneratingBrochure = true;
+
+      // 둥근 사각형 그리기 폴백 헬퍼
+      function drawRoundRect(c, x, y, w, h, r) {
+        if (typeof c.roundRect === 'function') {
+          c.beginPath();
+          c.roundRect(x, y, w, h, r);
+          return;
+        }
+        c.beginPath();
+        c.moveTo(x + r, y);
+        c.arcTo(x + w, y, x + w, y + h, r);
+        c.arcTo(x + w, y + h, x, y + h, r);
+        c.arcTo(x, y + h, x, y, r);
+        c.arcTo(x, y, x + w, y, r);
+        c.closePath();
+      }
+
+      // 로딩 토스트 알림
+      var toast = document.createElement('div');
+      toast.id = 'brochureLoadingToast';
+      toast.style.cssText = 'position:fixed; top:28px; left:50%; transform:translateX(-50%); z-index:99999; background:linear-gradient(135deg, #1E1B4B, #312E81); color:#E0E7FF; padding:16px 28px; border-radius:20px; border:2px solid #818CF8; box-shadow:0 12px 35px rgba(0,0,0,0.6); font-family:"Jua",sans-serif; font-size:16px; display:flex; align-items:center; gap:12px;';
+      toast.innerHTML = '<span style="font-size:24px;">📸</span> <div><div style="font-weight:bold; color:#A5B4FC;">슈퍼카 4대 멀티 앵글 촬영 및 팜플렛 합성 중...</div><div style="font-size:12.5px; color:#C7D2FE; margin-top:2px;">메인 쿼터 · 정면 · 측면 · 후면을 촬영하여 1920×1080 브로슈어로 완성합니다.</div></div>';
+      document.body.appendChild(toast);
+
+      // 기존 뷰포트 상태 백업
+      var origCamPos = camera.position.clone();
+      var origCamLookAt = targetCameraLookAt.clone();
+      var origOrbitX = targetOrbitAngleX;
+      var origOrbitY = targetOrbitAngleY;
+      var origRadius = targetCameraRadius;
+
+      // 4대 촬영 앵글 설정 (메인 쿼터, 정면, 측면, 후면)
+      var shots = [
+        {
+          name: 'hero',
+          pos: new THREE.Vector3(3.5, 1.6, -3.9),
+          lookAt: new THREE.Vector3(0, 0.48, 0.1),
+          label: 'MAIN HERO SHOT',
+          subLabel: '3/4 Dynamic Angle'
+        },
+        {
+          name: 'front',
+          pos: new THREE.Vector3(0, 0.88, -4.8),
+          lookAt: new THREE.Vector3(0, 0.48, -0.3),
+          label: 'FRONT AERO VIEW',
+          subLabel: 'Hyper Nose & Emblem'
+        },
+        {
+          name: 'side',
+          pos: new THREE.Vector3(-5.8, 0.82, 0),
+          lookAt: new THREE.Vector3(0, 0.48, 0),
+          label: 'SIDE PROFILE',
+          subLabel: 'Aero Silhouette & Wheels'
+        },
+        {
+          name: 'rear',
+          pos: new THREE.Vector3(0, 1.35, 4.8),
+          lookAt: new THREE.Vector3(0, 0.52, 0.3),
+          label: 'REAR SPOILER & EXHAUST',
+          subLabel: 'Carbon Wing & Plasma Booster'
+        }
+      ];
+
+      var capturedImages = {};
+
+      function captureAngle(index, callback) {
+        if (index >= shots.length) {
+          callback();
+          return;
+        }
+        var s = shots[index];
+        camera.position.copy(s.pos);
+        camera.lookAt(s.lookAt);
+        renderer.render(scene, camera);
+
+        // 렌더링된 캔버스를 오프스크린 캔버스에 즉시 복제 (비동기 이미지 로딩 없이 즉시 저장)
+        var shotCanvas = document.createElement('canvas');
+        shotCanvas.width = renderer.domElement.width;
+        shotCanvas.height = renderer.domElement.height;
+        var sctx = shotCanvas.getContext('2d');
+        sctx.drawImage(renderer.domElement, 0, 0);
+        capturedImages[s.name] = shotCanvas;
+
+        setTimeout(function() {
+          captureAngle(index + 1, callback);
+        }, 30);
+      }
+
+      captureAngle(0, function() {
+        // 원래 카메라 위치 복원
+        camera.position.copy(origCamPos);
+        camera.lookAt(origCamLookAt);
+        targetOrbitAngleX = origOrbitX;
+        targetOrbitAngleY = origOrbitY;
+        targetCameraRadius = origRadius;
+        renderer.render(scene, camera);
+
+        // 1920x1080 와이드 팜플렛 캔버스 합성
+        var bCanvas = document.createElement('canvas');
+        bCanvas.width = 1920;
+        bCanvas.height = 1080;
+        var ctx = bCanvas.getContext('2d');
+
+        // 1. 다크 럭셔리 모터쇼 배경
+        var bgGrad = ctx.createLinearGradient(0, 0, 1920, 1080);
+        bgGrad.addColorStop(0, '#0B0F19');
+        bgGrad.addColorStop(0.5, '#070A12');
+        bgGrad.addColorStop(1, '#030509');
+        ctx.fillStyle = bgGrad;
+        ctx.fillRect(0, 0, 1920, 1080);
+
+        // 하이테크 데코 그리드 패턴 (미세한 점선 그리드)
+        ctx.strokeStyle = 'rgba(56, 189, 248, 0.05)';
+        ctx.lineWidth = 1;
+        for (var gx = 40; gx < 1920; gx += 60) {
+          ctx.beginPath();
+          ctx.moveTo(gx, 0);
+          ctx.lineTo(gx, 1080);
+          ctx.stroke();
+        }
+        for (var gy = 40; gy < 1080; gy += 60) {
+          ctx.beginPath();
+          ctx.moveTo(0, gy);
+          ctx.lineTo(1920, gy);
+          ctx.stroke();
+        }
+
+        // 테크 액센트 빛 기둥
+        var flareGrad = ctx.createRadialGradient(960, -100, 50, 960, 200, 900);
+        flareGrad.addColorStop(0, 'rgba(0, 240, 255, 0.15)');
+        flareGrad.addColorStop(0.5, 'rgba(99, 102, 241, 0.05)');
+        flareGrad.addColorStop(1, 'rgba(0, 0, 0, 0)');
+        ctx.fillStyle = flareGrad;
+        ctx.fillRect(0, 0, 1920, 600);
+
+        // 2. 상단 헤더 배너 (모터쇼 브로슈어 타이틀)
+        ctx.fillStyle = '#0F172A';
+        ctx.strokeStyle = '#38BDF8';
+        ctx.lineWidth = 2;
+        drawRoundRect(ctx, 60, 45, 1800, 90, 16);
+        ctx.fill();
+        ctx.stroke();
+
+        ctx.fillStyle = '#38BDF8';
+        ctx.font = 'bold 15px "Courier New", monospace';
+        ctx.fillText('SPECIAL EDITION // RESILIENCE HYPERCAR SHOWCASE BROCHURE', 90, 80);
+
+        ctx.fillStyle = '#FFFFFF';
+        ctx.font = '900 32px "Jua", "Noto Sans KR", sans-serif';
+        var studentName = (AppState && AppState.studentName) ? AppState.studentName : '회복탄력성 슈퍼 파일럿';
+        var studentAffil = (AppState && AppState.studentAffiliation) ? AppState.studentAffiliation : '미래 성장 연구소';
+        ctx.fillText('🏎️ ' + studentName + ' 학생의 커스텀 하이퍼 슈퍼카', 90, 115);
+
+        // 헤더 우측 정보 뱃지
+        ctx.fillStyle = 'rgba(255, 255, 255, 0.7)';
+        ctx.font = 'bold 16px "Noto Sans KR", sans-serif';
+        ctx.textAlign = 'right';
+        var todayStr = new Date().toLocaleDateString('ko-KR', { year:'numeric', month:'long', day:'numeric' });
+        ctx.fillText('소속: ' + studentAffil + '  |  발행일: ' + todayStr, 1830, 98);
+        ctx.textAlign = 'left';
+
+        // 3. 4대 멀티 앵글 사진 배치
+        // A. [메인 히어로 샷] (좌측 1180 x 670)
+        var heroBox = { x: 60, y: 160, w: 1180, h: 670 };
+        ctx.fillStyle = '#05070D';
+        drawRoundRect(ctx, heroBox.x, heroBox.y, heroBox.w, heroBox.h, 20);
+        ctx.fill();
+        if (capturedImages.hero) {
+          ctx.save();
+          drawRoundRect(ctx, heroBox.x, heroBox.y, heroBox.w, heroBox.h, 20);
+          ctx.clip();
+          ctx.drawImage(capturedImages.hero, heroBox.x, heroBox.y, heroBox.w, heroBox.h);
+          ctx.restore();
+        }
+        // 메인 샷 테두리
+        ctx.strokeStyle = 'rgba(56, 189, 248, 0.6)';
+        ctx.lineWidth = 2.5;
+        drawRoundRect(ctx, heroBox.x, heroBox.y, heroBox.w, heroBox.h, 20);
+        ctx.stroke();
+
+        // 메인 샷 라벨 오버레이
+        ctx.fillStyle = 'rgba(15, 23, 42, 0.85)';
+        drawRoundRect(ctx, heroBox.x + 20, heroBox.y + 20, 280, 52, 10);
+        ctx.fill();
+        ctx.strokeStyle = '#38BDF8';
+        ctx.lineWidth = 1;
+        ctx.stroke();
+        ctx.fillStyle = '#38BDF8';
+        ctx.font = 'bold 12px "Courier New", monospace';
+        ctx.fillText('● 01. MAIN PERSPECTIVE', heroBox.x + 36, heroBox.y + 40);
+        ctx.fillStyle = '#FFFFFF';
+        ctx.font = 'bold 16px "Jua", sans-serif';
+        ctx.fillText('3/4 다이내믹 쿼터 뷰', heroBox.x + 36, heroBox.y + 60);
+
+        // B. [서브 샷 3개] (우측 세로 3단: 정면, 측면, 후면)
+        var subW = 590;
+        var subH = 210;
+        var subGutter = 20;
+        var subX = 1270;
+        var subShots = [
+          { key: 'front', title: '02. FRONT VIEW', sub: '프론트 에어로 노즈 & 독창적 엠블럼', y: 160 },
+          { key: 'side', title: '03. SIDE PROFILE', sub: '사이드 실루엣 & 스포츠 휠', y: 160 + subH + subGutter },
+          { key: 'rear', title: '04. REAR SPOILER & JET', sub: 'GT 에어로 윙 & 플라즈마 배기구', y: 160 + (subH + subGutter) * 2 }
+        ];
+
+        subShots.forEach(function(ss) {
+          ctx.fillStyle = '#05070D';
+          drawRoundRect(ctx, subX, ss.y, subW, subH, 16);
+          ctx.fill();
+
+          if (capturedImages[ss.key]) {
+            ctx.save();
+            drawRoundRect(ctx, subX, ss.y, subW, subH, 16);
+            ctx.clip();
+            ctx.drawImage(capturedImages[ss.key], subX, ss.y, subW, subH);
+            ctx.restore();
+          }
+
+          ctx.strokeStyle = 'rgba(255, 255, 255, 0.2)';
+          ctx.lineWidth = 1.5;
+          drawRoundRect(ctx, subX, ss.y, subW, subH, 16);
+          ctx.stroke();
+
+          // 서브 샷 라벨 박스
+          ctx.fillStyle = 'rgba(15, 23, 42, 0.85)';
+          drawRoundRect(ctx, subX + 14, ss.y + 14, 250, 44, 8);
+          ctx.fill();
+          ctx.strokeStyle = 'rgba(56, 189, 248, 0.5)';
+          ctx.lineWidth = 1;
+          ctx.stroke();
+          ctx.fillStyle = '#38BDF8';
+          ctx.font = 'bold 11px "Courier New", monospace';
+          ctx.fillText('● ' + ss.title, subX + 26, ss.y + 32);
+          ctx.fillStyle = '#FFFFFF';
+          ctx.font = 'bold 14px "Jua", sans-serif';
+          ctx.fillText(ss.sub, subX + 26, ss.y + 49);
+        });
+
+        // 4. 하단 상세 스펙 시트 바 (1800 x 180)
+        var specY = 855;
+        var specBox = { x: 60, y: specY, w: 1800, h: 180 };
+        ctx.fillStyle = '#0D1322';
+        drawRoundRect(ctx, specBox.x, specBox.y, specBox.w, specBox.h, 18);
+        ctx.fill();
+        ctx.strokeStyle = 'rgba(56, 189, 248, 0.4)';
+        ctx.lineWidth = 1.5;
+        ctx.stroke();
+
+        // 스펙 카드 4개 구성
+        var curColor = (CustomStudioState.car && CustomStudioState.car.color) ? CustomStudioState.car.color : '#DC2626';
+        var curWheel = (CustomStudioState.car && CustomStudioState.car.wheelStyle) ? CustomStudioState.car.wheelStyle : 'spoke';
+        var wheelName = (curWheel === 'cyber') ? '사이버 네온 림' : (curWheel === 'turbine' ? '에어로 터빈 블레이드' : '5-스포크 알로이 림');
+        var curWing = (CustomStudioState.car && CustomStudioState.car.wingStyle) ? CustomStudioState.car.wingStyle : 'gt';
+        var wingName = (curWing === 'gt') ? '하이퍼 GT 카본 더블 윙' : (curWing === 'shark' ? '센트럴 에어로 샤크핀' : (curWing === 'ducktail' ? '스텔스 와이드 덕테일' : '미장착 (순정)'));
+        var curLight = (CustomStudioState.car && CustomStudioState.car.headlightColor) ? CustomStudioState.car.headlightColor : '#00F0FF';
+        var neonName = (CustomStudioState.car && CustomStudioState.car.neonUnderglow) ? '언더글로우 ON (' + curLight + ')' : '헤드라이트 (' + curLight + ')';
+
+        var specCards = [
+          {
+            title: '🎨 EXTERIOR PAINT',
+            val: '하이퍼 메탈릭 클리어코트',
+            sub: '선택 컬러: ' + curColor,
+            colorChip: curColor
+          },
+          {
+            title: '🛞 WHEEL & BRAKE',
+            val: wheelName,
+            sub: '초고강도 스포츠 림 & 대구경 캘리퍼'
+          },
+          {
+            title: '🪽 REAR AERO SPOILER',
+            val: wingName,
+            sub: '다운포스 공기역학 카본 윙'
+          },
+          {
+            title: '⚡ NEON & AFTERBURNER',
+            val: neonName,
+            sub: '트리플 제트 플라즈마 부스터 배기구',
+            colorChip: curLight
+          }
+        ];
+
+        var cardW = 390;
+        specCards.forEach(function(sc, ci) {
+          var cx = specBox.x + 25 + ci * (cardW + 40);
+          var cy = specY + 25;
+
+          ctx.fillStyle = 'rgba(30, 41, 59, 0.6)';
+          drawRoundRect(ctx, cx, cy, cardW, 130, 12);
+          ctx.fill();
+          ctx.strokeStyle = 'rgba(255, 255, 255, 0.1)';
+          ctx.lineWidth = 1;
+          ctx.stroke();
+
+          ctx.fillStyle = '#38BDF8';
+          ctx.font = 'bold 13px "Courier New", monospace';
+          ctx.fillText(sc.title, cx + 18, cy + 32);
+
+          // 컬러 칩이 있을 때 작은 원 그리기
+          if (sc.colorChip) {
+            ctx.fillStyle = sc.colorChip;
+            ctx.beginPath();
+            ctx.arc(cx + cardW - 30, cy + 30, 12, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.strokeStyle = '#FFFFFF';
+            ctx.lineWidth = 1.5;
+            ctx.stroke();
+          }
+
+          ctx.fillStyle = '#F8FAFC';
+          ctx.font = 'bold 18px "Jua", sans-serif';
+          ctx.fillText(sc.val, cx + 18, cy + 68);
+
+          ctx.fillStyle = '#94A3B8';
+          ctx.font = '13.5px "Noto Sans KR", sans-serif';
+          ctx.fillText(sc.sub, cx + 18, cy + 100);
+        });
+
+        // 우측 하단 공인 뱃지 & 워터마크
+        ctx.fillStyle = '#10B981';
+        ctx.font = 'bold 13px "Courier New", monospace';
+        ctx.fillText('VERIFIED // ZERO-COPYRIGHT HYPER WING EMBLEM EQUIPPED', specBox.x + 28, specY + 165);
+
+        ctx.fillStyle = 'rgba(255, 255, 255, 0.4)';
+        ctx.font = '12px "Noto Sans KR", sans-serif';
+        ctx.textAlign = 'right';
+        ctx.fillText('RESILIENCE MIND LAB MOTOR SHOW · ALL RIGHTS RESERVED', specBox.x + specBox.w - 28, specY + 165);
+        ctx.textAlign = 'left';
+
+        // 5. 다운로드 실행
+        var cleanName = (studentName || '나만의슈퍼카').replace(/[\\/:*?"<>|]/g, '_');
+        var filename = '슈퍼카_팜플렛_' + cleanName + '.png';
+        var dataUrl = bCanvas.toDataURL('image/png');
+        var a = document.createElement('a');
+        a.href = dataUrl;
+        a.download = filename;
+        document.body.appendChild(a);
+        a.click();
+        setTimeout(function() {
+          if (a.parentNode) document.body.removeChild(a);
+        }, 300);
+
+        if (toast && toast.parentNode) {
+          toast.parentNode.removeChild(toast);
+        }
+        isGeneratingBrochure = false;
+
+        // 완료 토스트
+        var doneToast = document.createElement('div');
+        doneToast.style.cssText = 'position:fixed; top:28px; left:50%; transform:translateX(-50%); z-index:99999; background:linear-gradient(135deg, #065F46, #047857); color:#ECFDF5; padding:15px 28px; border-radius:20px; border:2px solid #34D399; box-shadow:0 12px 35px rgba(0,0,0,0.6); font-family:"Jua",sans-serif; font-size:16px;';
+        doneToast.innerHTML = '🎉 <b>' + filename + '</b> 팜플렛이 성공적으로 저장되었습니다!';
+        document.body.appendChild(doneToast);
+        setTimeout(function() {
+          if (doneToast.parentNode) doneToast.parentNode.removeChild(doneToast);
+        }, 3500);
+      });
+    }
+
+    // ============================================================
+    // 🌟 드림룸 인테리어 매거진 화보 카탈로그 합성 & PNG 저장 엔진 (ELLE DECOR Style)
+    // ============================================================
+    function exportRoomBrochure() {
+      if (isGeneratingBrochure) return;
+      if (!renderer || !scene || !camera) {
+        alert('3D 렌더러가 준비되지 않았습니다.');
+        return;
+      }
+      isGeneratingBrochure = true;
+
+      function drawRoundRect(c, x, y, w, h, r) {
+        if (typeof c.roundRect === 'function') {
+          c.beginPath();
+          c.roundRect(x, y, w, h, r);
+        } else {
+          c.beginPath();
+          c.moveTo(x + r, y);
+          c.lineTo(x + w - r, y);
+          c.quadraticCurveTo(x + w, y, x + w, y + r);
+          c.lineTo(x + w, y + h - r);
+          c.quadraticCurveTo(x + w, y + h, x + w - r, y + h);
+          c.lineTo(x + r, y + h);
+          c.quadraticCurveTo(x, y + h, x, y + h - r);
+          c.lineTo(x, y + r);
+          c.quadraticCurveTo(x, y, x + r, y);
+          c.closePath();
+        }
+      }
+
+      var toast = document.createElement('div');
+      toast.id = 'roomBrochureToast';
+      toast.style.cssText = 'position:fixed; top:28px; left:50%; transform:translateX(-50%); z-index:99999; background:linear-gradient(135deg, #831843, #BE185D); color:#FFF; padding:16px 32px; border-radius:24px; border:2px solid #F472B6; box-shadow:0 12px 40px rgba(0,0,0,0.65); font-family:"Jua",sans-serif; font-size:16.5px; display:flex; align-items:center; gap:12px;';
+      toast.innerHTML = '<span style="font-size:24px; animation:spin 1s infinite linear;">📸</span> <span>드림룸 매거진 화보를 4대 앵글로 촬영 및 1920x1080 고화질로 합성 중입니다...</span>';
+      document.body.appendChild(toast);
+
+      var origCamPos = camera.position.clone();
+      var origCamLookAt = targetCameraLookAt.clone();
+      var origOrbitX = targetOrbitAngleX;
+      var origOrbitY = targetOrbitAngleY;
+      var origRadius = targetCameraRadius;
+
+      var shots = [
+        // 1) 3D 아이소메트릭 디오라마 풀샷 (원목 마루와 룸 전체 파노라마)
+        { key: 'hero', angleY: 0.80, angleX: 0.38, radius: 8.8, lookAt: new THREE.Vector3(-0.05, 1.05, -0.05) },
+        // 2) 침대 & 무드등 아늑한 클로즈업
+        { key: 'bed', angleY: 0.52, angleX: 0.22, radius: 4.4, lookAt: new THREE.Vector3(-1.0, 0.75, -0.6) },
+        // 3) 34인치 커브드 모니터 데스크 & 쉘 체어
+        { key: 'workspace', angleY: 1.55, angleX: 0.24, radius: 3.9, lookAt: new THREE.Vector3(1.1, 0.75, 0.35) },
+        // 4) 싱그러운 몬스테라 플랜테리어 정면 클로즈업
+        { key: 'planterior', angleY: 0.25, angleX: 0.20, radius: 3.2, lookAt: new THREE.Vector3(-1.8, 0.65, 1.4) }
+      ];
+
+      var capturedImages = {};
+
+      function captureSequence(index, onDone) {
+        if (index >= shots.length) {
+          camera.position.copy(origCamPos);
+          targetCameraLookAt.copy(origCamLookAt);
+          targetOrbitAngleX = origOrbitX;
+          targetOrbitAngleY = origOrbitY;
+          targetCameraRadius = origRadius;
+          camera.lookAt(targetCameraLookAt);
+          renderer.render(scene, camera);
+          onDone();
+          return;
+        }
+
+        var shot = shots[index];
+        targetOrbitAngleY = shot.angleY;
+        targetOrbitAngleX = shot.angleX;
+        targetCameraRadius = shot.radius;
+        targetCameraLookAt.copy(shot.lookAt);
+
+        var camY = Math.sin(shot.angleX) * shot.radius + shot.lookAt.y;
+        var rCos = Math.cos(shot.angleX) * shot.radius;
+        var camX = Math.sin(shot.angleY) * rCos + shot.lookAt.x;
+        var camZ = Math.cos(shot.angleY) * rCos + shot.lookAt.z;
+        camera.position.set(camX, camY, camZ);
+        camera.lookAt(targetCameraLookAt);
+        setTimeout(function() {
+          renderer.render(scene, camera);
+          var shotCanvas = document.createElement('canvas');
+          shotCanvas.width = renderer.domElement.width;
+          shotCanvas.height = renderer.domElement.height;
+          var sctx = shotCanvas.getContext('2d');
+          sctx.drawImage(renderer.domElement, 0, 0);
+          capturedImages[shot.key] = shotCanvas;
+
+          setTimeout(function() {
+            captureSequence(index + 1, onDone);
+          }, 35);
+        }, 35);
+      }
+
+      captureSequence(0, function() {
+        var bCanvas = document.createElement('canvas');
+        bCanvas.width = 1920;
+        bCanvas.height = 1080;
+        var ctx = bCanvas.getContext('2d');
+
+        // 1. 배경 그라디언트
+        var bgGrad = ctx.createLinearGradient(0, 0, 1920, 1080);
+        bgGrad.addColorStop(0, '#0F121C');
+        bgGrad.addColorStop(0.5, '#161A28');
+        bgGrad.addColorStop(1, '#0C0E17');
+        ctx.fillStyle = bgGrad;
+        ctx.fillRect(0, 0, 1920, 1080);
+
+        // 은은한 인테리어 격자선
+        ctx.strokeStyle = 'rgba(255, 255, 255, 0.03)';
+        ctx.lineWidth = 1;
+        for (var gx = 0; gx < 1920; gx += 80) {
+          ctx.beginPath(); ctx.moveTo(gx, 0); ctx.lineTo(gx, 1080); ctx.stroke();
+        }
+        for (var gy = 0; gy < 1080; gy += 80) {
+          ctx.beginPath(); ctx.moveTo(0, gy); ctx.lineTo(1920, gy); ctx.stroke();
+        }
+
+        // 2. 상단 매거진 마스트헤드 바
+        var headY = 40;
+        ctx.fillStyle = '#FB7185';
+        ctx.font = 'bold 15px "Courier New", monospace';
+        ctx.fillText('ARCHITECTURAL DIGEST & ELLE DECOR EDITION // VOL. 2026', 60, headY + 16);
+
+        ctx.fillStyle = '#FFFFFF';
+        ctx.font = 'bold 34px "Georgia", serif';
+        ctx.fillText('DREAM ROOM PORTFOLIO', 60, headY + 54);
+
+        ctx.fillStyle = '#FDA4AF';
+        ctx.font = '15px "Noto Sans KR", sans-serif';
+        ctx.fillText('나만의 긍정 회복탄력성으로 완성한 럭셔리 인테리어 디오라마 컬렉션', 60, headY + 78);
+
+        var studentName = (AppState.studentProfile && AppState.studentProfile.name) ? AppState.studentProfile.name : '김나래';
+        var studentAffil = (AppState.studentProfile && AppState.studentProfile.affil) ? AppState.studentProfile.affil : '꿈마을 초등학교';
+
+        ctx.fillStyle = '#FFFFFF';
+        ctx.font = 'bold 24px "Jua", sans-serif';
+        ctx.textAlign = 'right';
+        ctx.fillText('인테리어 디자이너: ' + studentName + ' 학생', 1830, headY + 45);
+
+        ctx.fillStyle = '#94A3B8';
+        ctx.font = 'bold 15px "Noto Sans KR", sans-serif';
+        var todayStr = new Date().toLocaleDateString('ko-KR', { year:'numeric', month:'long', day:'numeric' });
+        ctx.fillText('소속: ' + studentAffil + '  |  발행일: ' + todayStr, 1830, headY + 75);
+        ctx.textAlign = 'left';
+
+        // 3. 사진 배치
+        // A. [메인 샷] (좌측 1180 x 670)
+        var heroBox = { x: 60, y: 155, w: 1180, h: 670 };
+        ctx.fillStyle = '#05070D';
+        drawRoundRect(ctx, heroBox.x, heroBox.y, heroBox.w, heroBox.h, 20);
+        ctx.fill();
+        if (capturedImages.hero) {
+          ctx.save();
+          drawRoundRect(ctx, heroBox.x, heroBox.y, heroBox.w, heroBox.h, 20);
+          ctx.clip();
+          ctx.drawImage(capturedImages.hero, heroBox.x, heroBox.y, heroBox.w, heroBox.h);
+          ctx.restore();
+        }
+        ctx.strokeStyle = 'rgba(251, 113, 133, 0.7)';
+        ctx.lineWidth = 2.5;
+        drawRoundRect(ctx, heroBox.x, heroBox.y, heroBox.w, heroBox.h, 20);
+        ctx.stroke();
+
+        ctx.fillStyle = 'rgba(15, 23, 42, 0.88)';
+        drawRoundRect(ctx, heroBox.x + 20, heroBox.y + 20, 310, 52, 10);
+        ctx.fill();
+        ctx.strokeStyle = '#FB7185';
+        ctx.lineWidth = 1;
+        ctx.stroke();
+        ctx.fillStyle = '#FB7185';
+        ctx.font = 'bold 12px "Courier New", monospace';
+        ctx.fillText('● 01. MAIN PERSPECTIVE', heroBox.x + 36, heroBox.y + 40);
+        ctx.fillStyle = '#FFFFFF';
+        ctx.font = 'bold 16px "Jua", sans-serif';
+        ctx.fillText('3D 아이소메트릭 드림룸 풀샷', heroBox.x + 36, heroBox.y + 60);
+
+        // B. [서브 샷 3개] (우측 세로 3단)
+        var subW = 590;
+        var subH = 210;
+        var subGutter = 20;
+        var subX = 1270;
+        var subShots = [
+          { key: 'bed', title: '02. COZY BEDROOM', sub: '편안한 휴식과 꿈을 키우는 침실 & 무드등', y: 155 },
+          { key: 'workspace', title: '03. CREATIVE WORKSPACE', sub: '34인치 커브드 모니터 데스크 & 체어', y: 155 + subH + subGutter },
+          { key: 'planterior', title: '04. BOTANICAL PLANTERIOR', sub: '싱그러운 몬스테라 플랜테리어 & 아치 램프', y: 155 + (subH + subGutter) * 2 }
+        ];
+
+        subShots.forEach(function(ss) {
+          ctx.fillStyle = '#05070D';
+          drawRoundRect(ctx, subX, ss.y, subW, subH, 16);
+          ctx.fill();
+
+          if (capturedImages[ss.key]) {
+            ctx.save();
+            drawRoundRect(ctx, subX, ss.y, subW, subH, 16);
+            ctx.clip();
+            ctx.drawImage(capturedImages[ss.key], subX, ss.y, subW, subH);
+            ctx.restore();
+          }
+
+          ctx.strokeStyle = 'rgba(255, 255, 255, 0.2)';
+          ctx.lineWidth = 1.5;
+          drawRoundRect(ctx, subX, ss.y, subW, subH, 16);
+          ctx.stroke();
+
+          ctx.fillStyle = 'rgba(15, 23, 42, 0.88)';
+          drawRoundRect(ctx, subX + 14, ss.y + 14, 280, 44, 8);
+          ctx.fill();
+          ctx.strokeStyle = 'rgba(251, 113, 133, 0.6)';
+          ctx.lineWidth = 1;
+          ctx.stroke();
+          ctx.fillStyle = '#FB7185';
+          ctx.font = 'bold 11px "Courier New", monospace';
+          ctx.fillText('● ' + ss.title, subX + 26, ss.y + 32);
+          ctx.fillStyle = '#FFFFFF';
+          ctx.font = 'bold 14px "Jua", sans-serif';
+          ctx.fillText(ss.sub, subX + 26, ss.y + 49);
+        });
+
+        // 4. 하단 상세 스펙 시트 바 (1800 x 180)
+        var specY = 855;
+        var specBox = { x: 60, y: specY, w: 1800, h: 180 };
+        ctx.fillStyle = '#101524';
+        drawRoundRect(ctx, specBox.x, specBox.y, specBox.w, specBox.h, 18);
+        ctx.fill();
+        ctx.strokeStyle = 'rgba(251, 113, 133, 0.4)';
+        ctx.lineWidth = 1.5;
+        ctx.stroke();
+
+        var curTheme = (CustomStudioState.room && CustomStudioState.room.theme) ? CustomStudioState.room.theme : 'pink';
+        var themeName = (curTheme === 'mint') ? '🌿 민트 포레스트' : (curTheme === 'lavender' ? '💜 라벤더 스타' : (curTheme === 'check' ? '🏁 모던 대리석' : '🌸 러블리 핑크'));
+        var floorDesc = (curTheme === 'check') ? '이탈리안 카라라 대리석 타일' : '프랑스산 헤링본 원목 마루';
+
+        var curBed = (CustomStudioState.room && CustomStudioState.room.bedStyle) ? CustomStudioState.room.bedStyle : 'canopy';
+        var bedName = (curBed === 'cloud') ? '☁️ 포근 구름 침대' : (curBed === 'wood' ? '🪵 노르딕 원목 침대' : '👑 공주 캐노피 침대');
+
+        var curPet = (CustomStudioState.room && CustomStudioState.room.petStyle) ? CustomStudioState.room.petStyle : 'bear';
+        var petName = (curPet === 'cat') ? '🐱 하얀 아기 고양이' : (curPet === 'rabbit' ? '🐰 쫑긋 토끼 인형' : '🧸 다정한 테디베어');
+
+        var curLamp = (CustomStudioState.room && CustomStudioState.room.lampStyle) ? CustomStudioState.room.lampStyle : 'moon';
+        var lampName = (curLamp === 'mushroom') ? '🍄 버섯 요정 램프' : (curLamp === 'crystal' ? '💎 크리스탈 스탠드' : '🌙 달님&별 무드등');
+        var fxDesc = (CustomStudioState.room && CustomStudioState.room.neonHeart) ? '네온하트 ON' : '네온하트 OFF';
+        if (CustomStudioState.room && CustomStudioState.room.sparkles) fxDesc += ' · 별빛 ON';
+
+        var specCards = [
+          { title: '🎨 INTERIOR THEME', val: themeName, sub: floorDesc },
+          { title: '🛏️ BED ARCHETYPE', val: bedName, sub: '포근한 휴식 & 최고급 린넨' },
+          { title: '🧸 COMPANION FRIEND', val: petName, sub: '마음을 나누는 사랑스런 친구' },
+          { title: '💡 AMBIENT LIGHTING', val: lampName, sub: '아치 램프 & ' + fxDesc }
+        ];
+
+        var cardW = 390;
+        specCards.forEach(function(sc, ci) {
+          var cx = specBox.x + 25 + ci * (cardW + 40);
+          var cy = specY + 25;
+
+          ctx.fillStyle = 'rgba(30, 41, 59, 0.6)';
+          drawRoundRect(ctx, cx, cy, cardW, 130, 12);
+          ctx.fill();
+          ctx.strokeStyle = 'rgba(255, 255, 255, 0.1)';
+          ctx.lineWidth = 1;
+          ctx.stroke();
+
+          ctx.fillStyle = '#FB7185';
+          ctx.font = 'bold 13px "Courier New", monospace';
+          ctx.fillText(sc.title, cx + 18, cy + 32);
+
+          ctx.fillStyle = '#F8FAFC';
+          ctx.font = 'bold 18px "Jua", sans-serif';
+          ctx.fillText(sc.val, cx + 18, cy + 68);
+
+          ctx.fillStyle = '#94A3B8';
+          ctx.font = '13.5px "Noto Sans KR", sans-serif';
+          ctx.fillText(sc.sub, cx + 18, cy + 100);
+        });
+
+        // 우측 하단 공인 뱃지 & 워터마크
+        ctx.fillStyle = '#F43F5E';
+        ctx.font = 'bold 13px "Courier New", monospace';
+        ctx.fillText('VERIFIED // ULTRA-REALISTIC LUXURY DREAM ROOM DIORAMA EDITION', specBox.x + 28, specY + 165);
+
+        ctx.fillStyle = 'rgba(255, 255, 255, 0.4)';
+        ctx.font = '12px "Noto Sans KR", sans-serif';
+        ctx.textAlign = 'right';
+        ctx.fillText('RESILIENCE MIND LAB INTERIOR ARCHITECTURE · ALL RIGHTS RESERVED', specBox.x + specBox.w - 28, specY + 165);
+        ctx.textAlign = 'left';
+
+        // 5. 다운로드 실행
+        var cleanName = (studentName || '나만의드림룸').replace(/[\\/:*?"<>|]/g, '_');
+        var filename = '드림룸_매거진_' + cleanName + '.png';
+        var dataUrl = bCanvas.toDataURL('image/png');
+        var a = document.createElement('a');
+        a.href = dataUrl;
+        a.download = filename;
+        document.body.appendChild(a);
+        a.click();
+        setTimeout(function() {
+          if (a.parentNode) document.body.removeChild(a);
+        }, 300);
+
+        if (toast && toast.parentNode) {
+          toast.parentNode.removeChild(toast);
+        }
+        isGeneratingBrochure = false;
+
+        var doneToast = document.createElement('div');
+        doneToast.style.cssText = 'position:fixed; top:28px; left:50%; transform:translateX(-50%); z-index:99999; background:linear-gradient(135deg, #831843, #BE185D); color:#FFF; padding:15px 28px; border-radius:20px; border:2px solid #F472B6; box-shadow:0 12px 35px rgba(0,0,0,0.6); font-family:"Jua",sans-serif; font-size:16px;';
+        doneToast.innerHTML = '🎉 <b>' + filename + '</b> 매거진 화보가 성공적으로 저장되었습니다!';
+        document.body.appendChild(doneToast);
+        setTimeout(function() {
+          if (doneToast.parentNode) doneToast.parentNode.removeChild(doneToast);
+        }, 3500);
+      });
+    }
+
+    // ============================================================
+    // 🌟 테마별 팜플렛 / 매거진 공용 디스패처 & 버튼 텍스트 동기화
+    // ============================================================
+    function exportBrochure() {
+      if (AppState.currentTheme === 'room') {
+        exportRoomBrochure();
+      } else {
+        exportSupercarBrochure();
+      }
+    }
+
+    function updateBrochureButtons() {
+      var isRoom = (AppState.currentTheme === 'room');
+      var label = isRoom ? '📸 드림룸 매거진' : '📸 슈퍼카 팜플렛';
+      var fullLabel = isRoom ? '드림룸 매거진 저장' : '슈퍼카 팜플렛 저장';
+      var titleText = isRoom ? '4대 멀티 앵글 드림룸 매거진 화보 이미지 저장' : '4대 멀티 앵글 슈퍼카 팜플렛 이미지 저장';
+
+      var btnF = document.getElementById('btnBrochureFloatingBar');
+      if (btnF) {
+        btnF.title = titleText;
+        var sps = btnF.querySelectorAll('span');
+        if (sps.length >= 2) sps[1].textContent = fullLabel;
+      }
+
+      var btnD = document.getElementById('btnDrawerExportBrochure');
+      if (btnD) {
+        btnD.title = titleText;
+        var spsD = btnD.querySelectorAll('span');
+        if (spsD.length >= 2) spsD[1].textContent = isRoom ? '매거진 저장' : '팜플렛 저장';
+      }
+
+      var btnR = document.getElementById('btnExportBrochureResult');
+      if (btnR) {
+        btnR.textContent = isRoom ? '📸 드림룸 매거진 저장' : '📸 슈퍼카 팜플렛 저장';
+        btnR.title = titleText;
+      }
+
+      var btnC = document.getElementById('btnCertBrochureExport');
+      if (btnC) {
+        btnC.title = titleText;
+        var spsC = btnC.querySelectorAll('span');
+        if (spsC.length >= 2) spsC[1].textContent = isRoom ? '드림룸 매거진' : '슈퍼카 팜플렛';
+      }
     }
 
     // 4. 스튜디오 탭 및 옵션 UI 동적 렌더링
@@ -4418,6 +5629,9 @@
 
       // 🌟 이전 스크롤 위치 복원
       contentArea.scrollTop = prevScrollTop;
+
+      // 🌟 팜플렛 / 매거진 버튼 텍스트 자동 동기화
+      updateBrochureButtons();
     }
 
     // 🌟 커스텀 옵션 변경 시각적 알림 토스트 (상단 플로팅 배너)
@@ -4619,8 +5833,8 @@
         tabRoom.classList.add('active');
         tabCar.classList.remove('active');
 
-        // 배경색을 화사하고 따뜻한 파스텔 핑크 스튜디오로 즉시 전환
-        if (scene) scene.background = new THREE.Color(0xFFEFF2);
+        // 배경색을 세련된 미드나잇 럭셔리 라벤더 차콜 스튜디오로 전환 (화이트아웃 방지)
+        if (scene) scene.background = new THREE.Color(0x161824);
 
         // 3D 씬 전환
         if (carGroup) carGroup.visible = false;
@@ -4635,6 +5849,7 @@
         }
 
         applyRoomCustomization();
+        updateBrochureButtons();
 
         hudBadge.textContent = 'MY DREAM ROOM';
         hudTitle.textContent = '🎀 러블리 드림하우스';
@@ -4657,8 +5872,12 @@
         updateHudPartsIcons(DOMAIN_INFO_ROOM);
 
         orbitAngleY = 0.78;
-        orbitAngleX = 0.30;
-        targetCameraLookAt.set(0.1, 1.15, -0.2);
+        orbitAngleX = 0.32;
+        targetOrbitAngleY = 0.78;
+        targetOrbitAngleX = 0.32;
+        targetCameraRadius = 8.2;
+        cameraRadius = 8.2;
+        targetCameraLookAt.set(-0.05, 1.05, -0.05);
       } else {
         document.body.classList.remove('theme-room-mode');
         tabCar.classList.add('active');
@@ -4672,6 +5891,7 @@
         if (roomGroup) roomGroup.visible = false;
 
         applyCarCustomization();
+        updateBrochureButtons();
 
         hudBadge.textContent = 'SUPERCAR SHOWROOM';
         hudTitle.textContent = '🏁 미래 하이퍼카 쇼룸';
@@ -4829,6 +6049,12 @@
         } else {
           targetCameraLookAt.set(0, 0.92, 0);
         }
+      }
+
+      // 🌟 팜플렛 촬영 합성 중에는 메인 루프의 카메라 조작 및 회전을 일시 정지
+      if (isGeneratingBrochure) {
+        requestAnimationFrame(animate);
+        return;
       }
 
       // 🌟 카메라 앵글 및 거리 부드러운 스무딩 보간
